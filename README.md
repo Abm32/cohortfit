@@ -283,6 +283,34 @@ cohortfit render fixtures/reports/sample_audit_report.json
 
 Loader: `cohortfit.reports.load_audit_report()`. Tests: `pytest tests/test_render.py`.
 
+## Web UI
+
+Marketing landing at `/` and audit demo at `/app`. See [docs/LANDING.md](docs/LANDING.md) and [docs/UI.md](docs/UI.md).
+
+```powershell
+pip install -e ".[web,dev]"
+cd web
+npm install
+npm run dev
+```
+
+In a second terminal:
+
+```powershell
+cohortfit serve --port 8000
+```
+
+Open `http://localhost:5173/` for the landing page and `http://localhost:5173/app` for the
+audit viewer. Production build:
+
+```powershell
+cd web
+npm run build
+```
+
+The `/app` viewer loads the pinned sample report by default; **Live audit** runs the offline
+engine on `protocols/demo.json`.
+
 ## Claude extraction (Track B)
 
 **Module:** `cohortfit.extract`  
