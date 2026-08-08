@@ -94,6 +94,21 @@ class TestAllelePrecision:
         assert entry.relative_width is None
         assert "not detected, not absent" in entry.describe()
 
+    def test_unobserved_note_quotes_the_rule_of_three_bound(self):
+        """The note must carry detection_floor (3/n), not the Wilson upper bound.
+
+        Wilson with zero successes gives ~3.84/n, which reads as 0.0042% here
+        against the 0.0033% every provenance table documents. Two numbers for
+        one claim is the drift this project exists to catch.
+        """
+        entry = allele_precision(
+            "*13", "SAS", {"frequency": 0.0, "alt_observed": 0, "total_alleles": 91074}
+        )
+        assert entry.detection_floor == pytest.approx(3.0 / 91074)
+        assert entry.detection_floor < entry.ci_high
+        assert "0.0033%" in entry.describe()
+        assert "rule of three" in entry.describe()
+
     def test_rare_allele_is_imprecise(self):
         entry = allele_precision(
             "*2A", "SAS", {"frequency": 0.0005, "alt_observed": 45, "total_alleles": 91074}
