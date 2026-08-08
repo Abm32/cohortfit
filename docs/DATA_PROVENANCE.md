@@ -240,3 +240,9 @@ without Track A. Live audit uses the same renderer: `cohortfit audit protocols/d
 
 Extraction tests mock Claude and diff against the hand-verified demo fixture.
 Live extract requires `ANTHROPIC_API_KEY`; audit demo uses pinned JSON only.
+
+## Pitch & demo (Track B)
+
+**Pitch script:** [docs/PITCH.md](PITCH.md) — four-dot narrative (ICON → Isomorphic → regulatory wedge → deterministic engine)  
+**Stage cues:** [docs/DEMO_SCRIPT.md](DEMO_SCRIPT.md) — minute-by-minute commands and recovery cheatsheet  
+**Primary demo command:** `cohortfit audit protocols/demo.json`
