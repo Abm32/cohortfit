@@ -2,79 +2,97 @@
   "_meta": {
     "gene": "DPYD",
     "gnomad_version": "v4.0",
-    "gnomad_dataset": "gnomad_r4",
+    "gnomad_accession": "Genome Aggregation Database v4.0 via ClinPGx / PharmGKB",
     "query_date": "2026-08-08",
-    "query_method": "gnomAD GraphQL API (gnomad.broadinstitute.org/api) + ClinPGx gnomAD v4 tables",
     "populations": {
       "SAS": {
         "label": "South Asian",
-        "gnomad_id": "sas"
+        "gnomad_superpopulation": "South Asian"
       },
       "EUR": {
         "label": "Non-Finnish European",
-        "gnomad_id": "nfe"
+        "gnomad_superpopulation": "Non-Finnish European"
       }
     },
     "assumptions": [
-      "Hardy-Weinberg equilibrium",
-      "Low-frequency CPIC-panel alleles assumed independent (no LD correction)",
-      "HapB3 frequency from rs75017182 (causal c.1129-5923C>G); phenotype label HapB3 per pgx-core diplotype table",
-      "Tier 0 panel only: *2A, *13, c.2846A>T, HapB3 — excludes *9A/M166V (CPIC Normal function)"
+      "Hardy-Weinberg equilibrium for diplotype expansion",
+      "CPIC-panel alleles assumed independent at low frequency (no LD correction)",
+      "HapB3 phenotype label per pgx-core; frequency pinned to causal rs75017182 (c.1129-5923C>G)",
+      "Tier 0 excludes *9A/M166V — CPIC Normal function; not poor-metabolizer drivers"
     ],
-    "pmids": ["29152729", "38147293", "35034351"],
-    "cpic_guideline": "CPIC Fluoropyrimidines and DPYD (2017; 2024 update)"
+    "pmids": [
+      "29152729",
+      "38147293",
+      "35034351"
+    ],
+    "cross_check_papers": [
+      "Atasilp 2025 Clin Med doi:10.1016/j.clinme.2025.100443",
+      "JMolDiag 2024 doi:10.1016/j.jmoldx.2024.05.015",
+      "CTS 2024 HapB3 doi:10.1111/cts.13699"
+    ]
   },
   "populations": {
     "SAS": {
       "alleles": {
         "*2A": {
-          "frequency": 0.003996487,
+          "frequency": 0.0005,
           "rsid": "rs3918290",
           "hgvs": "NM_000110.4:c.1905+1G>A",
-          "gnomad_variant_id": "1-97450058-C-T",
+          "alt_allele": "T",
           "source": "gnomAD v4",
-          "layers": ["exome", "genome"],
-          "alt_observed": 364,
-          "total_alleles": 91080,
-          "cross_checks": ["JMolDiag 2024: 0.3-0.5% SAS; Atasilp 2025: 0.05% Indian"]
+          "source_url": "https://www.clinpgx.org/variant/PA166154017",
+          "alt_observed": 45,
+          "total_alleles": 91074,
+          "cross_checks": [
+            "Atasilp 2025: DPYD*2A 0.05% Indian (gnomAD v2.1.1)",
+            "JMolDiag 2024: 0.3-0.5% SAS Middle Eastern NFE band"
+          ]
         },
         "*13": {
           "frequency": 0.0,
           "rsid": "rs55886062",
           "hgvs": "NM_000110.4:c.1679T>G",
-          "gnomad_variant_id": "1-97515787-A-C",
+          "alt_allele": "A",
           "source": "gnomAD v4",
-          "layers": ["exome", "genome"],
+          "source_url": "https://www.clinpgx.org/variant/PA166154021",
           "alt_observed": 0,
-          "total_alleles": 91080,
-          "cross_checks": ["Atasilp 2025: absent in Indian cohort"]
+          "total_alleles": 91074,
+          "cross_checks": [
+            "Atasilp 2025: absent Indian and East Asian"
+          ]
         },
         "c.2846A>T": {
           "frequency": 0.000527,
           "rsid": "rs67376798",
           "hgvs": "NM_000110.4:c.2846A>T",
-          "source": "gnomAD v4 via ClinPGx",
-          "clinpgx_variant": "PA166153895",
+          "alt_allele": "T",
+          "source": "gnomAD v4",
+          "source_url": "https://www.clinpgx.org/variant/PA166153895",
           "alt_observed": 48,
           "total_alleles": 91074,
-          "cross_checks": ["JMolDiag 2024: 0.05% SAS"]
+          "cross_checks": [
+            "JMolDiag 2024: 0.05% SAS"
+          ]
         },
         "HapB3": {
-          "frequency": 0.016209979,
+          "frequency": 0.01687,
           "rsid": "rs75017182",
           "frequency_rsid": "rs75017182",
           "phenotype_label": "HapB3",
           "hgvs": "NM_000110.4:c.1129-5923C>G",
-          "gnomad_variant_id": "1-97579893-G-C",
-          "source": "gnomAD v4 genome",
-          "layers": ["genome"],
-          "alt_observed": 78,
-          "total_alleles": 4812,
-          "notes": "Causal HapB3 variant; pgx-core uses HapB3 star-allele label in diplotype table",
-          "cross_checks": ["CTS 2024 PMID 38147293; JMolDiag 2024: 1.6% SAS"]
+          "alt_allele": "G",
+          "source": "gnomAD v4",
+          "source_url": "https://www.clinpgx.org/variant/PA166154024",
+          "alt_observed": 1538,
+          "total_alleles": 91072,
+          "cross_checks": [
+            "CTS 2024 Table 1 SAS 0.01687 (PMC10777430)",
+            "JMolDiag 2024: c.1129-5923C>G 1.6% SAS"
+          ],
+          "notes": "pgx-core diplotype table keys this allele as HapB3 (tag rs56038477); frequency from causal intronic variant"
         },
         "*1": {
-          "frequency": 0.979266993,
+          "frequency": 0.982103,
           "source": "computed_remainder",
           "formula": "1 - (*2A + *13 + c.2846A>T + HapB3)"
         }
@@ -83,53 +101,61 @@
     "EUR": {
       "alleles": {
         "*2A": {
-          "frequency": 0.004831882,
+          "frequency": 0.00508,
           "rsid": "rs3918290",
           "hgvs": "NM_000110.4:c.1905+1G>A",
-          "gnomad_variant_id": "1-97450058-C-T",
+          "alt_allele": "T",
           "source": "gnomAD v4",
-          "layers": ["exome", "genome"],
-          "alt_observed": 5701,
-          "total_alleles": 1179786,
-          "cross_checks": ["JMolDiag 2024: 0.3-0.5% NFE"]
+          "source_url": "https://www.clinpgx.org/variant/PA166154017",
+          "alt_observed": 5992,
+          "total_alleles": 1179520,
+          "cross_checks": [
+            "JMolDiag 2024: 0.3-0.5% NFE"
+          ]
         },
         "*13": {
-          "frequency": 0.000844579,
+          "frequency": 0.0001,
           "rsid": "rs55886062",
           "hgvs": "NM_000110.4:c.1679T>G",
-          "gnomad_variant_id": "1-97515787-A-C",
+          "alt_allele": "A",
           "source": "gnomAD v4",
-          "layers": ["exome", "genome"],
-          "alt_observed": 996,
-          "total_alleles": 1179282,
-          "cross_checks": ["JMolDiag 2024: 0.08% NFE"]
+          "source_url": "https://www.clinpgx.org/variant/PA166154021",
+          "alt_observed": 118,
+          "total_alleles": 1179644,
+          "cross_checks": []
         },
         "c.2846A>T": {
-          "frequency": 0.006428,
+          "frequency": 0.00643,
           "rsid": "rs67376798",
           "hgvs": "NM_000110.4:c.2846A>T",
-          "source": "gnomAD v4 via ClinPGx",
-          "clinpgx_variant": "PA166153895",
+          "alt_allele": "T",
+          "source": "gnomAD v4",
+          "source_url": "https://www.clinpgx.org/variant/PA166153895",
           "alt_observed": 7583,
           "total_alleles": 1179644,
-          "cross_checks": ["JMolDiag 2024: 0.6% NFE"]
+          "cross_checks": [
+            "JMolDiag 2024: 0.6% NFE"
+          ]
         },
         "HapB3": {
-          "frequency": 0.021385497,
+          "frequency": 0.02091,
           "rsid": "rs75017182",
           "frequency_rsid": "rs75017182",
           "phenotype_label": "HapB3",
           "hgvs": "NM_000110.4:c.1129-5923C>G",
-          "gnomad_variant_id": "1-97579893-G-C",
-          "source": "gnomAD v4 genome",
-          "layers": ["genome"],
-          "alt_observed": 1454,
-          "total_alleles": 67990,
-          "notes": "Causal HapB3 variant; pgx-core uses HapB3 star-allele label in diplotype table",
-          "cross_checks": ["CTS 2024 PMID 38147293; JMolDiag 2024: 2.1% NFE"]
+          "alt_allele": "G",
+          "source": "gnomAD v4",
+          "source_url": "https://www.clinpgx.org/variant/PA166154024",
+          "alt_observed": 24668,
+          "total_alleles": 1179718,
+          "cross_checks": [
+            "CTS 2024 Table 1 NFE 0.02091 (PMC10777430)",
+            "JMolDiag 2024: c.1129-5923C>G 2.1% NFE"
+          ],
+          "notes": "pgx-core diplotype table keys this allele as HapB3; frequency from causal intronic variant"
         },
         "*1": {
-          "frequency": 0.966509478,
+          "frequency": 0.96748,
           "source": "computed_remainder",
           "formula": "1 - (*2A + *13 + c.2846A>T + HapB3)"
         }
@@ -137,19 +163,19 @@
     }
   },
   "_ground_truth": {
-    "comment": "HWE expansion + pgx-core DPYD_diplotypes_anukriti_v2024.01.json; pytest asserts ±1e-4",
+    "comment": "Pre-computed Tier 0: HWE on pinned allele freqs + pgx-core DPYD_diplotypes_anukriti_v2024.01.json",
     "planned_n": 1000,
     "SAS": {
-      "Normal Metabolizer": 0.958964,
-      "Intermediate Metabolizer": 0.040869,
-      "Poor Metabolizer": 0.000167,
-      "at_risk_fraction": 0.041036
+      "Normal Metabolizer": 0.964526,
+      "Intermediate Metabolizer": 0.035438,
+      "Poor Metabolizer": 0.000036,
+      "at_risk_fraction": 0.035474
     },
     "EUR": {
-      "Normal Metabolizer": 0.934141,
-      "Intermediate Metabolizer": 0.065195,
-      "Poor Metabolizer": 0.000664,
-      "at_risk_fraction": 0.065859
+      "Normal Metabolizer": 0.936018,
+      "Intermediate Metabolizer": 0.063362,
+      "Poor Metabolizer": 0.000620,
+      "at_risk_fraction": 0.063982
     }
   }
 }
