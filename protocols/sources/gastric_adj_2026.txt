@@ -1,0 +1,63 @@
+A Randomised Phase III Trial of Adjuvant Capecitabine Versus Observation in
+Resected Stage II Gastric Adenocarcinoma (GASTRIC-ADJ-2026)
+
+PROTOCOL SYNOPSIS
+
+Background and rationale
+Gastric cancer incidence in South and East Asia substantially exceeds that of
+Western Europe. Adjuvant fluoropyrimidine therapy after D2 gastrectomy has
+established benefit, but the regimen studied here was calibrated in largely
+European and Japanese cohorts. This trial evaluates the same regimen in a
+predominantly South Asian population.
+
+Investigational regimen
+Patients randomised to the treatment arm receive capecitabine 1250 mg/m2 orally
+twice daily on days 1 through 14 of each 21-day cycle, for a total of eight
+cycles. Dose interruptions are permitted for grade 3 or higher toxicity per
+institutional standard. Patients randomised to observation receive no adjuvant
+systemic therapy.
+
+Inclusion criteria
+1. Histologically confirmed gastric or gastro-oesophageal junction
+   adenocarcinoma, stage II (AJCC 8th edition).
+2. Macroscopically complete D2 gastrectomy within 8 weeks prior to
+   randomisation.
+3. Age 18 to 75 years inclusive.
+4. ECOG performance status 0 or 1.
+5. Absolute neutrophil count at least 1.5 x 10^9/L, platelets at least
+   100 x 10^9/L, haemoglobin at least 9 g/dL.
+6. Serum creatinine clearance at least 50 mL/min by Cockcroft-Gault.
+7. Total bilirubin no greater than 1.5 times the upper limit of normal.
+8. Written informed consent.
+
+Exclusion criteria
+1. Any prior chemotherapy or radiotherapy for gastric malignancy.
+2. Known hypersensitivity to capecitabine or other fluoropyrimidines.
+3. Uncontrolled cardiac disease, including unstable angina or myocardial
+   infarction within 6 months.
+4. Active gastrointestinal bleeding or obstruction.
+5. Second malignancy within 5 years, excluding adequately treated basal cell
+   carcinoma or cervical carcinoma in situ.
+6. Pregnancy or lactation; women of childbearing potential must use adequate
+   contraception.
+7. Any psychiatric or social condition that would preclude protocol compliance.
+
+Participating sites and planned enrolment
+- Tata Memorial Centre, Mumbai, India — 140 patients
+- Amrita Institute of Medical Sciences, Kochi, India — 90 patients
+- Bangabandhu Sheikh Mujib Medical University, Dhaka, Bangladesh — 70 patients
+- Charité Universitätsmedizin, Berlin, Germany — 60 patients
+
+Target total enrolment: 360 patients randomised 1:1.
+
+Primary endpoint
+Disease-free survival at 3 years.
+
+Secondary endpoints
+Overall survival, incidence of grade 3-4 adverse events, treatment
+discontinuation rate, quality of life by EORTC QLQ-C30.
+
+Statistical considerations
+A sample size of 360 provides 80% power to detect a hazard ratio of 0.70 for
+disease-free survival at a two-sided alpha of 0.05, assuming 3 years of accrual
+and 2 years of additional follow-up.

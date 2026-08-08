@@ -1,0 +1,39 @@
+{
+  "trial_id": "NCT04138641",
+  "title": "Capecitabine Maintenance in Metastatic Colorectal Cancer (DPYD-Screened)",
+  "drugs": [
+    {
+      "drug": "capecitabine",
+      "dose": "1000 mg/m2",
+      "route": "oral",
+      "schedule": "twice daily, days 1-14, every 21 days until progression"
+    }
+  ],
+  "inclusion_criteria": [
+    "Metastatic colorectal adenocarcinoma with stable disease after induction",
+    "ECOG performance status 0-2",
+    "Pre-treatment DPYD genotyping completed for c.1905+1G>A, c.1679T>G, c.2846A>T and c.1236G>A per EMA 2020 guidance",
+    "Adequate organ function per protocol"
+  ],
+  "exclusion_criteria": [
+    "Known complete dihydropyrimidine dehydrogenase deficiency (contraindicated)",
+    "DPYD poor metabolizer phenotype; intermediate metabolizers enrol at CPIC-adjusted starting dose",
+    "Prior grade 4 fluoropyrimidine toxicity",
+    "Uncontrolled intercurrent illness"
+  ],
+  "sites": [
+    {
+      "name": "Regional Cancer Centre, Kerala",
+      "country": "IN",
+      "planned_n": 90,
+      "ancestry_mix": { "SAS": 1.0 }
+    },
+    {
+      "name": "Universitätsklinikum Heidelberg",
+      "country": "DE",
+      "planned_n": 60,
+      "ancestry_mix": { "EUR": 1.0 }
+    }
+  ],
+  "target_n": 150
+}

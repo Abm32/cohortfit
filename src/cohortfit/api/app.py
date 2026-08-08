@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 
@@ -55,4 +56,13 @@ def health() -> dict[str, str]:
 
 _web_dist = repo_root() / "web" / "dist"
 if _web_dist.is_dir():
-    app.mount("/", StaticFiles(directory=_web_dist, html=True), name="web")
+    app.mount("/assets", StaticFiles(directory=_web_dist / "assets"), name="assets")
+
+    # SPA fallback: client-side routes like /app must serve index.html.
+    # Registered after all API routers, so /audit, /fixtures, etc. win first.
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa_fallback(path: str) -> FileResponse:
+        candidate = _web_dist / path
+        if path and candidate.is_file():
+            return FileResponse(candidate)
+        return FileResponse(_web_dist / "index.html")

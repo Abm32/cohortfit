@@ -1,0 +1,41 @@
+{
+  "trial_id": "NCT02688712",
+  "title": "Adjuvant Capecitabine in Resected Pancreatic Adenocarcinoma (US Multi-Site)",
+  "drugs": [
+    {
+      "drug": "capecitabine",
+      "dose": "1250 mg/m2",
+      "route": "oral",
+      "schedule": "twice daily, days 1-21, repeated every 28 days for 6 cycles"
+    }
+  ],
+  "inclusion_criteria": [
+    "Histologically confirmed pancreatic ductal adenocarcinoma",
+    "Macroscopically complete resection (R0 or R1)",
+    "ECOG performance status 0-1",
+    "Age 18 years or older",
+    "Adequate haematologic, hepatic and renal function"
+  ],
+  "exclusion_criteria": [
+    "Prior systemic therapy for pancreatic cancer",
+    "Known hypersensitivity to fluoropyrimidines",
+    "HER2 genotype testing pending at time of randomisation",
+    "Creatinine clearance below 30 mL/min",
+    "Pregnant or breastfeeding"
+  ],
+  "sites": [
+    {
+      "name": "Houston Cancer Center",
+      "country": "US",
+      "planned_n": 120,
+      "ancestry_mix": { "EUR": 0.62, "AFR": 0.14, "AMR": 0.24 }
+    },
+    {
+      "name": "Chicago Academic Medical Center",
+      "country": "US",
+      "planned_n": 80,
+      "ancestry_mix": { "EUR": 0.7, "AFR": 0.22, "AMR": 0.08 }
+    }
+  ],
+  "target_n": 200
+}
