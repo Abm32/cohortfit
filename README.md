@@ -90,8 +90,13 @@ Prototype. Tier 0 engine is the load-bearing part; treat Tier 1/2 as directional
 
 ```bash
 pip install -e .
-cohortfit audit protocols/<protocol>.json --offline
+cohortfit audit protocols/capecitabine_india.json --offline
 ```
+
+[`protocols/capecitabine_india.json`](protocols/capecitabine_india.json) is a
+hand-authored fixture: an adjuvant capecitabine protocol across two Indian
+(SAS-ancestry) sites, with no DPYD screening in its exclusion criteria — the
+gap this tool is built to catch.
 
 `--offline` runs entirely against pinned fixtures — no network. This is the
 default for reproducibility, and it means the numbers in a report can be
