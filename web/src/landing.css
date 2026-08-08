@@ -685,7 +685,10 @@
 
 .landing-hero-canvas {
   position: relative;
-  height: min(420px, 52vh);
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  min-height: 580px;
+  height: min(640px, 72vh);
   border-radius: var(--radius-card);
   background:
     radial-gradient(120% 120% at 70% 20%, rgba(116, 198, 157, 0.16), transparent 55%),
@@ -1096,8 +1099,12 @@
     justify-content: center;
   }
   .landing-hero-visual {
-    min-height: 360px;
+    min-height: 480px;
     order: -1;
+  }
+  .landing-hero-canvas {
+    min-height: 480px;
+    height: min(560px, 62vh);
   }
   .metab-arrow {
     transform: rotate(90deg);
