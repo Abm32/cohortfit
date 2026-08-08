@@ -1,5 +1,7 @@
 """Tests for CPIC screening-gap rules."""
 
+from typing import ClassVar
+
 import pytest
 
 from cohortfit.models import Protocol, Verdict
@@ -152,8 +154,8 @@ class TestContestedBurden:
     the correct clinical response is disputed. That is CONTESTED, not a hedge.
     """
 
-    SAS_SHARES = {"HapB3": 0.942, "c.2846A>T": 0.029, "*2A": 0.028, "*13": 0.0}
-    EUR_SHARES = {"HapB3": 0.639, "c.2846A>T": 0.195, "*2A": 0.154, "*13": 0.003}
+    SAS_SHARES: ClassVar[dict[str, float]] = {"HapB3": 0.942, "c.2846A>T": 0.029, "*2A": 0.028, "*13": 0.0}
+    EUR_SHARES: ClassVar[dict[str, float]] = {"HapB3": 0.639, "c.2846A>T": 0.195, "*2A": 0.154, "*13": 0.003}
 
     def test_sas_shares_are_contested(self):
         result = contested_burden("DPYD", "capecitabine", self.SAS_SHARES)

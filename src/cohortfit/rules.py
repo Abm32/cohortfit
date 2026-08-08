@@ -134,9 +134,11 @@ _CONTESTED_ALLELES: dict[str, dict[str, tuple[str, str]]] = {
     "DPYD": {
         "HapB3": (
             "37639651",
-            "CPIC reports evidence of reduced treatment effectiveness and "
-            "significantly increased toxicity in HapB3 carriers dosed at the "
-            "standard 25% reduction",
+            (
+                "CPIC reports evidence of reduced treatment effectiveness and "
+                "significantly increased toxicity in HapB3 carriers dosed at "
+                "the standard 25% reduction"
+            ),
         ),
     },
 }

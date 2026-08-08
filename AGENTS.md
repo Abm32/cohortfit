@@ -30,6 +30,36 @@ that calls into `anukriti-pgx-core` for diplotype→phenotype, and
 screening-gap check (not a general rule engine — extend only when a second
 gene-drug pair is in scope).
 
+[src/cohortfit/panel.py](src/cohortfit/panel.py) and
+[src/cohortfit/sensitivity.py](src/cohortfit/sensitivity.py) compute two
+results `docs/FINDINGS.md` had only asserted; neither adds data or a model.
+`panel.panel_concentration()` is a Herfindahl index over the non-reference
+allele pool — effective allele count, dominant allele's share, and the alleles
+pinned at 0.0 that never fire — while `panel.burden_shares()` is leave-one-out
+ablation through the real Tier 0 pipeline, giving each dropped allele's
+frequency back to `*1` so the sum-to-one invariant `diplotype_frequencies()`
+requires still holds. `at_risk_fraction` is re-exported from `sites` rather
+than redefined. `sensitivity.phenotype_bounds()` reruns the blend + HWE path
+once per candidate value recorded in the fixture's `_meta.known_discrepancies`
+and returns phenotype → (min, max); `substitute_allele()` re-derives the
+reference allele as the remainder and raises rather than feeding a negative
+reference frequency into Hardy-Weinberg. Ablation and substitution both
+preserve that invariant on purpose — a scenario that does not sum to 1.0 is a
+silently wrong distribution, not an error.
+
+`Verdict.CONTESTED` is now reachable. `rules.contested_burden()` is a pure
+function over an already-computed burden-share map and fires when an allele
+whose CPIC dose action is disputed holds ≥60% of a cohort's actionable burden
+(the threshold is a judgement call and the code says so). It raises a *second*
+finding on the same gene rather than a note on the first, because "screen for
+this" and "a positive screen has no settled response" are different claims.
+`models.PhenotypeCount` carries `fraction_low`/`fraction_high` from
+`sensitivity`, so `render` prints a "Range (provenance)" column with the
+fold-change; Tier 0 `notes` (panel coverage, partial-ancestry caveats) are
+printed rather than stored and dropped, and every finding renders before the
+site-burden tables. `audit.py` wires all of this — it remains the only module
+loading fixtures end to end.
+
 ## Build, Test, and Development Commands
 
 - `pip install -e ".[dev]"` — install with test/lint dependencies.
@@ -38,6 +68,7 @@ gene-drug pair is in scope).
 - `pytest` — run the test suite (`testpaths = ["tests"]`, strict markers).
 - `pytest tests/test_cohort.py::TestDiplotypeFrequencies::test_hardy_weinberg_sums_to_one` — run a single test.
 - `pytest tests/test_audit.py` — pipeline + ground-truth tests for the wired DPYD engine.
+- `pytest tests/test_panel.py tests/test_sensitivity.py` — panel concentration, ablation shares, and provenance bounds; every figure is asserted against the pinned fixture.
 - `ruff check .` — lint (line-length 100, target py311, config in `pyproject.toml`).
 
 ## Coding Style & Naming Conventions

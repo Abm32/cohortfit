@@ -56,7 +56,7 @@ Deliver in this order. Each dot ends with a bridge into the next.
 >
 > **Claude extracts the protocol. Everything after that is arithmetic.** No LLM estimates a frequency. Tier 0 is pinned gnomAD + Hardy–Weinberg + CPIC phenotype tables. **128 tests**, offline by default.
 >
-> If the renderer prints Tier 0 and Tier 2 in identical styling, the contract collapses — so every claim carries a tier label.
+> Every claim carries a tier label, and a verdict of **CONTESTED** is one the engine can actually reach — you'll watch it fire in a second, on a dispute inside CPIC's own guideline.
 
 **Bridge:** *"Here's what that looks like on a real fluoropyrimidine trial."*
 
@@ -68,15 +68,18 @@ Deliver in this order. Each dot ends with a bridge into the next.
 
 ---
 
-## Live demo talk track (~90 sec)
+## Live demo talk track (~110 sec)
 
-Run: `cohortfit audit protocols/demo.json`
+Run: `cohortfit audit protocols/demo.json` — moments are in printed order.
 
 | Moment | Say |
 |---|---|
 | Header | "NCT01095003 — capecitabine in advanced breast cancer. Mumbai, Kochi, Munich. **Offline** — pinned fixtures, no venue wifi." |
 | ACTIONABLE | "**ACTIONABLE** — CPIC Level A fluoropyrimidine pair, and this protocol never excludes or screens for DPYD deficiency. PMID on screen." |
+| Panel concentration | "Four variants on paper. For *this* cohort, **1.53 effective alleles** — **79.3%** of the burden on HapB3 alone. That's the SAS/EUR blend; pure South Asian it's 1.12." |
 | Tier 0 table | "Tier 0 — expected intermediate and poor metabolizers for the *actual* enrolment-weighted mix. Not the implicit European default." |
+| Range column | "Normal Metabolizer is flat. **Poor Metabolizer swings 3.7-fold** across the candidate values for the disputed allele — so we don't print it as a point estimate. Provenance uncertainty, stated, not smoothed." |
+| CONTESTED | "Second finding, same pair: **CONTESTED**. **CPIC's own guideline** flags PMID 37639651 — HapB3 carriers on the standard 25% reduction showed reduced effectiveness *and* increased toxicity. Screen, yes; but for most screen-positives here there is **no settled dose action**. The tool declines to resolve what CPIC hasn't — off the arithmetic, not off a hand-written string." |
 | Site burden | "Site selection: Munich ~**6.4%** at-risk *rate*. Mumbai and Kochi share South Asian ancestry — **same rate**, Mumbai expects twice the count because it's enrolling twice as many patients. Say that before a judge notices." |
 | Close demo | "Same engine a CRO would run before first patient in." |
 
@@ -90,7 +93,7 @@ Run: `cohortfit audit protocols/demo.json`
 
 ## Honest limits (~15 sec)
 
-> Prototype. **Tier 0 is load-bearing** — pinned, tested, reproducible. Tier 1/2 are directional. We demo DPYD × capecitabine deeply; we show **CONTESTED** when literature genuinely disagrees instead of picking a number.
+> Prototype. **Tier 0 is load-bearing** — pinned, tested, reproducible. Tier 1/2 are directional. We demo DPYD × capecitabine deeply, and you just saw **CONTESTED** fire rather than us picking a number — that verdict is reachable code, not a slide.
 >
 > And the tool reports its own gaps. Only SAS and EUR frequencies are pinned, so a US cohort prints a **coverage warning** naming the 32% of enrolment it could not compute rather than quietly returning European numbers. The one pinned value we don't trust — SAS `*2A` from the exome callset — carries a runtime warning with the direction of the error. Every number is either defensible or flagged.
 
@@ -117,12 +120,13 @@ Run: `cohortfit audit protocols/demo.json`
 | Isn't DPYD screening just a CPIC suggestion? | No — **EMA (Apr 2020)** and **MHRA/NHS England (2020)** require pre-treatment DPD testing; treatment is *contraindicated* in known complete deficiency. A capecitabine protocol with no DPYD criterion is inconsistent with the approved EU/UK label, not merely off-guideline. |
 | How does this get adopted? | Accept **CDISC USDM** / **ICH M11** — the machine-readable protocol standard (USDM v4.0 public review 2025, Implementation Handbook v1.0 2026). We slot into a pipeline sponsors and CROs are already being pushed toward. Claude's job is bridging *legacy prose* protocols during that transition. |
 | Is your SAS proxy trustworthy? | For DPYD, checked: **Naushad 2021, n=2,000 Indians** found Indian and South Asian DPYD profiles cluster together (Level 1A combined MAF 1.889%). It does **not** generalise — the IndiGenomes pilot found a 34.2% gap on CYP2C9 `*2`. |
-| So you'd tell them to cut the dose? | Not for HapB3. **CPIC's own guideline page** flags PMID 37639651: HapB3 carriers on a 25% reduction showed possible *reduced effectiveness* and increased toxicity. That is a real `CONTESTED` case, and HapB3 dominates our IM bucket. |
+| So you'd tell them to cut the dose? | Not for HapB3, and the tool says so itself — that second panel on screen. **CPIC's own guideline page** flags PMID 37639651: HapB3 carriers on a 25% reduction showed possible *reduced effectiveness* and increased toxicity. A real `CONTESTED` case, raised automatically because HapB3 dominates the IM bucket. |
 | Any number you don't trust? | Yes, and it's in the repo: SAS `*2A` is pinned from gnomAD **exomes** at 0.0005 while every genome-based source says 0.003–0.008. `*2A` is a splice-donor variant where exome capture is unreliable. Logged as `_meta.known_discrepancies`, warned at runtime, direction stated (our PM estimate is conservative). |
 | What's the cost of getting this wrong? | Tufts CSDD: a substantial amendment is **$141k (Ph II) / $535k (Ph III)**, 76% of protocols need one, and a delay day is **~$840k** unrealised oncology sales + **$55,716** direct Ph III cost. (The popular $600k–$8M/day figure is a 1993 artefact Tufts revised down — we don't cite it.) |
 | What did you build today? | Tier 0 audit pipeline, tier-aware renderer, Claude extractor, population-coverage warnings, 128 tests, ruff clean — see repo commits. |
-| Did you find anything new? | Yes — derived, reproducible from our own pinned data ([docs/FINDINGS.md](FINDINGS.md)). In a South Asian cohort **94.2%** of the CPIC-panel actionable burden sits on **one allele, HapB3** — and HapB3 is the allele whose dosing CPIC itself contests (PMID 37639651). Set it aside and number-needed-to-screen goes **28 → 487**. The population with the most concentrated risk is concentrated on the weakest evidence. We have not seen that stated anywhere. |
-| Isn't a four-variant panel broad coverage? | Not for South Asians. Effective allele count is **1.12** (`*13` never fires — pinned SAS frequency is zero). For Europeans it's 2.10, a genuine multi-allele test. Same panel, different instrument. |
+| Did you find anything new? | Yes — derived, reproducible from our own pinned data ([docs/FINDINGS.md](FINDINGS.md)). In a **pure South Asian** cohort **94.2%** of the CPIC-panel actionable burden sits on **one allele, HapB3** — and HapB3 is the allele whose dosing CPIC itself contests (PMID 37639651). Set it aside and number-needed-to-screen goes **28 → 487**. The population with the most concentrated risk is concentrated on the weakest evidence. We have not seen that stated anywhere. |
+| Your screen said 79.3%, not 94.2% — which is it? | Both, for different cohorts. **94.2% / 1.12 effective alleles is pure South Asian**; the demo cohort is 150 South Asian plus 80 European, which blends to the **79.3% / 1.53** on screen. Same function, different ancestry mix — that is the whole point of the tool. |
+| Isn't a four-variant panel broad coverage? | Not for South Asians. Effective allele count is **1.12** in a pure SAS cohort (`*13` never fires — pinned SAS frequency is zero). For Europeans it's 2.10, a genuine multi-allele test. The demo's mixed cohort lands at 1.53. Same panel, different instrument. |
 | Why is SAS at-risk *lower* than EUR? Doesn't that undercut you? | It's the panel, not the risk. Screening yield is **1.80× worse** in SAS (NNS 28.2 vs 15.6) because the four variants were selected in Europeans. Naushad 2021 found V732I and S534N toxicity-associated in Indians — both absent from this panel *and* the UK/EU panel. Our 3.5% is a floor, not an estimate. |
 | How wrong could you be? | Bounded, and always in one direction. Three floors stack: consanguinity (~2.3× homozygotes), the `*2A` exome undercount (up to 1.41× at-risk), and ~8.8% of DPD-deficient patients carrying no panel variant at all (PMID 36918744, n=712). **Every known bias makes our number too low** — correct direction for a safety instrument, and we say it out loud. |
 | Is the Munich/Mumbai ranking an artefact of your disputed frequency? | No. It holds at every candidate `*2A` value and never inverts. EUR `*2A` is from the same exome callset, so correcting both symmetrically widens the gap to **2.75×**. Fixing the provenance strengthens it. |

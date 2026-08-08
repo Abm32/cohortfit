@@ -5,7 +5,10 @@
 > [Limits and honest caveats](#limits-and-honest-caveats) — that is the part a
 > reviewer will press on.
 
-Implemented in [`src/cohortfit/cohort.py`](../src/cohortfit/cohort.py).
+Implemented in [`src/cohortfit/cohort.py`](../src/cohortfit/cohort.py), with the
+sensitivity range in
+[`sensitivity.py`](../src/cohortfit/sensitivity.py) and the panel coverage
+measures in [`panel.py`](../src/cohortfit/panel.py).
 
 ---
 
@@ -110,7 +113,9 @@ why it is called out here rather than left to the reader.
 
 ## The full Tier 0 pipeline
 
-Four steps, all pure arithmetic, no network, no model:
+Six steps, all pure arithmetic, no network, no model. Steps 1–4 produce the
+distribution; steps 5 and 6 say how much to trust it and what the panel behind
+it actually covers.
 
 ### 1. `cohort_ancestry_mix(sites)` — who will actually enrol
 
@@ -157,6 +162,68 @@ them would silently renormalise the remainder: the distribution would still sum
 to 1.0 and look correct while overstating confidence in every other class. An
 `Indeterminate` bucket makes coverage gaps visible in the output instead of
 hiding them. Tested.
+
+### 5. `phenotype_bounds(...)` — the same pipeline rerun per candidate frequency
+
+Some pinned frequencies are disputed. The SAS `*2A` value (0.0005, gnomAD v4
+exomes) is contradicted by every genome-based source, all of them upward, and
+the fixture records that disagreement in `_meta.known_discrepancies` rather than
+quietly picking a winner. `phenotype_bounds()` reruns steps 2–4 once per
+unresolved candidate value and returns `phenotype → (min, max)` fraction.
+`substitute_allele()` swaps one frequency and re-derives `*1` as the remainder
+so the allele space still sums to 1.0, and raises rather than feeding a negative
+reference frequency into Hardy-Weinberg. A phenotype absent from one scenario
+counts as 0.0 there.
+
+Each `PhenotypeCount` then carries `fraction_low` / `fraction_high`, and the
+distribution table grows a "Range (provenance)" column stating the fold-change.
+**Poor Metabolizer is not reported as a point estimate**: across the candidate
+`*2A` values it spans 35.7 to 765.0 per million — 21.4× — while the at-risk
+fraction moves 1.80× ([FINDINGS.md](FINDINGS.md) Finding 4). A reader comparing
+those two numbers needs to see which of them the pinned data supports.
+
+The range is **provenance uncertainty**: the spread of published values for one
+input, nothing more. It is not a confidence interval, not a prediction interval,
+and it does not cover any of the model assumptions in the caveats below. When
+the fixture records no unresolved conflict the map is empty and the column does
+not appear.
+
+### 6. `panel_concentration()` / `burden_shares()` — what the panel really covers
+
+Two independent measures over the blended cohort, deliberately kept apart:
+
+- `panel_concentration()` is a Herfindahl index over the non-reference alleles.
+  It reports total variant load, HHI, effective allele count (`1 / HHI`), the
+  dominant allele and its share of the variant pool, and `silent_alleles` for
+  anything pinned at 0.0. Shares are of the variant pool rather than of the
+  population, so a panel where one variant dominates scores the same whether
+  that variant is common or rare. Cheap allele arithmetic; says nothing about
+  phenotype.
+- `burden_shares()` is leave-one-out ablation through steps 3–4: drop one
+  variant allele, hand its frequency back to `*1` so the space still sums to
+  1.0, and attribute the fall in at-risk fraction to the removed allele. More
+  expensive, and the one that actually attributes IM + PM risk. This is the
+  figure to quote.
+
+`coverage_note()` renders both as one sentence on every Tier 0 finding, after
+the partial-ancestry caveat from step 2 — a missing population is a bigger
+problem than the shape of the panel that did apply. For a fully South Asian DPYD
+cohort it reads 1.12 effective alleles, HapB3 carrying 94.2% of actionable
+burden, and `*13` never firing ([FINDINGS.md](FINDINGS.md) Finding 1). A
+four-variant panel is only a four-variant panel where all four fire.
+
+The same share map drives a verdict. `rules.contested_burden()` raises a
+separate `CONTESTED` finding when an allele whose CPIC dose action is disputed
+holds at least 60% of the cohort's actionable burden. For DPYD that allele is
+HapB3: carriers dosed at the standard 25% reduction showed reduced treatment
+effectiveness *and* increased toxicity
+([PMID 37639651](https://pubmed.ncbi.nlm.nih.gov/37639651/)). The screening-gap
+finding says the protocol should test; the `CONTESTED` finding says that for
+most positives in this cohort a positive test has no settled clinical response.
+Those are two different claims, so they are two findings rather than one with a
+note. The 0.60 threshold is a judgement call, not a derived constant, and EUR
+clears it too at 63.9% — the verdict tracks the dosing dispute, not the
+population.
 
 ---
 

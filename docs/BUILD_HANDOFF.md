@@ -1,10 +1,30 @@
 # cohortfit — Build Handoff
 
+> ## ⚠️ Historical document — snapshot taken 2026-08-08 12:05
+>
+> **This is a record of the decisions taken at the start of the build, not a
+> description of the repo as it stands.** Read it for *why* things are shaped the
+> way they are (§2, §4, §6, §7, §8). Do not read §3, §5, §9 or §10 as a to-do
+> list: the build described there is finished.
+>
+> Everything in §5's remaining-build table now exists and ships — `cli.py`, the
+> frequency fixtures, the phenotype adapter, the screening-gap rule, the audit
+> orchestrator, per-site findings, the renderer and the Claude extractor. Since
+> then the report also gained a per-finding panel-coverage note, a provenance
+> range on every phenotype class, and a working `CONTESTED` code path.
+>
+> **For current state, read these instead:**
+> [README.md](../README.md) (what it does and how to run it) ·
+> [FINDINGS.md](FINDINGS.md) (what the numbers say) ·
+> [METHOD.md](METHOD.md) (how the arithmetic works) ·
+> [DEMO_SCRIPT.md](DEMO_SCRIPT.md) (current terminal output, in order) ·
+> `git log` (what shipped, and why).
+
 > Written 2026-08-08 during **Push to Prod: Building at the Frontier** (Anthropic ×
 > Elevation Capital × Mesa School of Business), Bengaluru.
 > **Hacking started 11:30. Submission due 16:30 IST.**
 >
-> This document is self-contained: an agent picking it up should be able to
+> This document was self-contained *at 12:05*: an agent picking it up could
 > continue the build without re-deriving anything. Every number below was
 > verified from source files or live pages, not recalled.
 
@@ -106,7 +126,12 @@ molecule you already have.*
 
 ---
 
-## 3. Repo state as of 12:05
+## 3. Repo state as of 12:05 — *historical, superseded*
+
+> **Superseded.** This section describes the repo five commits into the build.
+> It is kept as a record of the starting point. For what exists now, run
+> `git log` or read [README.md](../README.md). The two subsections below are
+> both out of date and annotated as such.
 
 **GitHub:** https://github.com/Abm32/cohortfit (public, Apache-2.0)
 **Local:** `/home/abhimanyu/Desktop/SynthaTrial-repo/cohortfit`
@@ -123,7 +148,7 @@ dabc4fa  feat(cohort): Tier 0 Hardy-Weinberg cohort engine
 
 **`78f9787` is one commit ahead of `origin/main` — push it.**
 
-### Exists and verified working
+### Exists and verified working *(as of 12:05 — the list has grown considerably)*
 - `README.md`, `LICENSE` (Apache-2.0), `AGENTS.md`, `.gitignore`, `pyproject.toml`
 - `src/cohortfit/models.py` — `Protocol`/`Site`/`DoseRegimen` (extraction side);
   `AuditReport`/`GeneDrugFinding`/`SiteFinding`/`PhenotypeCount`/`Verdict`/`Tier`
@@ -134,10 +159,14 @@ dabc4fa  feat(cohort): Tier 0 Hardy-Weinberg cohort engine
 - `protocols/capecitabine_india.json` — pinned fixture, 2 Indian sites
   (Kerala n=100, Chennai n=50), target_n=150, `ancestry_mix: {"SAS": 1.0}`
 
-### Does not exist yet
-`cli.py` (declared in `pyproject.toml` as `cohortfit.cli:app` — **entry point is
-currently broken**), frequency fixtures, phenotype adapter, screening-gap rule,
+### Did not exist at 12:05 — ~~does not exist yet~~ **all of these now ship**
+`cli.py` (declared in `pyproject.toml` as `cohortfit.cli:app` — the entry point
+was broken at 12:05), frequency fixtures, phenotype adapter, screening-gap rule,
 audit orchestrator, per-site findings, Claude extractor.
+
+> **Do not rebuild any of these.** Every item above was completed. `cohortfit
+> audit protocols/demo.json` runs end to end, offline, and its current output is
+> walked through in [DEMO_SCRIPT.md](DEMO_SCRIPT.md).
 
 ---
 
@@ -212,7 +241,11 @@ overclaim; **not** the alleles for the ACTIONABLE finding.
 
 ---
 
-## 5. Remaining build, split 2 ways
+## 5. Remaining build, split 2 ways — *historical, all items complete*
+
+> **Superseded.** Items 1–10 below all shipped. The table is kept for the
+> reasoning under it ("why this build order"), which still explains the shape of
+> the codebase.
 
 **Track A owns every number. Track B owns everything a judge sees.**
 
@@ -323,7 +356,9 @@ demonstrated once early, then bypassed for the offline run.
 | `NO_SIGNAL` | No PGx-actionable interaction found |
 
 **`CONTESTED` is a real answer, not a hedge.** For DPYD `*9A`/`M166V` in South
-Asian cohorts: Hariprakash 2018 found an M166V→hand-foot-syndrome association
+Asian cohorts (this was the *motivating* example; the verdict as shipped fires on
+the HapB3 dosing dispute instead — see [FINDINGS.md](FINDINGS.md)):
+Hariprakash 2018 found an M166V→hand-foot-syndrome association
 (OR 5.22, n=110) but its `*9A` assay failed; Naushad 2021 found no association
 for either (n=2000 healthy Indians); Atasilp 2025 reported `*9A`→neutropenia on
 n=2 homozygotes, not surviving multivariate. A tool that picks one and prints a
@@ -381,7 +416,10 @@ labels. Those three *are* the product.
 
 ---
 
-## 10. Immediate next actions
+## 10. Immediate next actions — *historical, all done*
+
+> **Superseded.** These were the next four actions at 12:05. All four were
+> taken. Do not start here.
 
 1. `git push` — `78f9787` is unpushed.
 2. Emit a fake schema-valid `AuditReport` JSON → hand to Track B. **Unblocks most

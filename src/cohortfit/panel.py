@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .pgx import cohort_phenotype_distribution
-from .sites import at_risk_fraction as at_risk_fraction  # same IM+PM sum; one definition
+from .sites import at_risk_fraction  # re-exported below; same IM+PM sum, one definition
 
 __all__ = [
     "PanelConcentration",

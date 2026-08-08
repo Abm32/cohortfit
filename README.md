@@ -58,10 +58,17 @@ Verdicts carry the same discipline:
 - `CONTESTED` — real literature disagreement, shown rather than resolved
 - `NO SIGNAL` — no PGx-actionable interaction found
 
-`CONTESTED` is not a hedge. For DPYD `*9A`/`M166V` in South Asian cohorts,
-Hariprakash 2018, Naushad 2021 and Atasilp 2025 give three incompatible answers.
-A tool that picks one and reports a number is lying. This one reports the
-disagreement.
+`CONTESTED` is not a hedge, and it is not decorative. `cohortfit.rules.contested_burden()`
+raises it when an allele whose CPIC dose action is disputed carries **≥60%** of a cohort's
+actionable burden — the threshold is a judgement call and the code says so. On the demo
+cohort (Mumbai 100 + Kochi 50 + Munich 80) that is `HapB3` at **79.3%**, citing
+[PMID 37639651](https://pubmed.ncbi.nlm.nih.gov/37639651/): carriers dosed at the standard
+25% reduction showed reduced treatment effectiveness and increased toxicity. The finding
+sits alongside the `ACTIONABLE` one rather than replacing it, because the two say different
+things — the protocol should screen, *and* for most screen-positives here a positive test
+has no settled clinical response. The same discipline governs DPYD `*9A`/`M166V` in South
+Asian cohorts, where Hariprakash 2018, Naushad 2021 and Atasilp 2025 give three
+incompatible answers: a tool that picks one and reports a number is lying.
 
 ## Why this gap exists
 
@@ -196,6 +203,8 @@ from cohortfit.audit import audit_protocol, load_protocol
 
 report = audit_protocol(load_protocol("protocols/demo.json"), offline=True)
 # report.findings[0].verdict → ACTIONABLE (missing DPYD screening)
+# report.findings[1].verdict → CONTESTED (HapB3 at 79.3% of this cohort's burden)
+# report.findings[0].notes   → panel coverage note, ancestry caveats
 # report.site_findings → per-site IM+PM burden
 ```
 
@@ -208,10 +217,12 @@ report = audit_protocol(load_protocol("protocols/demo.json"), offline=True)
 | [`cohortfit.render`](src/cohortfit/render.py) | Tier-aware Rich report renderer |
 | [`cohortfit.reports`](src/cohortfit/reports.py) | AuditReport JSON loader for renderer dev |
 | [`cohortfit.sites`](src/cohortfit/sites.py) | Per-site metabolic burden and site-selection ranking |
-| [`cohortfit.rules`](src/cohortfit/rules.py) | Drug→gene map, CPIC Level A screening-gap check |
+| [`cohortfit.rules`](src/cohortfit/rules.py) | Drug→gene map, CPIC Level A screening-gap check, contested-burden check |
+| [`cohortfit.panel`](src/cohortfit/panel.py) | How many alleles the panel really tests — Herfindahl concentration, leave-one-out burden shares |
+| [`cohortfit.sensitivity`](src/cohortfit/sensitivity.py) | Reruns Tier 0 at every disputed frequency the fixture records → per-phenotype bounds |
 | [`protocols/demo.json`](protocols/demo.json) | Pinned NCT01095003 capecitabine demo (no DPYD exclusion) |
 
-Run integration tests: `pytest tests/test_audit.py tests/test_rules.py`
+Run integration tests: `pytest tests/test_audit.py tests/test_rules.py tests/test_panel.py tests/test_sensitivity.py`
 
 ## Per-site findings (Track A — site selection)
 
@@ -262,10 +273,23 @@ implemented; `--no-offline` exits with an error.
 ### Output sections (what judges see)
 
 1. **Header** — trial title, NCT ID, cohort n, `[offline]` mode
-2. **Findings** — tier-labelled panels (see below), verdict colour, CPIC level, citations
-3. **Cohort phenotype** — Tier 0 distribution table only
-4. **Site burden** — Tier 0 IM+PM table, ranked by rate
+2. **Findings** — tier-labelled panels (see below), verdict colour, CPIC level, citations,
+   and the Tier 0 notes: a partial-ancestry caveat when the blend dropped a population,
+   then panel concentration — effective allele count, the dominant allele's share of
+   actionable burden, and any allele that never fires. One gene can raise more than one
+   finding: the demo raises `ACTIONABLE` (no DPYD screening) and then `CONTESTED` (HapB3
+   at 79.3% of burden).
+3. **Cohort phenotype** — Tier 0 distribution table, printed under the finding that carries
+   it, with a `Range (provenance)` column giving each class's bounds and fold-change
+4. **Site burden** — Tier 0 IM+PM table, ranked by rate. Every finding renders before it,
+   so a second verdict is never stranded below a table.
 5. **Data sources** — gnomAD fixture + CPIC diplotype table citations
+
+Poor Metabolizer is printed as a range rather than a point because a point estimate would
+overstate the input: on the demo cohort it spans 0.02% – 0.07% (**3.7×**) across the
+candidate `*2A` frequencies the fixture records as disputed, against 1.4× for Intermediate
+Metabolizer ([docs/FINDINGS.md](docs/FINDINGS.md) Finding 4). The range is provenance
+uncertainty, not a prediction interval.
 
 ### Tier visual contract (renderer)
 

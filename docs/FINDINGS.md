@@ -144,6 +144,20 @@ Three conclusions:
    candidate value. Only at the extreme upper bound (1.5%) do the two converge
    to parity (1.004×), and it never inverts.
 
+**Which range each number describes.** The implemented sweep,
+`cohortfit.sensitivity.phenotype_bounds()`, reports a Poor Metabolizer spread of
+**21.4×**, not the 10.1× in conclusion 2. Both are right, and they are ranges
+over different candidate sets. The table above stops at the 1000G Ph3 value
+(0.0080), where PM reaches 360.4 per million against the pinned 35.7 — 10.1×,
+matching exactly. `phenotype_bounds()` takes *every* unresolved candidate in
+`_meta.known_discrepancies`, which includes the Chan 2024 upper bound (0.0150)
+in the table's last row; PM there is 765.0 per million, so 21.4×. The at-risk
+fraction over that same full candidate set moves 1.80× (3.5474% → 6.3744%)
+rather than the 1.41× of conclusion 1, for the same reason. Quote 10.1× and
+1.41× for the range of published point frequencies, 21.4× and 1.80× for the
+full candidate set including the Chan upper bound. Neither reading makes PM a
+point estimate.
+
 ### The symmetry trap
 
 The sweep above varies SAS `*2A` while leaving EUR pinned — but **EUR `*2A` is
@@ -291,19 +305,47 @@ mismatch is invisible from both directions.
 - Finding 7's three stacked floors demonstrate the discipline better than any
   claim of accuracy could.
 
-**Engineering consequences:**
+**Engineering consequences.** Three of the four are now implemented; the fourth
+is a standing decision not to implement.
+
 1. **Report `at_risk_fraction` as the primary figure and PM as a range, not a
-   point.** Finding 4 shows PM spans 10.1× on provenance alone. Consider a
-   `PhenotypeCount.lower_bound` / `upper_bound` pair for Tier 0.
-2. **Add a "panel coverage" note per population.** Finding 1 means `*13` never
-   fires in SAS and the effective panel is 1.12 alleles. That belongs in the
-   report next to the distribution.
-3. **Emit a `CONTESTED` finding when HapB3 dominates the burden.** Finding 2
-   makes this the correct verdict for a SAS cohort, not an optional extra — and
-   it finally exercises the verdict path that has no live example.
-4. **Do not implement the inbreeding correction as Tier 0.** Unchanged from
-   EVIDENCE §8.2, reinforced by Finding 5: at trial sample sizes PM is
-   sub-integer, so refining its point estimate is precision without meaning.
+   point — done.** `cohortfit.sensitivity.phenotype_bounds()` reruns the Tier 0
+   distribution at every unresolved candidate in the fixture's
+   `_meta.known_discrepancies` and returns `phenotype → (min, max)` fraction;
+   `discrepancy_candidates()` collects the candidates and `substitute_allele()`
+   re-derives `*1` as the remainder so each scenario still sums to 1.0.
+   `models.PhenotypeCount` carries `fraction_low` / `fraction_high` and an
+   `is_range` property — named `fraction_*` rather than `lower_bound` /
+   `upper_bound` because they are fractions and the model already has
+   `fraction`. `render` adds a "Range (provenance)" column carrying the
+   fold-change explicitly, labelled as provenance uncertainty rather than a
+   prediction interval.
+2. **Add a "panel coverage" note per population — done.**
+   `cohortfit.panel.panel_concentration()` computes the Herfindahl index over
+   the variant pool and reports effective allele count, dominant allele and
+   share, plus `silent_alleles` for anything pinned at 0.0 (`*13` in SAS).
+   `burden_shares()` is the leave-one-out ablation of Finding 1, run through
+   the real Tier 0 pipeline. `coverage_note()` renders the pair as one sentence
+   onto every Tier 0 finding, after the partial-ancestry caveat: a missing
+   population is a bigger problem than the shape of the panel that did apply.
+   Both are computed on the blended cohort frequencies, so the note describes
+   the cohort actually audited, not a reference population.
+3. **Emit a `CONTESTED` finding when HapB3 dominates the burden — done.**
+   `cohortfit.rules.contested_burden()` fires when a contested-dosing allele
+   holds at least 60% of the actionable burden, and cites PMID 37639651. It is
+   emitted as a *second, separate* finding rather than a note on the screening
+   gap: the first says the protocol should test, the second says even a
+   positive test has no settled response for most of this cohort. This is the
+   first live example of `Verdict.CONTESTED`, which had been in the model and
+   the published contract with no code path able to produce it. The 0.60
+   threshold is a judgement call and says so; EUR (63.9%) clears it too, which
+   is intended — the verdict tracks the dosing dispute, not the population.
+4. **Do not implement the inbreeding correction as Tier 0.** Standing decision,
+   deliberately not done. Unchanged from EVIDENCE §8.2, reinforced by Finding 5:
+   at trial sample sizes PM is sub-integer, so refining its point estimate is
+   precision without meaning. `F` is an external parameter, so any adjusted
+   figure would be Tier 1; the scale of the correction is documented in
+   [METHOD.md](METHOD.md) caveat 1 instead.
 
 **Open questions worth a follow-up session:**
 - Does gnomAD v4.1's exome/genome discordance flag fire on `rs3918290`? That
@@ -319,17 +361,44 @@ mismatch is invisible from both directions.
 
 ## Reproducing these numbers
 
-All derivations use only the installed package and the pinned fixture:
+All derivations use only the installed package and the pinned fixture. The two
+methods described in prose above are now executable: the leave-one-out ablation
+of Finding 1 is `cohortfit.panel.burden_shares()`, and the `*2A` sweep of
+Finding 4 is `cohortfit.sensitivity.phenotype_bounds()`.
 
 ```python
-from cohortfit.frequencies import load_gene_frequencies
+from cohortfit.frequencies import load_gene_frequencies, load_gene_provenance
+from cohortfit.panel import at_risk_fraction, burden_shares, panel_concentration
 from cohortfit.pgx import cohort_phenotype_distribution
+from cohortfit.sensitivity import phenotype_bounds
 
 freqs = load_gene_frequencies("DPYD")          # {"SAS": {...}, "EUR": {...}}
 dist, table = cohort_phenotype_distribution("DPYD", freqs["SAS"], 1000)
-at_risk = sum(d.fraction for d in dist
-              if d.phenotype in ("Intermediate Metabolizer", "Poor Metabolizer"))
+at_risk_fraction(dist)
+# 0.035473697391                                 -> 3.5474%, Finding 3
+
+# Finding 1 — leave-one-out ablation, share of the IM+PM burden per allele
+burden_shares("DPYD", freqs["SAS"])
+# {'*2A': 0.02769243333087791, '*13': 0.0,
+#  'c.2846A>T': 0.029188225844839457, 'HapB3': 0.9421276770681127}
+
+concentration = panel_concentration(freqs["SAS"])
+(concentration.effective_alleles, concentration.dominant_allele,
+ concentration.silent_alleles)
+# (1.1233775564158646, 'HapB3', ('*13',))
+
+# Finding 4 — the *2A provenance sweep, over every unresolved candidate
+bounds = phenotype_bounds(
+    "DPYD", freqs, {"SAS": 1.0}, 1000, load_gene_provenance("DPYD")
+)
+bounds["Poor Metabolizer"]
+# (3.5705709e-05, 0.000764968709)                -> 35.7 to 765.0 per million, 21.4x
+bounds["Intermediate Metabolizer"]
+# (0.035437991682, 0.062979465682)
 ```
 
-Leave-one-out ablation removes one allele and re-derives `*1` as the remainder,
-preserving the sum-to-one invariant that `diplotype_frequencies()` requires.
+`burden_shares()` removes one allele and gives its frequency back to `*1`,
+preserving the sum-to-one invariant that `diplotype_frequencies()` requires;
+`substitute_allele()` does the same for the sweep. Both re-run the real Tier 0
+path rather than approximating it, so the figures above are the ones the report
+prints.
