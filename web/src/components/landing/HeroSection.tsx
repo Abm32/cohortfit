@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
+import "../../landing.css";
 
 export function HeroSection() {
   return (
-    <section className="landing-hero">
+    <section className="landing-hero" id="hero">
       <p className="landing-label">PGx feasibility for clinical trials</p>
       <h1>
         Audit the cohort your protocol will{" "}
