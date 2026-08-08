@@ -189,8 +189,10 @@ A typical UI flow chains this into an audit: fetch the protocol by slug, then
 
 ### `GET /fixtures/reports/sample` — pinned sample report
 
-Returns a pinned `AuditReport` used as the default landing state in the UI (no
-engine run). `200` with an `AuditReport`.
+Returns a pinned `AuditReport` — the only view that shows Tier 0/1/2 styling side
+by side, since no single real audit produces all three. Served on demand from the
+workbench's **Load sample report** button, not on mount. `200` with an
+`AuditReport`.
 
 ### `GET /fixtures/reports/partial-coverage` — pinned partial-coverage report
 

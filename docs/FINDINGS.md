@@ -385,8 +385,12 @@ have been seen**. Those are different claims.
 
 > **Now implemented.** `precision.detection_floor()` computes the bound and the
 > finding carries the caveat verbatim: *"`*13` was not observed in 91,074 SAS
-> alleles — pinned 0.0 means not detected, not absent (95% upper bound
-> 0.0042%)."* The panel note still says `*13` never fires, which is true of the
+> alleles — pinned 0.0 means not detected, not absent (95% upper bound 0.0033%,
+> rule of three)."* The bound quoted is `3/n`, not the Wilson upper bound of
+> `z²/(n + z²)` ≈ 0.0042% that the CI column above carries — the two are close
+> and both valid, so the report commits to the one every provenance table in
+> these docs was computed with, and `tests/test_precision.py` pins that choice.
+> The panel note still says `*13` never fires, which is true of the
 > arithmetic; the precision note supplies what that zero does and does not mean.
 
 ⚠️ The world-population figures are round approximations used for scale, not
@@ -541,7 +545,8 @@ twice as common in SAS.
   compounded into it, because Finding 10 measured provenance at ~6.2× the
   sampling width and merging them would produce an interval meaning neither.
 - **Closed, implemented.** `*13` at SAS `0.0` now reports as "not observed in
-  91,074 alleles, 95% upper bound 0.0042%" rather than reading as absence.
+  91,074 alleles, 95% upper bound 0.0033%, rule of three" rather than reading as
+  absence.
 - **New:** CYP2C19 as the second gene-drug pair (Finding 13). Tables and clinical
   actions already ship in pgx-core 0.7.0, it is CPIC Level A, and the SAS burden
   runs *higher* — which would make cohortfit an ancestry-sensitivity instrument

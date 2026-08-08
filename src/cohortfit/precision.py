@@ -88,12 +88,21 @@ class AllelePrecision:
         return self.alt_observed > 0
 
     @property
+    def detection_floor(self) -> float:
+        """Rule-of-three upper bound for this allele's sample size.
+
+        Meaningful only when the allele was never observed: it is the highest
+        frequency consistent with seeing zero copies in this many alleles.
+        """
+        return detection_floor(self.total_alleles)
+
+    @property
     def relative_width(self) -> float | None:
         """CI width as a fraction of the point estimate.
 
         ``None`` when the point estimate is zero — a relative width against zero
-        is undefined, and ``ci_high`` (the detection floor) is the meaningful
-        quantity there instead.
+        is undefined, and ``detection_floor`` is the meaningful quantity there
+        instead.
         """
         if self.frequency == 0:
             return None
@@ -111,7 +120,7 @@ class AllelePrecision:
             return (
                 f"{self.allele} was not observed in {self.total_alleles:,} "
                 f"{self.population} alleles — pinned 0.0 means not detected, not "
-                f"absent (95% upper bound {_pct(self.ci_high)})"
+                f"absent (95% upper bound {_pct(self.detection_floor)}, rule of three)"
             )
         return (
             f"{self.allele} {self.population} {_pct(self.frequency)} "
@@ -133,8 +142,11 @@ def wilson_interval(
     an impossible frequency, which would then break the sum-to-one invariant if
     it ever reached Hardy-Weinberg.
 
-    With zero successes the interval starts at exactly 0.0 and its upper bound
-    is the detection floor.
+    With zero successes the interval starts at exactly 0.0. Its upper bound is
+    then ``z²/(n + z²)`` ≈ ``3.84/n``, which is close to but not the same as the
+    rule-of-three ``3/n`` — ``detection_floor()`` is the one the report quotes,
+    because that is the bound the documented provenance tables were computed
+    with.
     """
     if trials <= 0:
         raise ValueError("trials must be positive")

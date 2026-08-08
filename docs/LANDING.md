@@ -6,8 +6,8 @@ Edviro-inspired marketing surface for cohortfit at `/`. The interactive audit vi
 
 | Path | Purpose |
 |------|---------|
-| `/` | Static marketing landing — no audit math |
-| `/app` | Sample report + live offline demo audit |
+| `/` | Marketing landing. No audit engine call — the ancestry mixer interpolates between the two pinned Tier 0 rates (0% SAS → 6.40% EUR, 100% SAS → 3.55%) client-side, and the WebGL helix is decorative |
+| `/app` | Audit workbench. Opens empty; dataset cards, JSON paste, prose extract, and **Load sample report** each fetch on demand |
 
 ## Local development (PowerShell)
 
