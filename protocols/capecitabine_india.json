@@ -1,0 +1,41 @@
+{
+  "trial_id": "CFIT-CRC-2026-01",
+  "title": "Adjuvant Capecitabine Monotherapy in Stage III Colon Adenocarcinoma",
+  "drugs": [
+    {
+      "drug": "capecitabine",
+      "dose": "1250 mg/m2",
+      "route": "oral",
+      "schedule": "twice daily, days 1-14, repeated every 3 weeks for 8 cycles"
+    }
+  ],
+  "inclusion_criteria": [
+    "Histologically confirmed stage III colon adenocarcinoma",
+    "ECOG performance status 0-1",
+    "Age 18-75 years",
+    "Adequate bone marrow, hepatic, and renal function",
+    "Completed surgical resection within 8 weeks of enrolment"
+  ],
+  "exclusion_criteria": [
+    "Prior chemotherapy or radiotherapy for colon cancer",
+    "Known hypersensitivity to fluoropyrimidines",
+    "Pregnant or breastfeeding",
+    "Uncontrolled cardiac disease",
+    "Creatinine clearance below 30 mL/min"
+  ],
+  "sites": [
+    {
+      "name": "Regional Cancer Centre, Kerala",
+      "country": "IN",
+      "planned_n": 100,
+      "ancestry_mix": { "SAS": 1.0 }
+    },
+    {
+      "name": "Cancer Institute, Chennai",
+      "country": "IN",
+      "planned_n": 50,
+      "ancestry_mix": { "SAS": 1.0 }
+    }
+  ],
+  "target_n": 150
+}

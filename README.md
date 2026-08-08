@@ -120,8 +120,13 @@ cohortfit audit protocols/demo.json   # demo-safe: use hand-verified pinned JSON
 
 Show extraction once on stage; run the audit from `protocols/demo.json` for the numbers demo.
 
+Additional hand-authored fixture from parallel work:
+[`protocols/capecitabine_india.json`](protocols/capecitabine_india.json) (two SAS sites, no DPYD screening).
+
 Entry point: `cohortfit = cohortfit.cli:app` in `pyproject.toml`.
 Renderer: `cohortfit.render` (Rich tables for verdict, cohort phenotype, site burden).
+
+See also: [docs/EVIDENCE.md](docs/EVIDENCE.md) · [docs/METHOD.md](docs/METHOD.md) · [AGENTS.md](AGENTS.md)
 
 ## Built on
 
