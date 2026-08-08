@@ -1,0 +1,45 @@
+{
+  "trial_id": "NCT01095003",
+  "title": "Vinflunine Plus Capecitabine in Advanced Breast Cancer",
+  "drugs": [
+    {
+      "drug": "capecitabine",
+      "dose": "1250 mg/m² twice daily",
+      "route": "oral",
+      "schedule": "days 1-14 every 21 days"
+    }
+  ],
+  "inclusion_criteria": [
+    "Female, age 21 or older",
+    "Histologically confirmed advanced breast cancer",
+    "Prior anthracycline exposure or taxane resistance",
+    "Adequate bone marrow, hepatic, and renal function per protocol"
+  ],
+  "exclusion_criteria": [
+    "Known hypersensitivity to capecitabine or fluoropyrimidines",
+    "Severe renal impairment (creatinine clearance below 30 mL/min)",
+    "Pregnant or breastfeeding",
+    "Uncontrolled intercurrent illness"
+  ],
+  "sites": [
+    {
+      "name": "Mumbai",
+      "country": "IN",
+      "planned_n": 100,
+      "ancestry_mix": {"SAS": 1.0}
+    },
+    {
+      "name": "Kochi",
+      "country": "IN",
+      "planned_n": 50,
+      "ancestry_mix": {"SAS": 1.0}
+    },
+    {
+      "name": "Munich",
+      "country": "DE",
+      "planned_n": 80,
+      "ancestry_mix": {"EUR": 1.0}
+    }
+  ],
+  "target_n": 230
+}
