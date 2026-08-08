@@ -1,0 +1,31 @@
+ClinicalTrials.gov Identifier: NCT01095003
+Title: Vinflunine Plus Capecitabine in Advanced Breast Cancer
+
+STUDY DESIGN
+Multicenter phase II study of vinflunine in combination with capecitabine in
+patients with advanced breast cancer. Target enrolment: 230 subjects.
+
+INVESTIGATIONAL AGENTS
+Capecitabine (Xeloda)
+  Dose: 1250 mg/m² twice daily
+  Route: oral
+  Schedule: days 1-14 every 21 days
+
+INCLUSION CRITERIA
+- Female, age 21 or older
+- Histologically confirmed advanced breast cancer
+- Prior anthracycline exposure or taxane resistance
+- Adequate bone marrow, hepatic, and renal function per protocol
+
+EXCLUSION CRITERIA
+- Known hypersensitivity to capecitabine or fluoropyrimidines
+- Severe renal impairment (creatinine clearance below 30 mL/min)
+- Pregnant or breastfeeding
+- Uncontrolled intercurrent illness
+
+PLANNED SITES AND ENROLMENT
+Mumbai, India — planned enrolment: 100 subjects
+Kochi, India — planned enrolment: 50 subjects
+Munich, Germany — planned enrolment: 80 subjects
+
+Total planned enrolment (target N): 230
