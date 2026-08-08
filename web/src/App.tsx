@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchSampleReport } from "./api/client";
 import { AuditReportView } from "./components/AuditReportView";
 import { DatasetCards } from "./components/DatasetCards";
 import { FixtureLanding } from "./components/FixtureLanding";
@@ -19,33 +18,12 @@ const TABS: { id: InputMode; label: string }[] = [
 function AuditApp() {
   const [report, setReport] = useState<AuditReport | null>(null);
   const [mode, setMode] = useState<InputMode>("demo");
-  const [bootError, setBootError] = useState<string | null>(null);
-  const [booting, setBooting] = useState(true);
 
   const receiveReport = useCallback((next: AuditReport) => {
     setReport(next);
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const sample = await fetchSampleReport();
-        if (!cancelled) setReport(sample);
-      } catch (e) {
-        if (!cancelled) {
-          setBootError(e instanceof Error ? e.message : "Failed to reach the audit API");
-        }
-      } finally {
-        if (!cancelled) setBooting(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   return (
@@ -87,20 +65,17 @@ function AuditApp() {
           </div>
         </section>
 
-        {booting && <p className="app-loading">Loading pinned sample report…</p>}
-        {bootError && !report && (
-          <div className="app-error">
-            <p>{bootError}</p>
-            <p className="app-notes">
-              Start the API and UI together: <code>cohortfit serve --port 8600</code>, then open{" "}
-              <code>http://127.0.0.1:8600/app</code>.
-            </p>
-          </div>
-        )}
-
-        {report && (
+        {report ? (
           <div className="app-report" key={`${report.protocol_title}-${report.total_planned_n}`}>
             <AuditReportView report={report} />
+          </div>
+        ) : (
+          <div className="empty-state panel app-report">
+            <p>No audit loaded yet</p>
+            <p className="footnote">
+              Use the Demo tab to load the sample report or run a demo audit, pick a pinned
+              protocol card, paste Protocol JSON, or extract from prose.
+            </p>
           </div>
         )}
       </main>
