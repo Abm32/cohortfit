@@ -48,7 +48,7 @@ function Strands({ mix }: HelixProps) {
   });
 
   return (
-    <group ref={group}>
+    <group ref={group} scale={1.12}>
       {rungs.map(({ i, y, angle }) => {
         const x = Math.cos(angle) * RADIUS;
         const z = Math.sin(angle) * RADIUS;
@@ -94,7 +94,7 @@ function Strands({ mix }: HelixProps) {
 export function DnaHelix({ mix }: HelixProps) {
   return (
     <Canvas
-      camera={{ position: [0, 0, 7], fov: 42 }}
+      camera={{ position: [0, 0, 5.5], fov: 38 }}
       gl={{ alpha: true, antialias: true }}
       dpr={[1, 2]}
       onCreated={() => {

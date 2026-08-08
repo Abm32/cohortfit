@@ -102,12 +102,18 @@ function AuditApp() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <Link to="/" className="app-back">
-          ← cohortfit
+        <Link to="/" className="app-header-brand">
+          <span className="app-logo-mark">cf</span>
+          cohortfit
         </Link>
         <h1>Audit report</h1>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <button type="button" className="app-btn" disabled={loading} onClick={() => void loadSample()}>
+        <div className="app-header-actions">
+          <button
+            type="button"
+            className="app-btn app-btn-secondary"
+            disabled={loading}
+            onClick={() => void loadSample()}
+          >
             Sample
           </button>
           <button type="button" className="app-btn" disabled={loading} onClick={() => void runDemoAudit()}>
@@ -120,7 +126,7 @@ function AuditApp() {
         {error && (
           <div className="app-error">
             <p>{error}</p>
-            <p style={{ fontSize: "0.85rem", marginTop: "0.5rem" }}>
+            <p className="app-notes">
               Start the API: <code>cohortfit serve --port 8000</code>
             </p>
           </div>
@@ -128,8 +134,8 @@ function AuditApp() {
         {report && (
           <>
             <div className="app-panel">
-              <h2 style={{ margin: "0 0 0.5rem" }}>{report.protocol_title}</h2>
-              <p style={{ margin: 0, color: "#8b9cb3", fontSize: "0.9rem" }}>
+              <h2>{report.protocol_title}</h2>
+              <p className="app-meta">
                 {report.trial_id && `Trial ${report.trial_id} · `}
                 N={report.total_planned_n} · {report.offline ? "offline" : "live"}
               </p>
@@ -177,7 +183,7 @@ function AuditApp() {
                   </table>
                 )}
                 {f.notes.map((n) => (
-                  <p key={n.slice(0, 30)} style={{ color: "#8b9cb3", fontSize: "0.9rem" }}>
+                  <p key={n.slice(0, 30)} className="app-notes">
                     {n}
                   </p>
                 ))}

@@ -9,181 +9,292 @@ body {
   min-height: 100vh;
 }
 
-/* App (/app) audit viewer — separate from landing.css */
+/* App (/app) audit viewer — uses landing.css :root tokens */
 .app-shell {
-  font-family: "Inter", system-ui, sans-serif;
-  background: #0f1419;
-  color: #e8edf4;
+  font-family: var(--font-sans);
+  background: var(--cream);
+  color: var(--ink);
   min-height: 100vh;
-  line-height: 1.5;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
 .app-shell a {
-  color: #74c69d;
+  color: inherit;
+  text-decoration: none;
 }
 
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #2d3a4f;
-  max-width: 960px;
+  padding: 0.85rem 2rem;
+  max-width: var(--max-width);
   margin: 0 auto;
   gap: 1rem;
   flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(248, 247, 242, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.app-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  transition: color 0.15s;
+}
+
+.app-header-brand:hover {
+  color: var(--forest);
+}
+
+.app-logo-mark {
+  width: 28px;
+  height: 28px;
+  background: var(--forest);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
 }
 
 .app-header h1 {
-  font-size: 1rem;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-light);
   margin: 0;
+  font-weight: 500;
 }
 
-.app-back {
-  font-size: 0.85rem;
-  color: #8b9cb3;
+.app-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .app-main {
   max-width: 960px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1.5rem 2rem 3rem;
 }
 
 .app-panel {
-  background: #1a2332;
-  border: 1px solid #2d3a4f;
-  border-radius: 8px;
+  background: var(--white);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.app-panel h2,
+.app-panel h3 {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.app-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.app-notes {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+}
+
+.app-warnings {
+  background: #fffbeb;
+  border: 1px solid #fbbf24;
+  border-radius: var(--radius-card);
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
 }
 
-.app-warnings {
-  background: #422006;
-  border: 1px solid #f59e0b;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
 .app-warnings h2 {
-  color: #fcd34d;
-  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  color: #b45309;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   margin: 0 0 0.5rem;
 }
 
+.app-warnings ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--ink);
+}
+
 .app-tier-0 {
-  color: #74c69d;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--forest-bright);
+  font-weight: 600;
 }
+
 .app-tier-1 {
-  color: #fbbf24;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: #b45309;
+  font-weight: 600;
 }
+
 .app-tier-2 {
-  color: #94a3b8;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
   font-style: italic;
 }
 
 .app-verdict-actionable {
-  color: #f87171;
+  color: #dc2626;
   font-weight: 700;
 }
+
 .app-verdict-contested {
-  color: #e879f9;
+  color: #9333ea;
   font-weight: 700;
 }
+
 .app-verdict-no_signal {
-  color: #4ade80;
+  color: var(--forest-bright);
+  font-weight: 600;
 }
 
 .app-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   margin: 0.75rem 0;
 }
 
-.app-table th,
+.app-table th {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-light);
+  font-weight: 500;
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
 .app-table td {
   text-align: left;
-  padding: 0.4rem 0.6rem;
-  border-bottom: 1px solid #2d3a4f;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--card-border);
 }
 
 .app-btn {
-  background: #1b4332;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--forest);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-pill);
   font-weight: 600;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+}
+
+.app-btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--card-border);
 }
 
 .app-btn:disabled {
   opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .app-error {
-  background: rgba(248, 113, 113, 0.1);
+  background: #fef2f2;
   border: 1px solid #fca5a5;
-  color: #fca5a5;
-  padding: 0.75rem;
-  border-radius: 6px;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-card);
+}
+
+.app-error code {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
 }
 
 .app-loading {
-  color: #8b9cb3;
+  color: var(--muted);
   font-style: italic;
 }
 
-/* ============================================================
-   Motion polish for the audit viewer (cohesive with landing)
-   ============================================================ */
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: linear-gradient(180deg, rgba(15, 20, 25, 0.96), rgba(15, 20, 25, 0.82));
-  backdrop-filter: blur(8px);
-  max-width: none;
-}
-.app-header > * {
-  max-width: 960px;
-}
-
-.app-back {
-  transition: color 0.15s, transform 0.15s;
-}
-.app-back:hover {
-  color: #74c69d;
-  transform: translateX(-3px);
-}
-
+/* Motion polish — cohesive with landing micro-interactions */
 .app-btn {
-  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s;
 }
+
 .app-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px -8px rgba(116, 198, 157, 0.6);
-  background: #2d6a4f;
+  box-shadow: 0 10px 24px -10px rgba(27, 67, 50, 0.6);
+  background: var(--forest-hover);
+}
+
+.app-btn-secondary:hover:not(:disabled) {
+  background: transparent;
+  border-color: var(--ink);
+  box-shadow: none;
 }
 
 .app-panel {
   animation: appFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-  transition: border-color 0.2s, transform 0.2s;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
+
 .app-panel:hover {
-  border-color: #3d5170;
+  border-color: var(--mint);
   transform: translateY(-2px);
+  box-shadow: 0 12px 32px -16px rgba(27, 67, 50, 0.15);
 }
-.app-main > .app-panel:nth-of-type(1) { animation-delay: 0.02s; }
-.app-main > .app-panel:nth-of-type(2) { animation-delay: 0.08s; }
-.app-main > .app-panel:nth-of-type(3) { animation-delay: 0.14s; }
-.app-main > .app-panel:nth-of-type(4) { animation-delay: 0.2s; }
-.app-main > .app-panel:nth-of-type(5) { animation-delay: 0.26s; }
+
+.app-main > .app-panel:nth-of-type(1) {
+  animation-delay: 0.02s;
+}
+.app-main > .app-panel:nth-of-type(2) {
+  animation-delay: 0.08s;
+}
+.app-main > .app-panel:nth-of-type(3) {
+  animation-delay: 0.14s;
+}
+.app-main > .app-panel:nth-of-type(4) {
+  animation-delay: 0.2s;
+}
+.app-main > .app-panel:nth-of-type(5) {
+  animation-delay: 0.26s;
+}
 
 .app-warnings {
   animation: appFadeUp 0.5s ease both;
@@ -193,6 +304,7 @@ body {
 .app-verdict-contested {
   display: inline-block;
 }
+
 .app-verdict-actionable {
   animation: verdictGlow 2.2s ease-in-out infinite;
 }
@@ -200,17 +312,30 @@ body {
 .app-table tbody tr {
   transition: background 0.15s;
 }
+
 .app-table tbody tr:hover {
-  background: rgba(116, 198, 157, 0.07);
+  background: rgba(116, 198, 157, 0.08);
 }
 
 @keyframes appFadeUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
+
 @keyframes verdictGlow {
-  0%, 100% { text-shadow: 0 0 0 rgba(248, 113, 113, 0); }
-  50% { text-shadow: 0 0 12px rgba(248, 113, 113, 0.6); }
+  0%,
+  100% {
+    text-shadow: 0 0 0 rgba(220, 38, 38, 0);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(220, 38, 38, 0.35);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
