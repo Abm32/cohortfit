@@ -81,6 +81,14 @@ Recorded in `fixtures/frequencies/dpyd.json` under `_meta.known_discrepancies`
 and emitted as a runtime warning on every audit that uses it — see
 [EVIDENCE.md §1.1](EVIDENCE.md).
 
+**Quantified impact** ([FINDINGS.md](FINDINGS.md) Finding 4): substituting each
+candidate value moves the SAS at-risk fraction 3.55% → 5.01% (up to **1.41×**),
+so the `ACTIONABLE` verdict is unaffected. But Poor Metabolizer spans **10.1×**
+(35.7 → 765 per million), which is why PM must be reported as a range rather than
+a point estimate. The Munich-above-Mumbai site ranking holds at every candidate
+value; because EUR `*2A` comes from the same exome callset, correcting both
+symmetrically widens the gap to **2.75×** rather than narrowing it.
+
 ### HapB3 label vs frequency rsID
 
 pgx-core's diplotype table keys the decreased-function haplotype as **`HapB3`**

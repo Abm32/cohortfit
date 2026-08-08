@@ -244,6 +244,31 @@ result for any individual. Per-patient calling is what
 [`anukriti-pgx-core`](https://github.com/AnukritiAi-hq/anukriti-pgx-core) does
 from an actual VCF; `cohortfit` never sees a genome.
 
+**5. Genotype-based methods have a documented ceiling, and this inherits it.**
+In a cohort of 712 patients given both DPD phenotyping and four-variant
+genotyping, the two disagreed for 12.5%, and **8.8% were biochemically deficient
+(uracil ≥ 16 µg/L) while carrying no panel variant**
+([PMID 36918744](https://pubmed.ncbi.nlm.nih.gov/36918744/)). Sequencing extra
+variants reduced discordance only from 12.5% to 12.1%. Part of the residual is
+not genetic at all — liver dysfunction elevates uracil independently. So roughly
+one in eleven DPD-deficient patients is invisible to *any* genotype-based
+approach, including this one.
+
+### The biases stack in one direction
+
+Caveats 1, 2 and 5 are not independent uncertainties that might cancel:
+
+| Source | Effect on reported burden | Magnitude |
+|---|---|---|
+| Consanguinity (`q² + Fpq`) | Poor Metabolizers undercounted | ~2.3× homozygotes |
+| `*2A` exome undercount | IM + PM undercounted | up to 1.41× at-risk |
+| Genotype-invisible deficiency | at-risk undercounted | ~8.8% of deficient patients |
+
+**Every known bias in this pipeline makes the reported burden too low.** That is
+the right direction for a safety instrument — the tool under-promises rather than
+over-promising — but it should be stated rather than left for a reviewer to
+discover. Quantified in [FINDINGS.md](FINDINGS.md) Finding 7.
+
 ---
 
 ## Why the caveats are in the repo

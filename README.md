@@ -126,7 +126,45 @@ Additional hand-authored fixture from parallel work:
 Entry point: `cohortfit = cohortfit.cli:app` in `pyproject.toml`.
 Renderer: `cohortfit.render` (Rich tables for verdict, cohort phenotype, site burden).
 
-See also: [docs/EVIDENCE.md](docs/EVIDENCE.md) · [docs/METHOD.md](docs/METHOD.md) · [AGENTS.md](AGENTS.md)
+See also: [docs/FINDINGS.md](docs/FINDINGS.md) · [docs/EVIDENCE.md](docs/EVIDENCE.md) · [docs/METHOD.md](docs/METHOD.md) · [AGENTS.md](AGENTS.md)
+
+## What the pinned data says
+
+[docs/FINDINGS.md](docs/FINDINGS.md) derives eight results from the pinned
+fixture by leave-one-out allele ablation and sensitivity analysis. Every figure
+reproduces from `fixtures/frequencies/dpyd.json` plus pgx-core 0.7.1 — no new
+data, no model. The load-bearing ones:
+
+**The South Asian panel is effectively single-allele.** `HapB3` carries **94.2%**
+of the CPIC-panel actionable burden in SAS (against 63.9% in EUR); `*13` never
+fires at all (pinned SAS frequency 0.0). Effective allele count: **1.12** for
+SAS versus 2.10 for EUR.
+
+**That concentration lands on the one allele CPIC contests.** CPIC's guideline
+page flags [PMID 37639651](https://pubmed.ncbi.nlm.nih.gov/37639651/): HapB3
+carriers dosed at a 25% reduction showed possible *reduced effectiveness* and
+increased toxicity. Set HapB3 aside as contested and the number needed to screen
+for one confidently actionable finding rises **28 → 487** in SAS, versus 16 → 43
+in EUR. The population with the most concentrated risk is concentrated on the
+allele with the weakest dosing evidence.
+
+**Screening yield is 1.80× worse in South Asians** (NNS 28.2 vs 15.6). This is a
+property of a European-derived panel, *not* evidence of lower risk — so published
+European cost-effectiveness results should not be assumed to transfer.
+
+**Poor Metabolizer is a range, not a point estimate.** Across candidate `*2A`
+sources the at-risk fraction moves a manageable 1.41×, but PM spans **10.1×**.
+At trial scale it is sub-integer anyway: ~5,000 SAS enrollees before one expected
+PM, so the Intermediate Metabolizer count is the only plannable quantity.
+
+**Every known bias makes our number too low.** Three floors stack in the same
+direction — consanguinity (~2.3× homozygotes), the `*2A` exome undercount (up to
+1.41×), and ~8.8% of biochemically DPD-deficient patients carrying no panel
+variant at all ([PMID 36918744](https://pubmed.ncbi.nlm.nih.gov/36918744/),
+n=712). None push the other way.
+
+> ⚠️ Findings 1–6 and 8 are **our derivations**, reproducible but not externally
+> confirmed. Marked as such in the document.
 
 ## Built on
 
@@ -194,6 +232,13 @@ ranked = rank_sites_by_burden(report.site_findings, gene="DPYD")
 **Demo caveat:** Mumbai and Kochi share SAS ancestry — delta is headcount only.
 Munich (EUR) diverges on ancestry (~1.8× higher at-risk rate). See
 [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md#per-site-findings-tier-0).
+
+**The ranking is robust.** "Munich above Mumbai" holds at every candidate value
+for the disputed SAS `*2A` frequency (1.80× down to 1.004× at the extreme upper
+bound) and never inverts. And because EUR `*2A` comes from the same suspect exome
+callset, correcting the undercount *symmetrically* widens the gap to **2.75×**
+rather than narrowing it — so fixing the provenance strengthens the claim. Full
+sensitivity table in [docs/FINDINGS.md](docs/FINDINGS.md) Finding 4.
 
 Run site tests: `pytest tests/test_sites.py`
 
