@@ -7,7 +7,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from .models import AuditReport, GeneDrugFinding, Tier, Verdict
+from .models import AuditReport, GeneDrugFinding, PhenotypeCount, Tier, Verdict
 from .sites import rank_sites_by_burden
 
 _VERDICT_STYLE = {
@@ -104,6 +104,24 @@ def _format_expected_n(expected_n: float) -> str:
     return f"{expected_n:.1f}"
 
 
+def _format_range(row: PhenotypeCount) -> str:
+    """Render the provenance sensitivity range for one phenotype class.
+
+    The spread is the point of the column, so it carries the fold-change
+    explicitly. FINDINGS.md Finding 4: Poor Metabolizer spans 10.1x across
+    candidate `*2A` sources while Intermediate Metabolizer moves 1.41x. A
+    reader comparing two numbers in the same table needs to see which of them
+    the pinned data actually supports.
+    """
+    if not row.is_range:
+        return ""
+    low, high = row.fraction_low, row.fraction_high
+    span = f"{_format_fraction(low)} – {_format_fraction(high)}"
+    if low > 0:
+        span += f"  ({high / low:.1f}×)"
+    return span
+
+
 def _render_distribution(console: Console, finding: GeneDrugFinding) -> None:
     if not finding.distribution:
         return
@@ -112,17 +130,34 @@ def _render_distribution(console: Console, finding: GeneDrugFinding) -> None:
         end="",
     )
     console.print(_tier_badge(Tier.DISTRIBUTION))
+    rows = sorted(finding.distribution, key=lambda d: -d.fraction)
+    show_range = any(row.is_range for row in rows)
+
     table = Table(show_header=True, header_style="bold", box=None, padding=(0, 2))
     table.add_column("Phenotype")
     table.add_column("Fraction", justify="right")
     table.add_column("Expected n", justify="right")
-    for row in sorted(finding.distribution, key=lambda d: -d.fraction):
-        table.add_row(
+    if show_range:
+        table.add_column("Range (provenance)", justify="right")
+
+    for row in rows:
+        cells = [
             row.phenotype,
             _format_fraction(row.fraction),
             _format_expected_n(row.expected_n),
-        )
+        ]
+        if show_range:
+            cells.append(_format_range(row))
+        table.add_row(*cells)
     console.print(table)
+
+    if show_range:
+        console.print(
+            "[dim]Range spans every candidate value for the disputed allele "
+            "frequency recorded in the fixture's known_discrepancies. Read the "
+            "wider ranges as provenance uncertainty, not as a prediction "
+            "interval.[/dim]"
+        )
 
 
 def _render_tier0_finding(console: Console, finding: GeneDrugFinding) -> None:
@@ -144,6 +179,11 @@ def _render_tier0_finding(console: Console, finding: GeneDrugFinding) -> None:
     )
     if finding.missing_exclusion:
         console.print(f"  {finding.missing_exclusion}")
+    # Tier 0 notes carry the panel-coverage and partial-ancestry caveats. They
+    # were being stored on the finding and never printed, which is the same
+    # failure the coverage warnings exist to prevent.
+    for note in finding.notes:
+        console.print(f"  [dim]{note}[/dim]")
     if finding.citations:
         console.print(f"  [dim]{_format_citations(finding.citations)}[/dim]")
     _render_distribution(console, finding)
@@ -285,12 +325,16 @@ def render_audit_report(report: AuditReport, *, console: Console | None = None) 
         _render_sources(out, report)
         return
 
-    site_genes_rendered: set[str] = set()
+    # All findings, then the site tables. Interleaving them stranded the second
+    # finding for a gene below that gene's site-burden table, where it reads as
+    # a footnote to the table rather than as a verdict in its own right.
     for finding in report.findings:
         _render_finding(out, finding)
-        if finding.tier == Tier.DISTRIBUTION and finding.gene not in site_genes_rendered:
-            _render_site_burden(out, report, finding.gene)
-            site_genes_rendered.add(finding.gene)
+
+    for gene in dict.fromkeys(
+        f.gene for f in report.findings if f.tier == Tier.DISTRIBUTION
+    ):
+        _render_site_burden(out, report, gene)
 
     _render_warnings(out, report)
     _render_sources(out, report)

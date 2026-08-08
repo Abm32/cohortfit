@@ -84,11 +84,28 @@ class Tier(int, Enum):
 
 
 class PhenotypeCount(BaseModel):
-    """Expected number of enrollees in one phenotype class."""
+    """Expected number of enrollees in one phenotype class.
+
+    `fraction_low`/`fraction_high` carry the provenance sensitivity range when
+    the fixture records an unresolved frequency conflict. FINDINGS.md Finding 4
+    measures Poor Metabolizer spanning 10.1x across candidate `*2A` sources
+    while the at-risk fraction moves only 1.41x: reporting PM as a point
+    estimate implies a precision the input data does not support.
+    """
 
     phenotype: str
     fraction: float
     expected_n: float
+    fraction_low: float | None = None
+    fraction_high: float | None = None
+
+    @property
+    def is_range(self) -> bool:
+        return (
+            self.fraction_low is not None
+            and self.fraction_high is not None
+            and self.fraction_high > self.fraction_low
+        )
 
 
 class PopulationCoverage(BaseModel):
