@@ -1,0 +1,49 @@
+{
+  "protocol_title": "US multi-ancestry cohort — partial frequency coverage",
+  "trial_id": "CFIT-US-PARTIAL",
+  "total_planned_n": 100,
+  "offline": true,
+  "warnings": [
+    "Partial ancestry coverage: no pinned DPYD frequencies for AFR, AMR (32% of declared enrolment). Distribution below reflects EUR-covered fraction only."
+  ],
+  "findings": [
+    {
+      "gene": "DPYD",
+      "drug": "capecitabine",
+      "verdict": "ACTIONABLE",
+      "tier": 0,
+      "distribution": [
+        {
+          "phenotype": "Normal Metabolizer",
+          "fraction": 0.936,
+          "expected_n": 93.6
+        },
+        {
+          "phenotype": "Intermediate Metabolizer",
+          "fraction": 0.063,
+          "expected_n": 6.3
+        },
+        {
+          "phenotype": "Poor Metabolizer",
+          "fraction": 0.001,
+          "expected_n": 0.1
+        }
+      ],
+      "cpic_level": "A",
+      "missing_exclusion": "Protocol does not exclude or screen for DPYD deficiency before capecitabine dosing.",
+      "notes": [
+        "Partial ancestry coverage: no pinned DPYD frequencies for AFR, AMR (32% of declared enrolment). Distribution reflects EUR-covered fraction only."
+      ],
+      "citations": ["29152729"],
+      "coverage": {
+        "covered": {"EUR": 0.68},
+        "dropped": {"AFR": 0.13, "AMR": 0.19}
+      }
+    }
+  ],
+  "site_findings": [],
+  "data_sources": [
+    "gnomAD v4.0 allele frequencies for DPYD (fixture=frequencies/dpyd.json)",
+    "CPIC DPYD diplotype table DPYD_diplotypes_anukriti_v2024.01"
+  ]
+}

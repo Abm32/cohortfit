@@ -12,11 +12,12 @@ arithmetic (Hardy-Weinberg diplotype expansion, ancestry-weighted allele
 blending) with no LLM or network calls past its inputs. Findings carry a
 `Tier` (0 = arithmetic, defensible; 1 = needs a cited literature multiplier;
 2 = labelled scenario, never a prediction) — preserve this distinction when
-adding new computation. The `cohortfit` CLI entry point is declared in
-`pyproject.toml` (`cohortfit.cli:app`) but `cli.py` does not exist yet.
-`protocols/` holds hand-authored `Protocol`-schema JSON fixtures used as
-offline input (e.g. `protocols/capecitabine_india.json`) — no live extraction
-yet.
+adding new computation. The `cohortfit` CLI lives in
+[src/cohortfit/cli.py](src/cohortfit/cli.py) (`audit`, `render`, `extract`,
+`serve`). The FastAPI backend is in [src/cohortfit/api/](src/cohortfit/api/).
+The React UI is in [web/](web/). `protocols/` holds hand-authored
+`Protocol`-schema JSON fixtures (e.g. `protocols/demo.json`) and source
+prose under `protocols/sources/`.
 
 [src/cohortfit/audit.py](src/cohortfit/audit.py) is the entry point that
 wires the pipeline end to end: `audit_protocol(Protocol) -> AuditReport`.
@@ -32,6 +33,8 @@ gene-drug pair is in scope).
 ## Build, Test, and Development Commands
 
 - `pip install -e ".[dev]"` — install with test/lint dependencies.
+- `pip install -e ".[web,dev]"` — add FastAPI/uvicorn for `cohortfit serve`.
+- `cohortfit serve --port 8000` — API + built `web/dist` static UI.
 - `pytest` — run the test suite (`testpaths = ["tests"]`, strict markers).
 - `pytest tests/test_cohort.py::TestDiplotypeFrequencies::test_hardy_weinberg_sums_to_one` — run a single test.
 - `pytest tests/test_audit.py` — pipeline + ground-truth tests for the wired DPYD engine.

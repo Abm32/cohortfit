@@ -7,63 +7,27 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from .display import (
+    TIER_META,
+    VERDICT_RICH_STYLE,
+    format_citations_rich,
+    format_expected_n,
+    format_fraction,
+    infer_planned_n,
+    tier_border_token,
+    tier_rich_style,
+    tier_subtitle,
+)
 from .models import AuditReport, GeneDrugFinding, PhenotypeCount, Tier, Verdict
 from .sites import rank_sites_by_burden
 
-_VERDICT_STYLE = {
-    Verdict.ACTIONABLE: "bold red",
-    Verdict.CONTESTED: "bold magenta",
-    Verdict.NO_SIGNAL: "dim green",
-}
-
-# badge label, badge style, panel border, subtitle
-_TIER_META: dict[Tier, tuple[str, str, str, str]] = {
-    Tier.DISTRIBUTION: (
-        "TIER 0",
-        "bold cyan",
-        "cyan",
-        "Arithmetic on pinned tables + HWE",
-    ),
-    Tier.BURDEN: (
-        "TIER 1",
-        "bold yellow",
-        "yellow",
-        "Literature effect multiplier — citation required",
-    ),
-    Tier.SCENARIO: (
-        "SCENARIO",
-        "dim italic",
-        "dim",
-        "Directional only — not a prediction",
-    ),
-}
-
 
 def _verdict_text(verdict: Verdict) -> Text:
-    return Text(verdict.value, style=_VERDICT_STYLE.get(verdict, ""))
+    return Text(verdict.value, style=VERDICT_RICH_STYLE.get(verdict, ""))
 
 
 def _tier_badge(tier: Tier) -> Text:
-    label, style, _, _ = _TIER_META[tier]
-    return Text(label, style=style)
-
-
-def _tier_border(tier: Tier) -> str:
-    return _TIER_META[tier][2]
-
-
-def _tier_subtitle(tier: Tier) -> str:
-    return _TIER_META[tier][3]
-
-
-def _format_citations(citations: list[str], *, required: bool = False) -> str:
-    if not citations:
-        if required:
-            return "[bold yellow]Citation: MISSING — Tier 1 requires a source[/bold yellow]"
-        return ""
-    cites = ", ".join(f"PMID {c}" if c.isdigit() else c for c in citations)
-    prefix = "Citation" if not required else "Citation (required)"
-    return f"[bold]{prefix}:[/bold] {cites}"
+    return Text(TIER_META[tier][0], style=tier_rich_style(tier))
 
 
 def _render_header(report: AuditReport) -> Panel:
@@ -76,47 +40,14 @@ def _render_header(report: AuditReport) -> Panel:
     return Panel(body, title="cohortfit", border_style="blue")
 
 
-def _format_fraction(fraction: float) -> str:
-    """Render a phenotype fraction without collapsing rare classes to zero.
-
-    Poor Metabolizer frequencies are ~1e-4 under Hardy-Weinberg for rare
-    no-function alleles. At one decimal place that prints "0.0%", which reads
-    as absent — and PM is the class with the severe, potentially fatal
-    outcome. METHOD.md argues the PM estimate is a floor rather than a point
-    estimate, so the renderer must not round it out of existence.
-    """
-    pct = fraction * 100
-    if pct == 0:
-        return "0%"
-    if pct < 0.01:
-        return f"{pct:.3f}%"
-    if pct < 1:
-        return f"{pct:.2f}%"
-    return f"{pct:.1f}%"
-
-
-def _format_expected_n(expected_n: float) -> str:
-    """Expected patient counts below 0.1 keep two decimals rather than showing 0.0."""
-    if expected_n == 0:
-        return "0"
-    if expected_n < 0.1:
-        return f"{expected_n:.2f}"
-    return f"{expected_n:.1f}"
-
-
 def _format_range(row: PhenotypeCount) -> str:
-    """Render the provenance sensitivity range for one phenotype class.
-
-    The spread is the point of the column, so it carries the fold-change
-    explicitly. FINDINGS.md Finding 4: Poor Metabolizer spans 10.1x across
-    candidate `*2A` sources while Intermediate Metabolizer moves 1.41x. A
-    reader comparing two numbers in the same table needs to see which of them
-    the pinned data actually supports.
-    """
+    """Render the provenance sensitivity range for one phenotype class."""
     if not row.is_range:
         return ""
     low, high = row.fraction_low, row.fraction_high
-    span = f"{_format_fraction(low)} – {_format_fraction(high)}"
+    if low is None or high is None:
+        return ""
+    span = f"{format_fraction(low)} – {format_fraction(high)}"
     if low > 0:
         span += f"  ({high / low:.1f}×)"
     return span
@@ -125,10 +56,7 @@ def _format_range(row: PhenotypeCount) -> str:
 def _render_distribution(console: Console, finding: GeneDrugFinding) -> None:
     if not finding.distribution:
         return
-    console.print(
-        "\n[bold]COHORT PHENOTYPE[/bold]  ",
-        end="",
-    )
+    console.print("\n[bold]COHORT PHENOTYPE[/bold]  ", end="")
     console.print(_tier_badge(Tier.DISTRIBUTION))
     rows = sorted(finding.distribution, key=lambda d: -d.fraction)
     show_range = any(row.is_range for row in rows)
@@ -143,8 +71,8 @@ def _render_distribution(console: Console, finding: GeneDrugFinding) -> None:
     for row in rows:
         cells = [
             row.phenotype,
-            _format_fraction(row.fraction),
-            _format_expected_n(row.expected_n),
+            format_fraction(row.fraction),
+            format_expected_n(row.expected_n),
         ]
         if show_range:
             cells.append(_format_range(row))
@@ -161,7 +89,6 @@ def _render_distribution(console: Console, finding: GeneDrugFinding) -> None:
 
 
 def _render_tier0_finding(console: Console, finding: GeneDrugFinding) -> None:
-    subtitle = _tier_subtitle(finding.tier)
     cpic = f"  CPIC Level {finding.cpic_level}" if finding.cpic_level else ""
     header = Text.assemble(
         ("FINDING  ", "bold"),
@@ -173,8 +100,8 @@ def _render_tier0_finding(console: Console, finding: GeneDrugFinding) -> None:
         Panel(
             header,
             title=_tier_badge(finding.tier),
-            subtitle=subtitle,
-            border_style=_tier_border(finding.tier),
+            subtitle=tier_subtitle(finding.tier),
+            border_style=tier_border_token(finding.tier),
         )
     )
     if finding.missing_exclusion:
@@ -185,12 +112,11 @@ def _render_tier0_finding(console: Console, finding: GeneDrugFinding) -> None:
     for note in finding.notes:
         console.print(f"  [dim]{note}[/dim]")
     if finding.citations:
-        console.print(f"  [dim]{_format_citations(finding.citations)}[/dim]")
+        console.print(f"  [dim]{format_citations_rich(finding.citations)}[/dim]")
     _render_distribution(console, finding)
 
 
 def _render_tier1_finding(console: Console, finding: GeneDrugFinding) -> None:
-    subtitle = _tier_subtitle(finding.tier)
     lines = [
         Text.assemble(
             (f"{finding.gene} × {finding.drug}  →  ", "bold"),
@@ -199,7 +125,7 @@ def _render_tier1_finding(console: Console, finding: GeneDrugFinding) -> None:
     ]
     for note in finding.notes:
         lines.append(Text(note))
-    cite_line = _format_citations(finding.citations, required=True)
+    cite_line = format_citations_rich(finding.citations, required=True)
     if cite_line:
         lines.append(Text.from_markup(cite_line))
 
@@ -208,8 +134,8 @@ def _render_tier1_finding(console: Console, finding: GeneDrugFinding) -> None:
         Panel(
             body,
             title=_tier_badge(finding.tier),
-            subtitle=subtitle,
-            border_style=_tier_border(finding.tier),
+            subtitle=tier_subtitle(finding.tier),
+            border_style=tier_border_token(finding.tier),
         )
     )
     if finding.tier == Tier.BURDEN and not finding.citations:
@@ -217,20 +143,19 @@ def _render_tier1_finding(console: Console, finding: GeneDrugFinding) -> None:
 
 
 def _render_tier2_finding(console: Console, finding: GeneDrugFinding) -> None:
-    subtitle = _tier_subtitle(finding.tier)
     lines = [Text("Not a prediction — labelled scenario only.", style="dim italic")]
     for note in finding.notes:
         lines.append(Text(note, style="dim"))
     if finding.citations:
-        lines.append(Text.from_markup(_format_citations(finding.citations)))
+        lines.append(Text.from_markup(format_citations_rich(finding.citations)))
 
     body = Text("\n").join(lines)
     console.print(
         Panel(
             body,
             title=_tier_badge(finding.tier),
-            subtitle=subtitle,
-            border_style=_tier_border(finding.tier),
+            subtitle=tier_subtitle(finding.tier),
+            border_style=tier_border_token(finding.tier),
         )
     )
 
@@ -260,13 +185,9 @@ def _render_site_burden(console: Console, report: AuditReport, gene: str) -> Non
 
     baseline = ranked[-1]
     for site in ranked:
-        planned_n = (
-            round(site.expected_at_risk_n / site.at_risk_fraction)
-            if site.at_risk_fraction
-            else 0
-        )
+        planned_n = infer_planned_n(site.expected_at_risk_n, site.at_risk_fraction)
         note = ""
-        if site.site_name != baseline.site_name:
+        if site.site_name != baseline.site_name and baseline.at_risk_fraction:
             ratio = site.at_risk_fraction / baseline.at_risk_fraction
             if abs(ratio - 1.0) > 1e-6:
                 note = f"  [dim]({ratio:.2f}× rate vs {baseline.site_name})[/dim]"
@@ -286,12 +207,6 @@ def _render_site_burden(console: Console, report: AuditReport, gene: str) -> Non
 
 
 def _render_warnings(console: Console, report: AuditReport) -> None:
-    """Print data-coverage warnings.
-
-    These are deliberately loud: a renormalised-away population produces a
-    distribution that still sums to 1.0 and looks complete. Silence here would
-    reproduce the failure mode this tool exists to catch.
-    """
     if not report.warnings:
         return
     console.print("\n[bold yellow]COVERAGE WARNINGS[/bold yellow]")
@@ -314,10 +229,8 @@ def render_audit_report(report: AuditReport, *, console: Console | None = None) 
 
     if not report.findings:
         if report.warnings:
-            # Not the same as "no risk": we could not compute one.
             out.print(
-                "\n[yellow]No distribution computed — see coverage warnings "
-                "below.[/yellow]"
+                "\n[yellow]No distribution computed — see coverage warnings below.[/yellow]"
             )
         else:
             out.print("\n[yellow]No PGx-actionable drugs found in protocol.[/yellow]")
