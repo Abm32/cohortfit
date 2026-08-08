@@ -231,3 +231,12 @@ cohortfit render fixtures/reports/sample_audit_report.json
 
 The sample fixture includes one finding per tier so renderer work is unblocked
 without Track A. Live audit uses the same renderer: `cohortfit audit protocols/demo.json`.
+
+## Claude extraction (Track B)
+
+**Command:** `cohortfit extract protocols/sources/nct01095003.txt -o out.json`  
+**Golden pair:** source `protocols/sources/nct01095003.txt` → expected `protocols/demo.json`  
+**Validation:** `Protocol.model_validate_json()` — garbage never reaches Tier 0 math
+
+Extraction tests mock Claude and diff against the hand-verified demo fixture.
+Live extract requires `ANTHROPIC_API_KEY`; audit demo uses pinned JSON only.

@@ -101,9 +101,22 @@ more demos than bugs do.
 ```bash
 cohortfit audit protocols/demo.json --offline   # explicit, same as default
 cohortfit audit protocols/demo.json --no-offline  # rejected (live audit not supported)
+cohortfit extract protocols/sources/nct01095003.txt -o /tmp/out.json  # needs ANTHROPIC_API_KEY
 cohortfit --help
 cohortfit audit --help
+cohortfit extract --help
 ```
+
+**Extraction** (optional, needs network + API key):
+
+```bash
+pip install -e ".[llm]"
+export ANTHROPIC_API_KEY=...
+cohortfit extract protocols/sources/nct01095003.txt -o protocols/extracted.json
+cohortfit audit protocols/demo.json   # demo-safe: use hand-verified pinned JSON
+```
+
+Show extraction once on stage; run the audit from `protocols/demo.json` for the numbers demo.
 
 Entry point: `cohortfit = cohortfit.cli:app` in `pyproject.toml`.
 Renderer: `cohortfit.render` (Rich tables for verdict, cohort phenotype, site burden).
@@ -144,7 +157,9 @@ report = audit_protocol(load_protocol("protocols/demo.json"), offline=True)
 | Module | Role |
 |---|---|
 | [`cohortfit.audit`](src/cohortfit/audit.py) | Orchestrator — only module loading fixtures end-to-end |
-| [`cohortfit.cli`](src/cohortfit/cli.py) | Typer CLI — `cohortfit audit <protocol.json>` |
+| [`cohortfit.cli`](src/cohortfit/cli.py) | Typer CLI — `cohortfit audit`, `extract`, `render` |
+| [`cohortfit.extract`](src/cohortfit/extract.py) | Claude prose → validated `Protocol` JSON |
+| [`cohortfit.ancestry`](src/cohortfit/ancestry.py) | Country-default `ancestry_mix` inference |
 | [`cohortfit.render`](src/cohortfit/render.py) | Tier-aware Rich report renderer |
 | [`cohortfit.reports`](src/cohortfit/reports.py) | AuditReport JSON loader for renderer dev |
 | [`cohortfit.sites`](src/cohortfit/sites.py) | Per-site metabolic burden and site-selection ranking |
@@ -215,6 +230,36 @@ cohortfit render fixtures/reports/sample_audit_report.json
 ```
 
 Loader: `cohortfit.reports.load_audit_report()`. Tests: `pytest tests/test_render.py`.
+
+## Claude extraction (Track B)
+
+**Module:** `cohortfit.extract`  
+**Prompt:** `src/cohortfit/prompts/protocol_extract.txt`  
+**Source fixture:** `protocols/sources/nct01095003.txt`  
+**Golden output:** `protocols/demo.json` (hand-verified)  
+**Tests:** `tests/test_extract.py` (mocked — no API key in CI)
+
+### Boundary
+
+```
+protocol prose → Claude → JSON → Protocol.model_validate() → audit engine
+```
+
+Claude extracts drugs, criteria, sites, and enrolment only. It must **never**
+estimate allele frequencies or phenotypes. Malformed JSON raises `ExtractionError`.
+
+### Ancestry inference
+
+When sites omit `ancestry_mix`, `cohortfit.ancestry.apply_ancestry_defaults()`
+fills pinned country priors (e.g. `IN` → SAS, `DE` → EUR). Documented assumption,
+not a gnomAD lookup.
+
+### Demo strategy
+
+1. **Once (optional live):** `cohortfit extract protocols/sources/nct01095003.txt -o /tmp/out.json`
+2. **Main demo:** `cohortfit audit protocols/demo.json` — pinned hand-verified JSON, offline
+
+Requires `pip install -e ".[llm]"` and `ANTHROPIC_API_KEY` for extract only.
 
 ## Design principle
 
