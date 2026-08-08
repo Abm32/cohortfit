@@ -54,7 +54,7 @@ Deliver in this order. Each dot ends with a bridge into the next.
 
 > We ship on **[anukriti-pgx-core](https://github.com/AnukritiAi-hq/anukriti-pgx-core)** — pinned CPIC tables, 13 genes, no runtime API calls to CPIC.
 >
-> **Claude extracts the protocol. Everything after that is arithmetic.** No LLM estimates a frequency. Tier 0 is pinned gnomAD + Hardy–Weinberg + CPIC phenotype tables. **189 tests**, offline by default.
+> **Claude extracts the protocol. Everything after that is arithmetic.** No LLM estimates a frequency. Tier 0 is pinned gnomAD + Hardy–Weinberg + CPIC phenotype tables. **236 tests**, offline by default.
 >
 > Every claim carries a tier label, and a verdict of **CONTESTED** is one the engine can actually reach — you'll watch it fire in a second, on a dispute inside CPIC's own guideline.
 
@@ -123,7 +123,7 @@ Run: `cohortfit audit protocols/demo.json` — moments are in printed order.
 | So you'd tell them to cut the dose? | Not for HapB3, and the tool says so itself — that second panel on screen. **CPIC's own guideline page** flags PMID 37639651: HapB3 carriers on a 25% reduction showed possible *reduced effectiveness* and increased toxicity. A real `CONTESTED` case, raised automatically because HapB3 dominates the IM bucket. |
 | Any number you don't trust? | Yes, and it's in the repo: SAS `*2A` is pinned from gnomAD **exomes** at 0.0005 while every genome-based source says 0.003–0.008. `*2A` is a splice-donor variant where exome capture is unreliable. Logged as `_meta.known_discrepancies`, warned at runtime, direction stated (our PM estimate is conservative). |
 | What's the cost of getting this wrong? | Tufts CSDD: a substantial amendment is **$141k (Ph II) / $535k (Ph III)**, 76% of protocols need one, and a delay day is **~$840k** unrealised oncology sales + **$55,716** direct Ph III cost. (The popular $600k–$8M/day figure is a 1993 artefact Tufts revised down — we don't cite it.) |
-| What did you build today? | Tier 0 audit pipeline, tier-aware renderer, Claude extractor, population-coverage warnings, 189 tests, ruff clean — see repo commits. |
+| What did you build today? | Tier 0 audit pipeline, tier-aware renderer, Claude extractor, population-coverage warnings, 236 tests, ruff clean — see repo commits. |
 | Did you find anything new? | Yes — derived, reproducible from our own pinned data ([docs/FINDINGS.md](FINDINGS.md)). In a **pure South Asian** cohort **94.2%** of the CPIC-panel actionable burden sits on **one allele, HapB3** — and HapB3 is the allele whose dosing CPIC itself contests (PMID 37639651). Set it aside and number-needed-to-screen goes **28 → 487**. The population with the most concentrated risk is concentrated on the weakest evidence. We have not seen that stated anywhere. |
 | Your screen said 79.3%, not 94.2% — which is it? | Both, for different cohorts. **94.2% / 1.12 effective alleles is pure South Asian**; the demo cohort is 150 South Asian plus 80 European, which blends to the **79.3% / 1.53** on screen. Same function, different ancestry mix — that is the whole point of the tool. |
 | Isn't a four-variant panel broad coverage? | Not for South Asians. Effective allele count is **1.12** in a pure SAS cohort (`*13` never fires — pinned SAS frequency is zero). For Europeans it's 2.10, a genuine multi-allele test. The demo's mixed cohort lands at 1.53. Same panel, different instrument. |
@@ -139,6 +139,6 @@ Run: `cohortfit audit protocols/demo.json` — moments are in printed order.
 
 **Problem:** Up to 80% of trials are delayed by enrolment (ICON). $2.1B chases molecule design (Isomorphic); almost nothing addresses whether the protocol dose matches the sites' ancestry mix. India/Japan/China are making ethnic sensitivity a filing requirement.
 
-**Solution:** Claude extracts protocol structure; a deterministic engine (pinned gnomAD + CPIC via anukriti-pgx-core) computes cohort phenotype distribution, screening gaps, and per-site metabolic burden — offline, tier-labelled, 189 tests.
+**Solution:** Claude extracts protocol structure; a deterministic engine (pinned gnomAD + CPIC via anukriti-pgx-core) computes cohort phenotype distribution, screening gaps, and per-site metabolic burden — offline, tier-labelled, 236 tests.
 
 **Demo:** `cohortfit audit protocols/demo.json`
