@@ -1,4 +1,4 @@
-"""Rich renderer for AuditReport — what judges see on stdout."""
+"""Rich renderer for AuditReport — tier-aware terminal output."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from .models import AuditReport, GeneDrugFinding, Verdict
+from .models import AuditReport, GeneDrugFinding, Tier, Verdict
 from .sites import rank_sites_by_burden
 
 _VERDICT_STYLE = {
@@ -16,9 +16,54 @@ _VERDICT_STYLE = {
     Verdict.NO_SIGNAL: "dim green",
 }
 
+# badge label, badge style, panel border, subtitle
+_TIER_META: dict[Tier, tuple[str, str, str, str]] = {
+    Tier.DISTRIBUTION: (
+        "TIER 0",
+        "bold cyan",
+        "cyan",
+        "Arithmetic on pinned tables + HWE",
+    ),
+    Tier.BURDEN: (
+        "TIER 1",
+        "bold yellow",
+        "yellow",
+        "Literature effect multiplier — citation required",
+    ),
+    Tier.SCENARIO: (
+        "SCENARIO",
+        "dim italic",
+        "dim",
+        "Directional only — not a prediction",
+    ),
+}
+
 
 def _verdict_text(verdict: Verdict) -> Text:
     return Text(verdict.value, style=_VERDICT_STYLE.get(verdict, ""))
+
+
+def _tier_badge(tier: Tier) -> Text:
+    label, style, _, _ = _TIER_META[tier]
+    return Text(label, style=style)
+
+
+def _tier_border(tier: Tier) -> str:
+    return _TIER_META[tier][2]
+
+
+def _tier_subtitle(tier: Tier) -> str:
+    return _TIER_META[tier][3]
+
+
+def _format_citations(citations: list[str], *, required: bool = False) -> str:
+    if not citations:
+        if required:
+            return "[bold yellow]Citation: MISSING — Tier 1 requires a source[/bold yellow]"
+        return ""
+    cites = ", ".join(f"PMID {c}" if c.isdigit() else c for c in citations)
+    prefix = "Citation" if not required else "Citation (required)"
+    return f"[bold]{prefix}:[/bold] {cites}"
 
 
 def _render_header(report: AuditReport) -> Panel:
@@ -31,34 +76,104 @@ def _render_header(report: AuditReport) -> Panel:
     return Panel(body, title="cohortfit", border_style="blue")
 
 
-def _render_finding(console: Console, finding: GeneDrugFinding) -> None:
-    cpic = f"  CPIC Level {finding.cpic_level}" if finding.cpic_level else ""
+def _render_distribution(console: Console, finding: GeneDrugFinding) -> None:
+    if not finding.distribution:
+        return
     console.print(
-        f"\n[bold]FINDING[/bold]  {finding.gene} × {finding.drug}  →  ",
+        f"\n[bold]COHORT PHENOTYPE[/bold]  ",
         end="",
     )
-    console.print(_verdict_text(finding.verdict), end="")
-    console.print(cpic)
+    console.print(_tier_badge(Tier.DISTRIBUTION))
+    table = Table(show_header=True, header_style="bold", box=None, padding=(0, 2))
+    table.add_column("Phenotype")
+    table.add_column("Fraction", justify="right")
+    table.add_column("Expected n", justify="right")
+    for row in sorted(finding.distribution, key=lambda d: -d.fraction):
+        table.add_row(
+            row.phenotype,
+            f"{row.fraction * 100:.1f}%",
+            f"{row.expected_n:.1f}",
+        )
+    console.print(table)
 
+
+def _render_tier0_finding(console: Console, finding: GeneDrugFinding) -> None:
+    subtitle = _tier_subtitle(finding.tier)
+    cpic = f"  CPIC Level {finding.cpic_level}" if finding.cpic_level else ""
+    header = Text.assemble(
+        ("FINDING  ", "bold"),
+        (f"{finding.gene} × {finding.drug}  →  ", ""),
+        _verdict_text(finding.verdict),
+        (cpic, ""),
+    )
+    console.print(
+        Panel(
+            header,
+            title=_tier_badge(finding.tier),
+            subtitle=subtitle,
+            border_style=_tier_border(finding.tier),
+        )
+    )
     if finding.missing_exclusion:
-        console.print(f"         {finding.missing_exclusion}")
+        console.print(f"  {finding.missing_exclusion}")
     if finding.citations:
-        cites = ", ".join(f"PMID {c}" if c.isdigit() else c for c in finding.citations)
-        console.print(f"         [dim]Citation: {cites}[/dim]")
+        console.print(f"  [dim]{_format_citations(finding.citations)}[/dim]")
+    _render_distribution(console, finding)
 
-    if finding.distribution:
-        console.print("\n[bold]COHORT PHENOTYPE[/bold]  [dim](Tier 0)[/dim]")
-        table = Table(show_header=True, header_style="bold", box=None, padding=(0, 2))
-        table.add_column("Phenotype")
-        table.add_column("Fraction", justify="right")
-        table.add_column("Expected n", justify="right")
-        for row in sorted(finding.distribution, key=lambda d: -d.fraction):
-            table.add_row(
-                row.phenotype,
-                f"{row.fraction * 100:.1f}%",
-                f"{row.expected_n:.1f}",
-            )
-        console.print(table)
+
+def _render_tier1_finding(console: Console, finding: GeneDrugFinding) -> None:
+    subtitle = _tier_subtitle(finding.tier)
+    lines = [
+        Text.assemble(
+            (f"{finding.gene} × {finding.drug}  →  ", "bold"),
+            _verdict_text(finding.verdict),
+        )
+    ]
+    for note in finding.notes:
+        lines.append(Text(note))
+    cite_line = _format_citations(finding.citations, required=True)
+    if cite_line:
+        lines.append(Text.from_markup(cite_line))
+
+    body = Text("\n").join(lines)
+    console.print(
+        Panel(
+            body,
+            title=_tier_badge(finding.tier),
+            subtitle=subtitle,
+            border_style=_tier_border(finding.tier),
+        )
+    )
+    if finding.tier == Tier.BURDEN and not finding.citations:
+        console.print("[yellow]Warning: Tier 1 finding missing citation[/yellow]")
+
+
+def _render_tier2_finding(console: Console, finding: GeneDrugFinding) -> None:
+    subtitle = _tier_subtitle(finding.tier)
+    lines = [Text("Not a prediction — labelled scenario only.", style="dim italic")]
+    for note in finding.notes:
+        lines.append(Text(note, style="dim"))
+    if finding.citations:
+        lines.append(Text.from_markup(_format_citations(finding.citations)))
+
+    body = Text("\n").join(lines)
+    console.print(
+        Panel(
+            body,
+            title=_tier_badge(finding.tier),
+            subtitle=subtitle,
+            border_style=_tier_border(finding.tier),
+        )
+    )
+
+
+def _render_finding(console: Console, finding: GeneDrugFinding) -> None:
+    if finding.tier == Tier.DISTRIBUTION:
+        _render_tier0_finding(console, finding)
+    elif finding.tier == Tier.BURDEN:
+        _render_tier1_finding(console, finding)
+    else:
+        _render_tier2_finding(console, finding)
 
 
 def _render_site_burden(console: Console, report: AuditReport, gene: str) -> None:
@@ -66,7 +181,10 @@ def _render_site_burden(console: Console, report: AuditReport, gene: str) -> Non
     if not ranked:
         return
 
-    console.print("\n[bold]SITE BURDEN[/bold]  [dim](IM+PM rate × planned_n)[/dim]")
+    console.print("\n[bold]SITE BURDEN[/bold]  ", end="")
+    console.print(_tier_badge(Tier.DISTRIBUTION))
+    console.print("[dim](IM+PM rate × planned_n)[/dim]")
+
     table = Table(show_header=True, header_style="bold")
     table.add_column("Site")
     table.add_column("At-risk rate", justify="right")
@@ -108,7 +226,7 @@ def _render_sources(console: Console, report: AuditReport) -> None:
 
 
 def render_audit_report(report: AuditReport, *, console: Console | None = None) -> None:
-    """Print a human-readable audit report to the console."""
+    """Print a tier-aware human-readable audit report to the console."""
     out = console or Console()
     out.print(_render_header(report))
 
@@ -117,9 +235,12 @@ def render_audit_report(report: AuditReport, *, console: Console | None = None) 
         _render_sources(out, report)
         return
 
+    site_genes_rendered: set[str] = set()
     for finding in report.findings:
         _render_finding(out, finding)
-        _render_site_burden(out, report, finding.gene)
+        if finding.tier == Tier.DISTRIBUTION and finding.gene not in site_genes_rendered:
+            _render_site_burden(out, report, finding.gene)
+            site_genes_rendered.add(finding.gene)
 
     _render_sources(out, report)
     out.print()
