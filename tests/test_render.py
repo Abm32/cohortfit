@@ -9,13 +9,10 @@ from rich.console import Console
 from typer.testing import CliRunner
 
 from cohortfit.cli import app
+from cohortfit.display import format_expected_n, format_fraction
 from cohortfit.frequencies import repo_root
 from cohortfit.models import Tier
-from cohortfit.render import (
-    _format_expected_n,
-    _format_fraction,
-    render_audit_report,
-)
+from cohortfit.render import render_audit_report
 from cohortfit.reports import load_audit_report
 
 SAMPLE_REPORT = repo_root() / "fixtures" / "reports" / "sample_audit_report.json"
@@ -95,7 +92,7 @@ class TestSmallValueFormatting:
         ],
     )
     def test_format_fraction_keeps_rare_classes_visible(self, fraction, expected):
-        assert _format_fraction(fraction) == expected
+        assert format_fraction(fraction) == expected
 
     @pytest.mark.parametrize(
         ("expected_n", "expected"),
@@ -109,7 +106,7 @@ class TestSmallValueFormatting:
     def test_format_expected_n_keeps_fractional_patients_visible(
         self, expected_n, expected
     ):
-        assert _format_expected_n(expected_n) == expected
+        assert format_expected_n(expected_n) == expected
 
     def test_poor_metabolizer_not_rendered_as_zero(self, sample_report):
         output = _render_to_string(sample_report)
