@@ -17,6 +17,7 @@ from .frequencies import FixtureError, load_gene_frequencies, load_gene_provenan
 from .models import AuditReport, GeneDrugFinding, Protocol, SiteFinding, Tier, Verdict
 from .panel import burden_shares, coverage_note, panel_concentration
 from .pgx import cohort_phenotype_distribution, table_citation
+from .precision import population_precision, precision_notes
 from .rules import contested_burden, normalize_drug, resolve_gene, screening_gap
 from .sensitivity import phenotype_bounds
 from .sites import site_metabolic_burden
@@ -168,6 +169,16 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
         # Appended after the coverage caveat: a missing population is a bigger
         # problem than the shape of the panel that did apply.
         notes.append(coverage_note(panel_concentration(blended), shares))
+
+        # How well the reference panel measured each allele *for this cohort's
+        # ancestry groups*. Rare SAS alleles carry ~58% relative CI width against
+        # ~5% for their EUR counterparts, and an allele pinned at 0.0 on zero
+        # observations is not known to be absent. Neither fact is visible in a
+        # point estimate, and both change how much weight the number carries.
+        # Reported alongside the provenance range rather than compounded into
+        # it — Finding 10 measured provenance at ~6x the sampling width, so
+        # merging them would produce an interval that means neither.
+        notes.extend(precision_notes(population_precision(prov), set(coverage.covered)))
 
         findings.append(
             GeneDrugFinding(
