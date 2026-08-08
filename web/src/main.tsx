@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AuditApp from "./App";
 import { LandingPage } from "./components/landing/LandingPage";
 import "./index.css";
+import "./landing.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

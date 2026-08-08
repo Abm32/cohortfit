@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import "../../landing.css";
 
 export function HeroSection() {
   return (
