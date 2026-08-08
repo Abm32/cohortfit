@@ -128,3 +128,42 @@ table (e.g. adding `*9A`, which is CPIC Normal and excluded from Tier 0).
 6. Update this document in the same commit.
 
 Never edit frequencies in place without updating provenance counts and ground truth.
+
+## Audit pipeline (Tier 0)
+
+**Module:** `cohortfit.audit`  
+**Entry points:** `load_protocol(path)`, `audit_protocol(protocol, offline=True)`  
+**Demo fixture:** `protocols/demo.json` (NCT01095003, capecitabine, Mumbai/Kochi/Munich)
+
+### Pipeline steps (deterministic, no LLM)
+
+1. **Drug → gene** — `cohortfit.rules.resolve_gene()` maps fluoropyrimidines to `DPYD`.
+2. **Allele frequencies** — `cohortfit.frequencies.load_gene_frequencies()` loads pinned gnomAD fixtures.
+3. **Ancestry blend** — `cohortfit.cohort.blend_allele_frequencies()` weights by site `ancestry_mix`.
+4. **Hardy–Weinberg + phenotype** — `cohortfit.pgx.cohort_phenotype_distribution()` expands diplotypes and maps via CPIC table.
+5. **Screening gap** — `cohortfit.rules.screening_gap()` flags CPIC Level A pairs with no DPYD/DPD exclusion in protocol text.
+6. **Per-site burden** — `SiteFinding` records IM+PM fraction and expected count per site.
+
+### Screening-gap rule scope
+
+| Check | Detail |
+|---|---|
+| Gene-drug | Fluoropyrimidines → DPYD only (`capecitabine`, `fluorouracil`, `5-FU` aliases) |
+| CPIC level | Level A required (`level_for` from pgx-core) |
+| Protocol text | Inclusion + exclusion criteria scanned for `dpyd`, `dpd`, genotype/testing terms |
+| Citation | PMID [29152729](https://pubmed.ncbi.nlm.nih.gov/29152729/) when actionable |
+
+Unsupported drugs or gene mismatches return `NO_SIGNAL` — the demo path does not generalise to all CPIC pairs.
+
+### Demo protocol ground truth (`protocols/demo.json`)
+
+| Site | Ancestry | planned_n | At-risk (IM+PM) |
+|---|---|---:|---:|
+| Mumbai | SAS 100% | 100 | ~3.55% |
+| Kochi | SAS 100% | 50 | ~3.55% |
+| Munich | EUR 100% | 80 | ~6.40% |
+| Cohort (weighted) | 150/230 SAS + 80/230 EUR | 230 | ~4.5% |
+
+**Verdict on demo:** `ACTIONABLE` — capecitabine + DPYD Level A, no DPYD/DPD exclusion in criteria.
+
+Integration tests in `tests/test_audit.py` pin these numbers against the orchestrator output.

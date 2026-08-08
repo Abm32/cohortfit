@@ -118,6 +118,27 @@ overrides.
 
 Full audit trail: [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md)
 
+## Audit orchestrator (Track A — Tier 0)
+
+`cohortfit.audit` wires frequencies → cohort → pgx → rules into an `AuditReport`.
+Claude fills `Protocol`; everything after that is pinned arithmetic.
+
+```python
+from cohortfit.audit import audit_protocol, load_protocol
+
+report = audit_protocol(load_protocol("protocols/demo.json"), offline=True)
+# report.findings[0].verdict → ACTIONABLE (missing DPYD screening)
+# report.site_findings → per-site IM+PM burden
+```
+
+| Module | Role |
+|---|---|
+| [`cohortfit.audit`](src/cohortfit/audit.py) | Orchestrator — only module loading fixtures end-to-end |
+| [`cohortfit.rules`](src/cohortfit/rules.py) | Drug→gene map, CPIC Level A screening-gap check |
+| [`protocols/demo.json`](protocols/demo.json) | Pinned NCT01095003 capecitabine demo (no DPYD exclusion) |
+
+Run integration tests: `pytest tests/test_audit.py tests/test_rules.py`
+
 ## Design principle
 
 > The deterministic layer decides. The model explains. Never the reverse.
