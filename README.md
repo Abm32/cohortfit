@@ -373,9 +373,11 @@ forwards `/api/*` to `127.0.0.1:8000`; if another service holds that port, audit
 calls hit the wrong server and the UI looks inert — use the same-origin flow above
 instead.
 
-The workbench auto-loads the pinned sample report and offers three input modes:
-pick a pinned demo protocol (cards), paste/upload `Protocol` JSON, or extract from
-prose (needs an API key). Every action runs a real request against the engine.
+The workbench opens empty and offers three input modes: pick a pinned demo
+protocol (cards), paste/upload `Protocol` JSON, or extract from prose (needs an
+API key). Nothing is audited until you ask for it, so the first report on screen
+is one you watched it compute. Every action runs a real request against the
+engine.
 
 ## Claude extraction (Track B)
 

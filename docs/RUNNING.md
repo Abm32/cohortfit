@@ -90,10 +90,12 @@ Open:
 - Landing: http://127.0.0.1:8600/
 - Audit workbench: http://127.0.0.1:8600/app
 
-The workbench auto-loads the pinned sample report, and every button runs a real
-request against the engine (`/fixtures/protocols`, `/audit`, `/provenance/...`).
-Rebuild (`npm run build`) after any change under `web/` for the served bundle to
-update.
+The workbench opens **empty** — nothing is audited until you ask for it, so the
+first report on screen is one you watched it compute. Pick a demo protocol card,
+paste JSON, extract from prose, or click **Load sample report**; every one of
+those runs a real request against the engine (`/fixtures/protocols`, `/audit`,
+`/provenance/...`). Rebuild (`npm run build`) after any change under `web/` for
+the served bundle to update.
 
 ### 3b. Development — hot-reloading Vite dev server
 
