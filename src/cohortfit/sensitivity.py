@@ -3,9 +3,12 @@
 The pinned SAS ``*2A`` frequency is a gnomAD v4 exome call that six other
 published sources contradict, all upward (``_meta.known_discrepancies``).
 Re-running Tier 0 at each candidate value shows the at-risk fraction moving
-1.41x while Poor Metabolizer moves 10.1x (FINDINGS.md Findings 4 and 5), so PM
-must be reported as an interval. This module produces that interval; it adds no
-new data and no model, only re-runs the existing blend + HWE path.
+1.80x while Poor Metabolizer moves 21.4x, so PM must be reported as an
+interval. FINDINGS.md Finding 4 quotes 1.41x and 10.1x for the same contrast
+because its table stops at the 1000G value; the candidate set here also
+includes the Chan 2024 upper bound. Both describe the same conflict over
+different ranges. This module adds no new data and no model — it only re-runs
+the existing blend + HWE path.
 """
 
 from __future__ import annotations

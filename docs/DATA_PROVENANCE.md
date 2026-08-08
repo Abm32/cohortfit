@@ -83,11 +83,19 @@ and emitted as a runtime warning on every audit that uses it — see
 
 **Quantified impact** ([FINDINGS.md](FINDINGS.md) Finding 4): substituting each
 candidate value moves the SAS at-risk fraction 3.55% → 5.01% (up to **1.41×**),
-so the `ACTIONABLE` verdict is unaffected. But Poor Metabolizer spans **10.1×**
-(35.7 → 765 per million), which is why PM must be reported as a range rather than
-a point estimate. The Munich-above-Mumbai site ranking holds at every candidate
-value; because EUR `*2A` comes from the same exome callset, correcting both
-symmetrically widens the gap to **2.75×** rather than narrowing it.
+so the `ACTIONABLE` verdict is unaffected. Poor Metabolizer spans **10.1×**
+(35.7 → 360.4 per million) over the same range, and **21.4×** (35.7 → 765 per
+million) once the Chan 2024 upper bound of 0.015 is included. The
+Munich-above-Mumbai site ranking holds at every candidate value; because EUR
+`*2A` comes from the same exome callset, correcting both symmetrically widens
+the gap to **2.75×** rather than narrowing it.
+
+That spread is no longer only a documented caveat. `cohortfit.sensitivity`
+re-runs the Tier 0 distribution at every candidate value recorded here and
+attaches the resulting interval to each phenotype class, so the report prints
+Poor Metabolizer as a range with its fold-change rather than as a point
+estimate. A conflict recorded in the fixture and absent from the output is
+indistinguishable, to a reader, from one that was never found.
 
 ### HapB3 label vs frequency rsID
 
