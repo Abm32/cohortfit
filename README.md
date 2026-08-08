@@ -134,10 +134,33 @@ report = audit_protocol(load_protocol("protocols/demo.json"), offline=True)
 | Module | Role |
 |---|---|
 | [`cohortfit.audit`](src/cohortfit/audit.py) | Orchestrator — only module loading fixtures end-to-end |
+| [`cohortfit.sites`](src/cohortfit/sites.py) | Per-site metabolic burden and site-selection ranking |
 | [`cohortfit.rules`](src/cohortfit/rules.py) | Drug→gene map, CPIC Level A screening-gap check |
 | [`protocols/demo.json`](protocols/demo.json) | Pinned NCT01095003 capecitabine demo (no DPYD exclusion) |
 
 Run integration tests: `pytest tests/test_audit.py tests/test_rules.py`
+
+## Per-site findings (Track A — site selection)
+
+`cohortfit.sites` reruns Tier 0 math per site — the commercially legible output
+for CRO site-selection decisions.
+
+```python
+from cohortfit.sites import rank_sites_by_burden, burden_rate_ratio
+
+ranked = rank_sites_by_burden(report.site_findings, gene="DPYD")
+# Munich first (~6.4% at-risk rate), then Mumbai/Kochi (~3.5%, same ancestry)
+```
+
+| Module | Role |
+|---|---|
+| [`cohortfit.sites`](src/cohortfit/sites.py) | Per-site burden, ranking, rate-ratio helpers |
+
+**Demo caveat:** Mumbai and Kochi share SAS ancestry — delta is headcount only.
+Munich (EUR) diverges on ancestry (~1.8× higher at-risk rate). See
+[docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md#per-site-findings-tier-0).
+
+Run site tests: `pytest tests/test_sites.py`
 
 ## Design principle
 

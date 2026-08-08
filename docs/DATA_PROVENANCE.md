@@ -167,3 +167,32 @@ Unsupported drugs or gene mismatches return `NO_SIGNAL` — the demo path does n
 **Verdict on demo:** `ACTIONABLE` — capecitabine + DPYD Level A, no DPYD/DPD exclusion in criteria.
 
 Integration tests in `tests/test_audit.py` pin these numbers against the orchestrator output.
+
+## Per-site findings (Tier 0)
+
+**Module:** `cohortfit.sites`  
+**Output:** `SiteFinding(site_name, gene, at_risk_fraction, expected_at_risk_n)`  
+**Tests:** `tests/test_sites.py`
+
+### Two numbers, two stories
+
+| Field | Driven by | Demo meaning |
+|---|---|---|
+| `at_risk_fraction` | Site `ancestry_mix` only | Munich ~6.40% vs Mumbai/Kochi ~3.55% — ancestry delta |
+| `expected_at_risk_n` | Rate × `planned_n` | Mumbai ~3.55 vs Kochi ~1.77 — same rate, 2× headcount |
+
+Mumbai and Kochi are both `{"SAS": 1.0}`, so their **rates are identical**; the
+only difference is enrolment volume (`planned_n` 100 vs 50). Munich (`{"EUR": 1.0}`)
+shows a **~1.8× higher at-risk rate** before headcount is considered.
+
+Say this in the demo — do not let a judge discover the SAS-site sameness unaided.
+
+### Pinned per-site ground truth (DPYD, demo protocol)
+
+| Site | Ancestry | planned_n | at_risk_fraction | expected_at_risk_n |
+|---|---|---:|---:|---:|
+| Mumbai | SAS 100% | 100 | 0.035474 | 3.55 |
+| Kochi | SAS 100% | 50 | 0.035474 | 1.77 |
+| Munich | EUR 100% | 80 | 0.063982 | 5.12 |
+
+Helpers: `rank_sites_by_burden()`, `burden_rate_ratio()` — for CLI site-selection table (Track B).
