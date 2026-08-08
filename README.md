@@ -125,15 +125,33 @@ cohortfit extract protocols/sources/nct01095003.txt -o protocols/extracted.json
 cohortfit audit protocols/demo.json   # demo-safe: use hand-verified pinned JSON
 ```
 
-Show extraction once on stage; run the audit from `protocols/demo.json` for the numbers demo.
+Show extraction once on stage; run the audit from a pinned protocol for the numbers demo.
 
-Additional hand-authored fixture from parallel work:
-[`protocols/capecitabine_india.json`](protocols/capecitabine_india.json) (two SAS sites, no DPYD screening).
+### Pinned demo protocols
+
+Four fixtures, each exercising a different path through the engine — full
+rationale in [docs/DATASETS.md](docs/DATASETS.md).
+
+| Fixture | Cohort | Demonstrates | Verdicts |
+|---|---|---|---|
+| [`demo.json`](protocols/demo.json) | 230 · IN + DE | Site selection changes expected burden (Munich 6.40% vs Mumbai 3.55%, 1.80×) | `ACTIONABLE` + `CONTESTED` |
+| [`capecitabine_india.json`](protocols/capecitabine_india.json) | 150 · 100% SAS | One allele carries the risk — HapB3 at 94.2% | `ACTIONABLE` + `CONTESTED` |
+| [`us_multiancestry.json`](protocols/us_multiancestry.json) | 200 · US | The tool reports what it cannot compute — 35% of enrolment excluded | `ACTIONABLE` + `CONTESTED` + coverage warning |
+| [`dpyd_screened_compliant.json`](protocols/dpyd_screened_compliant.json) | 150 · IN + DE | It does not simply always accuse | `NO_SIGNAL` + `CONTESTED` |
+
+Plus [`protocols/sources/gastric_adj_2026.txt`](protocols/sources/gastric_adj_2026.txt)
+— realistic prose for the live extraction demo, deliberately including a Dhaka
+site so the missing `BD` ancestry prior surfaces honestly rather than being
+invented.
+
+In the web UI these appear as selectable cards on the Demo tab, driven by
+`GET /fixtures/protocols` so the on-screen claims cannot drift from what the
+fixtures actually produce ([docs/UI.md](docs/UI.md)).
 
 Entry point: `cohortfit = cohortfit.cli:app` in `pyproject.toml`.
 Renderer: `cohortfit.render` (Rich tables for verdict, cohort phenotype, site burden).
 
-See also: [docs/FINDINGS.md](docs/FINDINGS.md) · [docs/EVIDENCE.md](docs/EVIDENCE.md) · [docs/METHOD.md](docs/METHOD.md) · [AGENTS.md](AGENTS.md)
+See also: [docs/FINDINGS.md](docs/FINDINGS.md) · [docs/EVIDENCE.md](docs/EVIDENCE.md) · [docs/METHOD.md](docs/METHOD.md) · [docs/DATASETS.md](docs/DATASETS.md) · [docs/UI.md](docs/UI.md) · [AGENTS.md](AGENTS.md)
 
 ## What the pinned data says
 

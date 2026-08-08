@@ -74,9 +74,58 @@ Uvicorn serves `web/dist` at `/` when the build directory exists; API routes
 
 | Tab | Path |
 |---|---|
-| Demo (default) | Sample report fixture or one-click audit of `protocols/demo.json` |
+| Demo (default) | **Dataset cards** — pick one of four pinned protocols → `POST /audit`. Below them, the sample-report fixture (the only way to see Tier 0/1/2 styling side by side) |
 | Upload JSON | Paste/upload Protocol JSON → `POST /audit` |
 | Extract prose | Textarea → `POST /extract` → audit (503 without `ANTHROPIC_API_KEY`) |
+
+### Dataset cards
+
+[`DatasetCards.tsx`](../web/src/components/DatasetCards.tsx) renders
+`GET /fixtures/protocols` as a responsive grid. Each card shows what its fixture
+demonstrates, the cohort shape, and the verdicts to expect; clicking it fetches
+the protocol by slug and audits it.
+
+**The catalogue is served, not hardcoded.** The `demonstrates` / `detail` /
+`expect` strings live in
+[`api/routes/fixtures.py`](../src/cohortfit/api/routes/fixtures.py) beside the
+files they describe, because a card claiming `NO_SIGNAL` on a protocol that
+returns `ACTIONABLE` is a false claim rendered on screen — the exact defect this
+project exists to catch. `tests/test_catalogue.py` runs every catalogued protocol
+through the real engine and asserts each card's promise against the result, so
+that drift fails in CI rather than on stage. It has already caught one: the demo
+card claimed `ACTIONABLE` when the protocol also returns `CONTESTED`.
+
+The left accent bar is derived from `expect`, so a card previews the shape of its
+own result before it is clicked:
+
+| Accent | Meaning |
+|---|---|
+| Green (`--forest-bright`) | `ACTIONABLE` |
+| Amber | `CONTESTED` |
+| Ochre | Coverage warning |
+| Mint (`--mint-dim`) | `NO_SIGNAL` |
+
+That preview is why the tab shows four fixtures rather than one: the *set*
+demonstrates the engine discriminates instead of always accusing. See
+[DATASETS.md](DATASETS.md) for what each fixture is for.
+
+Accessibility: cards are `<button>` elements inside a `<ul>`, carry
+`aria-busy` while auditing, keep a visible focus ring, and drop the hover
+transform under `prefers-reduced-motion`.
+
+## Fixture endpoints
+
+| Endpoint | Returns |
+|---|---|
+| `GET /fixtures/protocols` | Catalogue for the cards. Internal `file` field is stripped |
+| `GET /fixtures/protocols/{slug}` | One protocol. 404 lists the known slugs. `demo` still resolves, so pre-card clients keep working |
+| `GET /fixtures/reports/sample` | Pinned `AuditReport` with Tier 0/1/2 findings |
+| `GET /fixtures/reports/partial-coverage` | `AuditReport` exercising the partial-ancestry UI state |
+
+Slugs: `demo`, `capecitabine-india`, `us-multiancestry`, `dpyd-screened`.
+
+`POST /audit` takes a **bare `Protocol` body** — not wrapped in a
+`{"protocol": ...}` envelope.
 
 ## Security note
 

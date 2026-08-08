@@ -79,8 +79,20 @@ printed rather than stored and dropped, and every finding renders before the
 site-burden tables. `audit.py` wires all of this — it remains the only module
 loading fixtures end to end.
 
-## Build, Test, and Development Commands
+The demo catalogue in
+[src/cohortfit/api/routes/fixtures.py](src/cohortfit/api/routes/fixtures.py) is
+the single source for what each pinned protocol demonstrates. `GET
+/fixtures/protocols` serves it and `web/src/components/DatasetCards.tsx` renders
+it verbatim — the strings are *not* duplicated in TypeScript, because a card
+promising `NO_SIGNAL` on a protocol that returns `ACTIONABLE` is a false claim
+rendered on screen, which is the defect class this project exists to catch.
+`tests/test_catalogue.py` audits every catalogued protocol through the real
+engine and asserts the promise against the result; adding a protocol means adding
+a `_CATALOGUE` entry and letting that test check it, not editing a component. The
+internal `file` key is stripped from the response, and `/fixtures/protocols/demo`
+must keep resolving because clients predating the catalogue call it directly.
 
+## Build, Test, and Development Commands
 - `pip install -e ".[dev]"` — install with test/lint dependencies.
 - `pip install -e ".[web,dev]"` — add FastAPI/uvicorn for `cohortfit serve`.
 - `cohortfit serve --port 8000` — API + built `web/dist` static UI.

@@ -70,10 +70,12 @@ class TestCataloguePromisesAreTrue:
             verdicts = {f.verdict.value for f in audit_protocol(protocol).findings}
             promised = card["expect"]
             for verdict in ("ACTIONABLE", "CONTESTED", "NO_SIGNAL"):
-                if verdict in promised:
-                    assert verdict in verdicts, (
-                        f"{card['slug']} promises {verdict} but produced {verdicts}"
-                    )
+                # Promises must be exact in both directions: a card that omits a
+                # verdict the engine produces understates the result just as
+                # badly as one that invents a verdict it does not.
+                assert (verdict in promised) == (verdict in verdicts), (
+                    f"{card['slug']} promises {promised!r} but produced {verdicts}"
+                )
 
     def test_only_the_us_card_promises_a_coverage_warning(self, catalogue):
         for card in catalogue:
@@ -82,7 +84,7 @@ class TestCataloguePromisesAreTrue:
             )
             report = audit_protocol(protocol)
             has_gap = any("enrolment" in w.lower() for w in report.warnings)
-            promises_gap = "warning" in card["expect"].lower()
+            promises_gap = "coverage warning" in card["expect"].lower()
             assert has_gap == promises_gap, (
                 f"{card['slug']}: coverage warning={has_gap}, card says {promises_gap}"
             )

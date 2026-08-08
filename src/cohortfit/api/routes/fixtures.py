@@ -58,7 +58,7 @@ _CATALOGUE: tuple[dict, ...] = (
             "enrolment (AFR, AMR) is excluded — and the report says so instead "
             "of quietly returning European numbers."
         ),
-        "expect": "ACTIONABLE + coverage warning",
+        "expect": "ACTIONABLE + CONTESTED + coverage warning",
     },
     {
         "slug": "dpyd-screened",

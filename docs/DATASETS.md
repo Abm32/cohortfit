@@ -6,9 +6,9 @@ anyone having to take a claim on trust.
 
 | # | Fixture | Cohort | Demonstrates |
 |---|---|---|---|
-| 1 | `protocols/demo.json` | 230, IN + DE | `ACTIONABLE` + the site-selection delta (Munich 6.40% vs Mumbai 3.55%) |
+| 1 | `protocols/demo.json` | 230, IN + DE | `ACTIONABLE` + `CONTESTED`, and the site-selection delta (Munich 6.40% vs Mumbai 3.55%) |
 | 2 | `protocols/capecitabine_india.json` | 150, 100% SAS | `ACTIONABLE` + `CONTESTED`, the HapB3 concentration story |
-| 3 | `protocols/us_multiancestry.json` | 200, US | **Coverage warning** — 35% of enrolment has no pinned data |
+| 3 | `protocols/us_multiancestry.json` | 200, US | **Coverage warning** — 35% of enrolment has no pinned data (plus `ACTIONABLE` + `CONTESTED`) |
 | 4 | `protocols/dpyd_screened_compliant.json` | 150, IN + DE | **`NO_SIGNAL`** — the tool does not simply always accuse |
 | 5 | `protocols/sources/gastric_adj_2026.txt` | 360, IN/BD/DE | **Claude extraction** from prose (needs `ANTHROPIC_API_KEY`) |
 
@@ -46,6 +46,29 @@ a site with no ancestry mix — a real gap, honestly reported).
 
 ## Running them
 
+### In the web UI
+
+The Demo tab renders these as selectable cards, driven by
+`GET /fixtures/protocols`. Each card leads with what its fixture demonstrates
+rather than the protocol title, and its left accent bar is derived from the
+expected verdict — so a viewer can tell before clicking that one protocol comes
+back clean and another comes back contested.
+
+```bash
+cd web && npm run build && cd ..
+pip install -e ".[web]"
+python -m uvicorn cohortfit.api.app:app --port 8000
+# marketing landing at /, audit workbench at /app
+```
+
+Catalogue slugs: `demo`, `capecitabine-india`, `us-multiancestry`,
+`dpyd-screened`. The card copy lives in
+[`api/routes/fixtures.py`](../src/cohortfit/api/routes/fixtures.py) beside the
+files it describes, and `tests/test_catalogue.py` checks every promise against a
+real audit — see [UI.md](UI.md).
+
+### On the command line
+
 ```bash
 # Offline, no API key, no network
 cohortfit audit protocols/demo.json --offline
@@ -62,8 +85,8 @@ cohortfit extract protocols/sources/gastric_adj_2026.txt -o /tmp/gastric.json
 cohortfit audit /tmp/gastric.json --offline
 ```
 
-Via the API (`uvicorn cohortfit.api.app:app`): `POST /audit` takes a bare
-`Protocol` body — **not** wrapped in a `{"protocol": ...}` envelope.
+Via the API: `POST /audit` takes a bare `Protocol` body — **not** wrapped in a
+`{"protocol": ...}` envelope.
 
 ## Where real protocols come from
 
