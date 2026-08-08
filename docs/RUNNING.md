@@ -128,6 +128,18 @@ pytest tests/test_catalogue.py -v        # API catalogue endpoints
 pytest tests/test_audit.py tests/test_rules.py   # engine
 ```
 
+## 4. Deploy to Azure
+
+One script builds a container image in Azure Container Registry and ships the
+API + UI to Azure Container Apps (no local Docker required):
+
+```bash
+az login
+./scripts/deploy-azure.sh
+```
+
+Full guide: [DEPLOY_AZURE.md](DEPLOY_AZURE.md).
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |

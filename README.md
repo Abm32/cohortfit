@@ -151,7 +151,7 @@ fixtures actually produce ([docs/UI.md](docs/UI.md)).
 Entry point: `cohortfit = cohortfit.cli:app` in `pyproject.toml`.
 Renderer: `cohortfit.render` (Rich tables for verdict, cohort phenotype, site burden).
 
-See also: [docs/RUNNING.md](docs/RUNNING.md) · [docs/API.md](docs/API.md) · [docs/FINDINGS.md](docs/FINDINGS.md) · [docs/EVIDENCE.md](docs/EVIDENCE.md) · [docs/METHOD.md](docs/METHOD.md) · [docs/DATASETS.md](docs/DATASETS.md) · [docs/UI.md](docs/UI.md) · [AGENTS.md](AGENTS.md)
+See also: [docs/RUNNING.md](docs/RUNNING.md) · [docs/API.md](docs/API.md) · [docs/DEPLOY_AZURE.md](docs/DEPLOY_AZURE.md) · [docs/FINDINGS.md](docs/FINDINGS.md) · [docs/EVIDENCE.md](docs/EVIDENCE.md) · [docs/METHOD.md](docs/METHOD.md) · [docs/DATASETS.md](docs/DATASETS.md) · [docs/UI.md](docs/UI.md) · [AGENTS.md](AGENTS.md)
 
 ## What the pinned data says
 
@@ -378,6 +378,18 @@ protocol (cards), paste/upload `Protocol` JSON, or extract from prose (needs an
 API key). Nothing is audited until you ask for it, so the first report on screen
 is one you watched it compute. Every action runs a real request against the
 engine.
+
+## Deploy to Azure
+
+Ship the same container (API + UI) to Azure Container Apps with the Azure CLI.
+Cloud image build — local Docker not required:
+
+```bash
+az login
+./scripts/deploy-azure.sh
+```
+
+Full options, costs, and tear-down: [docs/DEPLOY_AZURE.md](docs/DEPLOY_AZURE.md).
 
 ## Claude extraction (Track B)
 
