@@ -205,3 +205,29 @@ Helpers: `rank_sites_by_burden()`, `burden_rate_ratio()` — for CLI site-select
 
 The CLI wires `load_protocol` → `audit_protocol(offline=True)` → Rich output.
 No LLM, no live gnomAD fetch. Reproducible demo for judges: same command, same numbers.
+
+## Report renderer (Track B)
+
+**Module:** `cohortfit.render`  
+**Fixture loader:** `cohortfit.reports.load_audit_report()`  
+**Sample fixture:** `fixtures/reports/sample_audit_report.json`  
+**Tests:** `tests/test_render.py`
+
+### Tier visual contract
+
+The renderer must distinguish defensible numbers from modelled ones:
+
+| Tier | Badge | Border | Citation rule |
+|---|---|---|---|
+| 0 `DISTRIBUTION` | `TIER 0` | cyan | Optional (data sources footer) |
+| 1 `BURDEN` | `TIER 1` | yellow | **Required** — rendered prominently |
+| 2 `SCENARIO` | `SCENARIO` | dim | Labelled "not a prediction" |
+
+### Dev command (no audit engine)
+
+```bash
+cohortfit render fixtures/reports/sample_audit_report.json
+```
+
+The sample fixture includes one finding per tier so renderer work is unblocked
+without Track A. Live audit uses the same renderer: `cohortfit audit protocols/demo.json`.

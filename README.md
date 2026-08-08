@@ -145,7 +145,8 @@ report = audit_protocol(load_protocol("protocols/demo.json"), offline=True)
 |---|---|
 | [`cohortfit.audit`](src/cohortfit/audit.py) | Orchestrator — only module loading fixtures end-to-end |
 | [`cohortfit.cli`](src/cohortfit/cli.py) | Typer CLI — `cohortfit audit <protocol.json>` |
-| [`cohortfit.render`](src/cohortfit/render.py) | Rich report renderer (verdict, phenotype, site table) |
+| [`cohortfit.render`](src/cohortfit/render.py) | Tier-aware Rich report renderer |
+| [`cohortfit.reports`](src/cohortfit/reports.py) | AuditReport JSON loader for renderer dev |
 | [`cohortfit.sites`](src/cohortfit/sites.py) | Per-site metabolic burden and site-selection ranking |
 | [`cohortfit.rules`](src/cohortfit/rules.py) | Drug→gene map, CPIC Level A screening-gap check |
 | [`protocols/demo.json`](protocols/demo.json) | Pinned NCT01095003 capecitabine demo (no DPYD exclusion) |
@@ -194,10 +195,26 @@ implemented; `--no-offline` exits with an error.
 ### Output sections (what judges see)
 
 1. **Header** — trial title, NCT ID, cohort n, `[offline]` mode
-2. **Finding** — gene × drug verdict (ACTIONABLE / NO_SIGNAL), CPIC level, screening-gap message, PMID
-3. **Cohort phenotype** — Tier 0 distribution table
-4. **Site burden** — IM+PM rate and expected count per site, ranked by rate
+2. **Findings** — tier-labelled panels (see below), verdict colour, CPIC level, citations
+3. **Cohort phenotype** — Tier 0 distribution table only
+4. **Site burden** — Tier 0 IM+PM table, ranked by rate
 5. **Data sources** — gnomAD fixture + CPIC diplotype table citations
+
+### Tier visual contract (renderer)
+
+| Tier | Badge | Meaning |
+|---|---|---|
+| **0** | `TIER 0` (cyan) | Arithmetic on pinned tables — fully defensible |
+| **1** | `TIER 1` (yellow) | Literature multiplier — **citation required** on every claim |
+| **2** | `SCENARIO` (dim) | Directional modelling — **not a prediction** |
+
+Render a pinned report without the audit engine (Tier 0/1/2 styling demo):
+
+```bash
+cohortfit render fixtures/reports/sample_audit_report.json
+```
+
+Loader: `cohortfit.reports.load_audit_report()`. Tests: `pytest tests/test_render.py`.
 
 ## Design principle
 
