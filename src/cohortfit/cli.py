@@ -12,6 +12,7 @@ from rich.console import Console
 from .audit import audit_protocol, load_protocol
 from .frequencies import FixtureError
 from .render import render_audit_report
+from .reports import load_audit_report
 
 app = typer.Typer(
     name="cohortfit",
@@ -55,6 +56,31 @@ def audit(
         raise typer.Exit(code=1) from exc
     except json.JSONDecodeError as exc:
         err.print(f"[red]Error:[/red] Invalid JSON in {protocol_path}: {exc}")
+        raise typer.Exit(code=1) from exc
+
+    render_audit_report(report, console=Console())
+
+
+@app.command()
+def render(
+    report_path: Path = typer.Argument(
+        ...,
+        exists=True,
+        readable=True,
+        dir_okay=False,
+        help="Pinned AuditReport JSON (fixtures/reports/sample_audit_report.json).",
+    ),
+) -> None:
+    """Render a pinned AuditReport to the terminal (no audit engine)."""
+    err = Console(stderr=True)
+    try:
+        report = load_audit_report(report_path)
+    except ValidationError as exc:
+        err.print("[red]Error:[/red] AuditReport JSON failed validation.")
+        err.print(str(exc))
+        raise typer.Exit(code=1) from exc
+    except json.JSONDecodeError as exc:
+        err.print(f"[red]Error:[/red] Invalid JSON in {report_path}: {exc}")
         raise typer.Exit(code=1) from exc
 
     render_audit_report(report, console=Console())
