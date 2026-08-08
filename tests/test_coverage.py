@@ -10,7 +10,7 @@ import pytest
 from cohortfit.audit import audit_protocol
 from cohortfit.cohort import population_coverage
 from cohortfit.frequencies import known_discrepancies
-from cohortfit.models import DoseRegimen, Protocol, Site
+from cohortfit.models import DoseRegimen, Protocol, Site, Verdict
 
 
 def _protocol(sites: list[Site], *, title: str = "T") -> Protocol:
@@ -104,7 +104,12 @@ class TestUncomputableAncestryWarns:
         report = audit_protocol(
             _protocol([Site(name="X", country="IN", planned_n=100, ancestry_mix={})])
         )
-        assert len(report.findings) == 1
+        # The country prior must yield a real distribution. Assert on the
+        # screening-gap finding rather than the finding count: a SAS cohort
+        # also raises a separate CONTESTED finding for HapB3 dose guidance.
+        actionable = [f for f in report.findings if f.verdict is Verdict.ACTIONABLE]
+        assert len(actionable) == 1
+        assert actionable[0].distribution
         assert not _coverage_warnings(report)
 
     def test_unknown_country_without_mix_warns_instead_of_silence(self):

@@ -123,3 +123,62 @@ def screening_gap(
         f"{drug_display} dosing (CPIC Level A; test before fluoropyrimidines)."
     )
     return Verdict.ACTIONABLE, message, citations
+
+
+# Allele -> (pmid, one-line description of the dispute). Sourced from
+# EVIDENCE.md section 5: CPIC's own fluoropyrimidine/DPYD guideline page flags
+# Knikman et al., J Clin Oncol 2023 (PMID 37639651). The dispute is inside CPIC,
+# not between outside cohorts, which is what makes it a verdict rather than a
+# caveat.
+_CONTESTED_ALLELES: dict[str, dict[str, tuple[str, str]]] = {
+    "DPYD": {
+        "HapB3": (
+            "37639651",
+            "CPIC reports evidence of reduced treatment effectiveness and "
+            "significantly increased toxicity in HapB3 carriers dosed at the "
+            "standard 25% reduction",
+        ),
+    },
+}
+
+# Share of the cohort's at-risk burden at which a contested allele decides the
+# verdict. A judgement call, not a derived constant: it marks where the disputed
+# dose action covers most screen-positives instead of a minority of them.
+# EUR (0.639, FINDINGS.md Finding 2) clears it as well as SAS (0.942). That is
+# intended — the verdict tracks the dosing dispute, not the population.
+_CONTESTED_BURDEN_THRESHOLD = 0.60
+
+
+def contested_burden(
+    gene: str,
+    drug: str,
+    burden_shares: dict[str, float],
+) -> tuple[str, str, list[str]] | None:
+    """Flag when a contested-dosing allele dominates this cohort's actionable burden.
+
+    Returns (allele, message, citations) or None when no contested allele
+    clears the threshold. The caller builds the GeneDrugFinding — this stays a
+    pure function over an already-computed burden share map so it is testable
+    without loading a fixture.
+    """
+    contested = _CONTESTED_ALLELES.get(gene)
+    if not contested:
+        return None
+
+    over_threshold = [
+        (share, allele)
+        for allele, share in burden_shares.items()
+        if allele in contested and share >= _CONTESTED_BURDEN_THRESHOLD
+    ]
+    if not over_threshold:
+        return None
+
+    share, allele = max(over_threshold)
+    pmid, dispute = contested[allele]
+    message = (
+        f"{allele} carries {share:.1%} of this cohort's actionable {gene} "
+        f"burden, and CPIC's recommended dose action for {allele} is disputed: "
+        f"{dispute} (PMID {pmid}). For most {drug.strip()} screen-positives in "
+        f"this cohort there is no settled clinical response."
+    )
+    return allele, message, [pmid]
