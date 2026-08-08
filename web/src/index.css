@@ -1,0 +1,140 @@
+/* Shared resets for landing + audit app */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* App (/app) audit viewer — separate from landing.css */
+.app-shell {
+  font-family: "Inter", system-ui, sans-serif;
+  background: #0f1419;
+  color: #e8edf4;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+.app-shell a {
+  color: #74c69d;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #2d3a4f;
+  max-width: 960px;
+  margin: 0 auto;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.app-header h1 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.app-back {
+  font-size: 0.85rem;
+  color: #8b9cb3;
+}
+
+.app-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.app-panel {
+  background: #1a2332;
+  border: 1px solid #2d3a4f;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.app-warnings {
+  background: #422006;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.app-warnings h2 {
+  color: #fcd34d;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+}
+
+.app-tier-0 {
+  color: #74c69d;
+}
+.app-tier-1 {
+  color: #fbbf24;
+}
+.app-tier-2 {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.app-verdict-actionable {
+  color: #f87171;
+  font-weight: 700;
+}
+.app-verdict-contested {
+  color: #e879f9;
+  font-weight: 700;
+}
+.app-verdict-no_signal {
+  color: #4ade80;
+}
+
+.app-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 0.75rem 0;
+}
+
+.app-table th,
+.app-table td {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #2d3a4f;
+}
+
+.app-btn {
+  background: #1b4332;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.app-btn:disabled {
+  opacity: 0.5;
+}
+
+.app-error {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid #fca5a5;
+  color: #fca5a5;
+  padding: 0.75rem;
+  border-radius: 6px;
+}
+
+.app-loading {
+  color: #8b9cb3;
+  font-style: italic;
+}
