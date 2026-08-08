@@ -1,5 +1,7 @@
 # cohortfit
 
+**Live:** https://cohortfit.anukritiai.com · [workbench](https://cohortfit.anukritiai.com/app) · [API docs](https://cohortfit.anukritiai.com/docs)
+
 **Every trial protocol has an implicit genome it was written for. Nobody checks whether the patients you're enrolling actually have it.**
 
 `cohortfit` reads a clinical trial protocol and computes the pharmacogenomic

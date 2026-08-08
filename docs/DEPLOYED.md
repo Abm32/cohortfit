@@ -6,10 +6,13 @@ Deployed 2026-08-08 15:50 IST from `00a5396`, image tag `cohortfit:00a5396`.
 
 | | URL |
 |---|---|
-| Landing | https://cohortfit.lemonrock-26394a7b.eastus.azurecontainerapps.io/ |
-| Audit workbench | https://cohortfit.lemonrock-26394a7b.eastus.azurecontainerapps.io/app |
-| Swagger | https://cohortfit.lemonrock-26394a7b.eastus.azurecontainerapps.io/docs |
-| Health | https://cohortfit.lemonrock-26394a7b.eastus.azurecontainerapps.io/health |
+| **Landing** | **https://cohortfit.anukritiai.com/** |
+| **Audit workbench** | **https://cohortfit.anukritiai.com/app** |
+| **Swagger** | **https://cohortfit.anukritiai.com/docs** |
+| **Health** | **https://cohortfit.anukritiai.com/health** |
+
+Azure default hostname still works and is the CNAME target:
+`cohortfit.lemonrock-26394a7b.eastus.azurecontainerapps.io`
 
 Verified live: all six routes return 200, and `POST /audit` on
 `capecitabine-india` returns `ACTIONABLE` + `CONTESTED` with Normal 96.453% /
@@ -36,17 +39,26 @@ Min replicas is **0**, so the app scales to zero when idle and costs nothing but
 storage. First request after idle incurs a cold start of a few seconds — worth
 warming it with a `curl` before demoing.
 
-## Custom subdomain — needs two DNS records at Namecheap
+## Custom subdomain — DONE
 
-**This step could not be automated.** `anukritiai.com` uses
-`dns1.registrar-servers.com` / `dns2.registrar-servers.com` (Namecheap), and there
-is no Azure DNS zone for it in the subscription, so there is no Azure API to
-create records through. The records must be added in the Namecheap dashboard.
+`cohortfit.anukritiai.com` is bound with a managed TLS certificate.
 
-Suggested hostname: **`cohortfit.anukritiai.com`** (currently unresolved, so it
-is free). `app.` and `api.` are also unused.
+| | |
+|---|---|
+| Certificate | `mc-cohortfit-env-cohortfit-anukri-6014` |
+| Issuer | DigiCert / GeoTrust TLS RSA CA G1 |
+| Valid | 2026-08-08 → 2027-02-08, auto-renewed by Azure |
+| Binding | `SniEnabled` |
+| HTTP | 301 → HTTPS |
 
-### Step 1 — add these two records
+Verified on the custom domain: all six routes 200, and `POST /audit` returns
+Normal 96.453% / Intermediate 3.544% / Poor 0.004% — matching local exactly.
+
+DNS is at Namecheap (`dns1`/`dns2.registrar-servers.com`), not Azure, so there is
+no Azure DNS zone and records cannot be managed with `az`. Recorded here for
+reproducibility:
+
+### The two records (already added)
 
 In Namecheap → Domain List → `anukritiai.com` → Advanced DNS:
 
@@ -58,14 +70,14 @@ In Namecheap → Domain List → `anukritiai.com` → Advanced DNS:
 The `TXT` record is Azure's ownership proof. Both must exist and have propagated
 before the next step, or binding fails.
 
-### Step 2 — verify propagation
+### Verify propagation
 
 ```bash
 dig +short CNAME cohortfit.anukritiai.com
 dig +short TXT   asuid.cohortfit.anukritiai.com
 ```
 
-### Step 3 — bind the hostname and issue a free managed certificate
+### The binding commands that were run
 
 ```bash
 az containerapp hostname add \
@@ -81,7 +93,7 @@ az containerapp hostname bind \
 
 Azure issues and auto-renews a managed TLS certificate; allow a few minutes.
 
-### Step 4 — confirm
+### Confirm
 
 ```bash
 curl -s https://cohortfit.anukritiai.com/health
