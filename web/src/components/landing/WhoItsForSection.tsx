@@ -39,7 +39,7 @@ const CONTENT: Record<
       },
       {
         title: "Offline demo ready",
-        body: "Pinned fixtures and 128 pytest cases — run the audit without API keys or conference wifi.",
+        body: "Pinned fixtures and 189 pytest cases — run the audit without API keys or conference wifi.",
       },
     ],
     mock: {

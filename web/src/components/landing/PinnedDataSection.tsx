@@ -1,7 +1,7 @@
 const COLUMNS = [
   {
     label: "Pinned fixtures",
-    title: "gnomAD v2.1.1, offline",
+    title: "gnomAD v4.0, offline",
     body: "Allele frequencies ship as versioned JSON fixtures. Demo audits run without venue wifi — same inputs, same outputs, every time.",
   },
   {
