@@ -1,4 +1,10 @@
-import type { AuditReport, ApiError, Protocol, ProvenanceResponse } from "../types/audit";
+import type {
+  ApiError,
+  AuditReport,
+  Protocol,
+  ProtocolCard,
+  ProvenanceResponse,
+} from "../types/audit";
 
 const API_BASE = import.meta.env.DEV ? "/api" : "";
 
@@ -24,6 +30,14 @@ export function fetchSampleReport(): Promise<AuditReport> {
 
 export function fetchPartialCoverageReport(): Promise<AuditReport> {
   return request<AuditReport>("/fixtures/reports/partial-coverage");
+}
+
+export function fetchProtocolCatalogue(): Promise<ProtocolCard[]> {
+  return request<ProtocolCard[]>("/fixtures/protocols");
+}
+
+export function fetchProtocolBySlug(slug: string): Promise<Protocol> {
+  return request<Protocol>(`/fixtures/protocols/${slug}`);
 }
 
 export function fetchDemoProtocol(): Promise<Protocol> {

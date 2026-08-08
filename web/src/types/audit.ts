@@ -70,3 +70,16 @@ export interface ProvenanceResponse {
 export interface ApiError {
   detail: string | { loc: string[]; msg: string; type: string }[];
 }
+
+/** One entry in the pinned demo catalogue (`GET /fixtures/protocols`). */
+export interface ProtocolCard {
+  slug: string;
+  title: string;
+  trial_id: string;
+  cohort: string;
+  /** Why this fixture is in the set — the reason shown on the card. */
+  demonstrates: string;
+  detail: string;
+  /** Verdicts a viewer should expect, so the card sets an expectation. */
+  expect: string;
+}

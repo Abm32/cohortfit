@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchSampleReport } from "./api/client";
 import { AuditReportView } from "./components/AuditReportView";
+import { DatasetCards } from "./components/DatasetCards";
 import { FixtureLanding } from "./components/FixtureLanding";
 import { ProtocolJsonInput } from "./components/ProtocolJsonInput";
 import { ProtocolProseInput } from "./components/ProtocolProseInput";
@@ -75,7 +76,12 @@ function AuditApp() {
             ))}
           </div>
           <div className="app-tabpanel">
-            {mode === "demo" && <FixtureLanding onReport={receiveReport} />}
+            {mode === "demo" && (
+              <>
+                <DatasetCards onReport={receiveReport} />
+                <FixtureLanding onReport={receiveReport} />
+              </>
+            )}
             {mode === "json" && <ProtocolJsonInput onReport={receiveReport} />}
             {mode === "prose" && <ProtocolProseInput onReport={receiveReport} />}
           </div>

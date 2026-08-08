@@ -749,3 +749,146 @@ body {
     animation: none !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Dataset selection cards.
+
+   Each card previews the shape of its own result: the left accent bar is
+   verdict-derived, so a reader can tell before clicking that one protocol
+   comes back clean and another comes back contested. That preview is the point
+   of showing four fixtures rather than one — the set demonstrates that the
+   engine discriminates.
+   --------------------------------------------------------------------------- */
+
+.ds-section {
+  padding: 1.5rem;
+}
+
+.ds-head {
+  max-width: 62ch;
+  margin-bottom: 1.25rem;
+}
+
+.ds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ds-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+  padding: 1.1rem 1.2rem 1rem;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  background: var(--white);
+  border: 1px solid var(--card-border);
+  border-left: 3px solid var(--muted-light);
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease;
+}
+
+.ds-card:hover:not(:disabled),
+.ds-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgb(26 26 24 / 9%);
+  border-color: var(--forest-bright);
+}
+
+.ds-card:focus-visible {
+  outline: 2px solid var(--forest-bright);
+  outline-offset: 2px;
+}
+
+.ds-card:disabled {
+  cursor: progress;
+  opacity: 0.62;
+}
+
+.ds-card[aria-busy="true"] {
+  opacity: 1;
+  border-color: var(--forest-bright);
+}
+
+/* Verdict-derived accents. */
+.ds-tone-actionable { border-left-color: var(--forest-bright); }
+.ds-tone-contested  { border-left-color: #b7791f; }
+.ds-tone-warning    { border-left-color: #a86a2c; }
+.ds-tone-clear      { border-left-color: var(--mint-dim); }
+
+.ds-demonstrates {
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.3;
+  color: var(--forest);
+}
+
+.ds-title {
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.ds-meta {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.ds-meta code {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.ds-detail {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+.ds-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--cream-dark);
+}
+
+.ds-expect {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: var(--muted-light);
+}
+
+.ds-run {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--forest-bright);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-card {
+    transition: none;
+  }
+
+  .ds-card:hover:not(:disabled),
+  .ds-card:focus-visible {
+    transform: none;
+  }
+}
