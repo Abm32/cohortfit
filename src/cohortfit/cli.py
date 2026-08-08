@@ -130,5 +130,21 @@ def extract(
     Console().print(f"[green]Wrote validated Protocol[/green] → {output}")
 
 
+@app.command()
+def serve(
+    port: int = typer.Option(8000, "--port", help="Port for uvicorn."),
+    host: str = typer.Option("127.0.0.1", "--host", help="Bind address."),
+) -> None:
+    """Serve the web UI and API (requires pip install -e '.[web]')."""
+    err = Console(stderr=True)
+    try:
+        import uvicorn
+    except ImportError as exc:
+        err.print('[red]Error:[/red] Web extras not installed. Run: pip install -e ".[web]"')
+        raise typer.Exit(code=1) from exc
+
+    uvicorn.run("cohortfit.api.app:app", host=host, port=port, reload=False)
+
+
 if __name__ == "__main__":
     app()
