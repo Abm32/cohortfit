@@ -2,11 +2,7 @@
 
 from __future__ import annotations
 
-from itertools import combinations_with_replacement
-
 import pytest
-
-from anukriti_pgx_core import PhenotypeEngine
 
 from cohortfit.cohort import diplotype_frequencies, phenotype_distribution
 from cohortfit.frequencies import (
@@ -17,19 +13,15 @@ from cohortfit.frequencies import (
     load_ground_truth,
     validate_fixture,
 )
+from cohortfit.pgx import load_diplotype_table, phenotype_map_for_alleles
 
 
-def _phenotype_map_from_pgx() -> dict[tuple[str, str], str]:
-    """Build diplotype→phenotype map the same way the phenotype adapter will."""
-    engine = PhenotypeEngine()
-    # Enumerate alleles present in the DPYD fixture for both populations.
+def _phenotype_map_for_fixture_alleles() -> dict[tuple[str, str], str]:
+    """Build diplotype→phenotype map via table-direct adapter (not PhenotypeEngine)."""
+    table = load_diplotype_table("DPYD")
     freqs = load_gene_frequencies("DPYD")
     alleles = sorted({a for pop in freqs.values() for a in pop})
-    mapping: dict[tuple[str, str], str] = {}
-    for a, b in combinations_with_replacement(alleles, 2):
-        result = engine.infer("DPYD", a, b)
-        mapping[(a, b)] = result.phenotype or "Indeterminate"
-    return mapping
+    return phenotype_map_for_alleles(table, alleles)
 
 
 class TestFixtureIntegrity:
@@ -74,7 +66,7 @@ class TestFixtureIntegrity:
 class TestGroundTruthPhenotypes:
     """Tier 0 ground truth: HWE + pgx-core DPYD table must match fixture pin."""
 
-    PHENO_MAP = _phenotype_map_from_pgx()
+    PHENO_MAP = _phenotype_map_for_fixture_alleles()
     GT = load_ground_truth("DPYD")
     PLANNED_N = GT["planned_n"]
 
