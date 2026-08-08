@@ -38,13 +38,48 @@ pinning CPIC tables to `v2024.01` instead of calling `api.cpicpgx.org` at runtim
 
 ### Pinned frequencies
 
+Source callset: **gnomAD v4.0 exomes** (identified from the allele counts —
+SAS 91,074 alleles ≈ 45.5k individuals, NFE 1,179,520 ≈ 590k). The exome/genome
+distinction is recorded because the two callsets disagree for splice-region
+variants, which is exactly what `*2A` is.
+
 | Allele | SAS | EUR | gnomAD v4 evidence |
 |---|---:|---:|---|
-| `*2A` | 0.000500 | 0.005080 | rs3918290 alt counts in ClinPGx |
+| `*2A` | 0.000500 ⚠️ | 0.005080 | rs3918290 alt counts in ClinPGx |
 | `*13` | 0.000000 | 0.000100 | rs55886062 |
 | `c.2846A>T` | 0.000527 | 0.006430 | rs67376798 — [PA166153895](https://www.clinpgx.org/variant/PA166153895) |
 | `HapB3` | 0.016870 | 0.020910 | rs75017182 causal variant — [CTS 2024 Table 1](https://doi.org/10.1111/cts.13699) |
 | `*1` | 0.982103 | 0.967480 | `1 − sum(variants)` |
+
+### ⚠️ Unresolved: `*2A` SAS is 6–16× below every genome-based source
+
+The pinned SAS `*2A` value comes from the exome callset and conflicts with every
+genome-based or aggregated source:
+
+| Source | SAS `*2A` |
+|---|---:|
+| **Pinned (gnomAD v4 exomes, 45/91074)** | **0.0005** |
+| gnomAD v4 genomes | 0.0029 |
+| ALFA South Asian | 0.0034 |
+| PAGE Study SouthAsian | 0.0060 |
+| 1000 Genomes 30X SAS | 0.0075 |
+| 1000 Genomes Phase 3 SAS | 0.0080 |
+| Chan 2024 BJC, SAS reference range | 0.003–0.015 |
+
+`c.1905+1G>A` is an **intron-14 splice-donor** variant, and exome capture at
+splice boundaries is unreliable — so the pinned figure is most likely an
+undercount. gnomAD v4.1 added an explicit flag for exome/genome frequency
+discordance, consistent with this being a known class of disagreement.
+
+**Direction of the error:** understates `*2A` carriage in SAS, so Tier 0
+Intermediate and Poor Metabolizer fractions for a South Asian cohort should be
+read as **conservative**.
+
+**Status: UNRESOLVED, documented not corrected.** Changing the pinned value moves
+the headline demo number, which is a deliberate decision rather than a hotfix.
+Recorded in `fixtures/frequencies/dpyd.json` under `_meta.known_discrepancies`
+and emitted as a runtime warning on every audit that uses it — see
+[EVIDENCE.md §1.1](EVIDENCE.md).
 
 ### HapB3 label vs frequency rsID
 
@@ -62,7 +97,10 @@ rsID split in each `HapB3` record's `notes` field.
 | Atasilp 2025 — [doi:10.1016/j.clinme.2025.100443](https://doi.org/10.1016/j.clinme.2025.100443) | Indian/SAS *2A 0.05%, HapB3 tag 1.4%, *13 absent |
 | JMolDiag 2024 — [doi:10.1016/j.jmoldx.2024.05.015](https://doi.org/10.1016/j.jmoldx.2024.05.015) | Population-specific CPIC variant frequencies |
 | Hariprakash 2018 — [doi:10.2217/pgs-2017-0101](https://doi.org/10.2217/pgs-2017-0101) | SAS landscape; CONTESTED context only |
-| Naushad 2021 — [doi:10.1002/jgm.3289](https://doi.org/10.1002/jgm.3289) | Indian GSA; do **not** use C29R 24.91% (CPIC Normal) |
+| Naushad 2021 — [doi:10.1002/jgm.3289](https://doi.org/10.1002/jgm.3289) | Indian GSA, n=2,000; validates the SAS proxy **for DPYD** (Level 1A combined MAF 1.889%; Indian and South Asian profiles cluster together). Also: M166V 8.993% with **null** toxicity association, and V732I / S534N toxicity-associated but **absent from our table and the UK/EU panel**. Do **not** use C29R 24.91% (CPIC Normal). |
+| Chan, Zhang & Pirmohamed 2024 — [doi:10.1038/s41416-024-02754-z](https://doi.org/10.1038/s41416-024-02754-z) | *Br J Cancer* 131:498–514, open access. Peer-reviewed support for the premise: the UK/EU panel tests four variants derived from European studies; `c.1905+1G>A` prevalence 0.3–1.5% in SAS reference populations but 0% in East Asian; `c.557A>G` is 1–4% in African populations and absent from the NHS panel. England runs 38,000 DPYD tests/year. |
+| EMA 2020 / MHRA-NHS 2020 | Pre-treatment DPD testing is a **label requirement** in the EU and UK, not only CPIC guidance; treatment contraindicated in known complete deficiency. |
+| Knikman 2023 — PMID 37639651 | CPIC's own caveat: HapB3 carriers on a 25% reduced dose showed possible reduced effectiveness *and* increased toxicity. Basis for treating HapB3 dosing as `CONTESTED`. |
 
 ### Assumptions (stated, not hidden)
 

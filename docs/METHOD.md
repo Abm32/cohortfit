@@ -134,6 +134,15 @@ pinned, the result is the SAS frequencies at full weight — an explicit partial
 answer — rather than frequencies summing to 0.5, which would understate every
 variant by half and still look like a valid distribution. Tested.
 
+**That omission is reported, not left implicit.** Renormalising produces a
+distribution that still sums to 1.0, so a partially-covered cohort would
+otherwise be indistinguishable from a fully-covered one. A US cohort declared
+68% EUR / 13% AFR / 19% AMR returns *exactly* the EUR-only numbers. Each finding
+therefore carries a `PopulationCoverage` record (covered and dropped weights),
+the finding gets an explanatory note, and the report emits a coverage warning
+naming the dropped populations and the discarded enrolment fraction. This is the
+population-level counterpart to the `Indeterminate` phenotype bucket below.
+
 ### 3. `diplotype_frequencies(allele_freqs)` — Hardy-Weinberg expansion
 
 As above. Output sums to 1.0.
@@ -181,11 +190,47 @@ of the most severe class is likely conservative.** The direction of the error is
 known even though its magnitude is not, and reporting an unadjusted `q²` should
 be understood as a floor, not a point estimate.
 
+*Magnitude, for scale.* Under inbreeding with coefficient `F`, homozygote
+frequency becomes `q² + F·p·q` and heterozygotes `2pq·(1 − F)`. Measured `F` in
+South Indian populations runs **0.0203–0.0339** (Karnataka; consanguineous
+marriage 23% in the South region against 9.9% nationally per NFHS 2015–16).
+Applying `F = 0.0231` to HapB3 at SAS `q = 0.0169` gives `q² + F·p·q ≈ 0.000669`
+against `q² ≈ 0.000285` — roughly **2.3× the random-mating homozygote
+frequency**.
+
+This is *not* applied in the engine. `F` is an external parameter, so any
+adjusted figure would be Tier 1 rather than Tier 0, and
+`diplotype_frequencies()` deliberately stays pure Hardy-Weinberg with a
+sum-to-one invariant. The number is given here so the caveat carries a scale
+instead of only a direction. Note also that consanguinity varies *within*
+India — Kerala is documented as having very low rates and effectively no
+uncle-niece marriage, unlike the other southern states — so this is a genuine
+per-site difference, not a national constant.
+
 **2. `SAS` is a coarse bucket.** "South Asian" spans populations with materially
 different allele frequencies. A re-scoring pilot against IndiGenomes (1,029 Indian
 genomes) found the gnomAD-SAS proxy held closely for some alleles — SLCO1B1 `*5`
 within 1.6%, CYP2C9 `*3` within 0.3% — but diverged by **34.2%** for CYP2C9 `*2`.
 So proxy quality is allele-specific, not population-wide, and cannot be assumed.
+
+*For DPYD specifically, the proxy has been checked.* Naushad et al. screened
+**2,000 Indian subjects** for DPYD variants (*J Gene Med* 2021, PMID 33105068)
+and concluded that "clustering analysis revealed the similarities in the DPYD
+profiles of the Indian and South Asian populations", with their data matching
+ALFA South Asian frequencies. Their Level 1A (non-functional) alleles —
+`rs75017182`, `rs3918290`, `P633Qfs*5`, `D949V` — carry a combined MAF of
+**1.889%**, the same order as this tool's pinned variant set. So the SAS proxy is
+defensible *for this gene*; that finding does not transfer to other genes.
+
+That paper also independently corroborates the platform's own DPYD override
+audit: **M166V sits at 8.993% in 2,000 Indians with a null toxicity
+association**, confirming it is common and not the actionable signal.
+
+**Known gap it surfaces:** Naushad found **V732I** and **S534N** associated with
+5-FU/capecitabine toxicity in pooled Indian data. Neither is in this tool's
+pinned table, and neither is in the UK/EU four-variant panel. A South Asian
+cohort audited here — or screened under the current UK/EU panel — would miss
+both.
 
 **3. Site ancestry mixes are estimates.** A site's actual recruited ancestry
 composition is an assumption supplied in the protocol fixture, not a measurement.

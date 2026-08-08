@@ -32,7 +32,13 @@ on largely European populations. Run the same protocol at Indian sites and a
 because the allele frequencies are published.
 
 Consequences: adverse events, dropouts, muddied safety signal, protocol
-amendments, trial delay or failure. A failed Phase III costs $100M–$1B.
+amendments, trial delay or failure. Verified cost of that, per Tufts CSDD:
+a substantial protocol amendment runs **$141,000 (Phase II) to $535,000
+(Phase III)**, 76% of protocols now need at least one, and a day of delay is
+worth **~$840,000** in unrealised oncology sales plus **$55,716** in direct
+Phase III trial cost. (Do *not* cite the widely-quoted $600k–$8M/day range —
+Tufts traced it to a 1993 estimate and revised it down. See
+[EVIDENCE.md §8.3](EVIDENCE.md).)
 
 It is also invisible after the fact: in FAERS, **South Asia reports adverse
 events at ~1% of its population-proportional rate** (representation ratio 0.010,
