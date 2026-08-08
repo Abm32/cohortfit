@@ -89,6 +89,35 @@ enrollee counts — not a reversed SAS/EUR ratio unless CONTESTED variants are a
 
 Fluoropyrimidine / DPYD screening: PMID [29152729](https://pubmed.ncbi.nlm.nih.gov/29152729/)
 
+## Phenotype mapping (Tier 0)
+
+**Module:** `cohortfit.pgx`  
+**Source table:** `DPYD_diplotypes_anukriti_v2024.01.json` shipped inside
+[`anukriti-pgx-core==0.7.1`](https://pypi.org/project/anukriti-pgx-core/)  
+**CPIC citation:** `_source` field — *CPIC Guideline for Fluoropyrimidines and DPYD (2017, 2024 update)*  
+**PMID:** [29152729](https://pubmed.ncbi.nlm.nih.gov/29152729/)
+
+### How lookup works
+
+1. Hardy-Weinberg produces sorted diplotype tuples: `("*1", "*2A")`.
+2. `lookup_phenotype()` tries slash keys `"*1/*2A"` and `"*2A/*1"` against the pinned table.
+3. Unmapped diplotypes → `"Indeterminate"` (never dropped — see `test_cohort.py`).
+
+**Production path does not use `PhenotypeEngine`.** The cohort path already has
+star alleles from statistics; reading the named-diplotype JSON directly is fewer
+moving parts and surfaces the table `_source` as an audit citation.
+
+A parity test in `tests/test_pgx.py` asserts adapter output matches
+`PhenotypeEngine.infer()` for every table row — regression guard on pgx-core pin
+upgrades only.
+
+### CPIC panel coverage
+
+For the five alleles in `fixtures/frequencies/dpyd.json`, all 15 HWE diplotypes
+map to Normal / Intermediate / Poor Metabolizer — zero Indeterminate under the
+current panel. Indeterminate appears only if the allele panel grows beyond the
+table (e.g. adding `*9A`, which is CPIC Normal and excluded from Tier 0).
+
 ## Updating frequencies
 
 1. Query gnomAD v4 via ClinPGx for all four rsIDs × both populations.

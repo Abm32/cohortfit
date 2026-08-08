@@ -28,7 +28,8 @@ protocol ──▶ Claude (extraction only) ──▶ {drugs, dose regimen,
                               ├─ site ancestry mix ──▶ allele frequencies
                               │                        (gnomAD / IndiGenomes / 1000G, pinned)
                               ├─ Hardy–Weinberg ──▶ diplotype frequencies
-                              └─ anukriti-pgx-core ──▶ diplotype → phenotype
+                              └─ cohortfit.pgx ──▶ diplotype → phenotype
+                                 (reads pgx-core CPIC JSON; no PhenotypeEngine)
                                                       │
                                                       ▼
                               expected cohort phenotype distribution
