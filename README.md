@@ -350,6 +350,19 @@ curl -X POST "http://127.0.0.1:8600/audit?offline=true" \
 Marketing landing at `/` and an interactive audit workbench at `/app`. Full
 run guide: [docs/RUNNING.md](docs/RUNNING.md). See also [docs/LANDING.md](docs/LANDING.md) and [docs/UI.md](docs/UI.md).
 
+### Screenshots
+
+| Step | Capture |
+|---|---|
+| Landing — ancestry mixer + DNA helix | ![Landing hero](screenshots/01-landing-hero.png) |
+| Workbench — pick a pinned demo protocol | ![Demo protocol cards](screenshots/02-demo-protocol-cards.png) |
+| Paste or upload your own `Protocol` JSON | ![Paste Protocol JSON](screenshots/03-paste-protocol-json.png) |
+| Offline audit progress overlay | ![Audit progress](screenshots/04-audit-progress.png) |
+| Full-screen report — findings + warnings | ![Audit report findings](screenshots/05-audit-report-findings.png) |
+| Site burden + data sources | ![Audit report site burden](screenshots/06-audit-report-site-burden.png) |
+
+All captures in [screenshots/](screenshots/).
+
 **Production / demo — one server, same origin (recommended):**
 
 ```bash
