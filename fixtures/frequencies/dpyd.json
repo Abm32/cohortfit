@@ -2,8 +2,30 @@
   "_meta": {
     "gene": "DPYD",
     "gnomad_version": "v4.0",
-    "gnomad_accession": "Genome Aggregation Database v4.0 via ClinPGx / PharmGKB",
+    "gnomad_dataset": "exomes",
+    "gnomad_accession": "Genome Aggregation Database v4.0 exomes via ClinPGx / PharmGKB",
     "query_date": "2026-08-08",
+    "dataset_note": "Allele counts identify this as the gnomAD v4 EXOME callset (SAS 91,074 alleles = ~45.5k individuals; NFE 1,179,520 = ~590k). Recorded explicitly because exome and genome callsets disagree for splice-region variants - see known_discrepancies.",
+    "known_discrepancies": [
+      {
+        "allele": "*2A",
+        "population": "SAS",
+        "pinned": 0.0005,
+        "pinned_basis": "gnomAD v4 exomes, 45/91074",
+        "conflicting_sources": {
+          "gnomAD v4 genomes SAS": 0.0029,
+          "ALFA South Asian": 0.0034,
+          "PAGE Study SouthAsian": 0.006,
+          "1000 Genomes 30X SAS": 0.0075,
+          "1000 Genomes Phase 3 SAS": 0.008,
+          "Chan 2024 BJC SAS reference range": "0.003-0.015"
+        },
+        "assessment": "The pinned exome value is 6-16x LOWER than every genome-based or aggregated source. c.1905+1G>A is an intron-14 splice-donor variant, and exome capture at splice boundaries is unreliable, so the exome estimate is most likely an undercount. gnomAD v4.1 added an explicit flag for exome/genome frequency discordance, consistent with this being a known class of disagreement.",
+        "direction_of_error": "Understates *2A carriage in SAS, so Tier 0 Intermediate and Poor Metabolizer fractions for a South Asian cohort should be read as conservative.",
+        "status": "UNRESOLVED - documented, not silently corrected. Changing the pinned value moves the headline demo number and is a deliberate decision, not a hotfix.",
+        "logged": "2026-08-08"
+      }
+    ],
     "populations": {
       "SAS": {
         "label": "South Asian",
@@ -44,8 +66,8 @@
           "alt_observed": 45,
           "total_alleles": 91074,
           "cross_checks": [
-            "Atasilp 2025: DPYD*2A 0.05% Indian (gnomAD v2.1.1)",
-            "JMolDiag 2024: 0.3-0.5% SAS Middle Eastern NFE band"
+            "Atasilp 2025: DPYD*2A 0.05% Indian (gnomAD v2.1.1) - AGREES with pinned exome value",
+            "CONFLICT - JMolDiag 2024: 0.3-0.5% SAS, gnomAD v4 genomes 0.29%, ALFA 0.34%, PAGE 0.6%, 1000G 0.75-0.8%, Chan 2024 BJC 0.3-1.5%. See _meta.known_discrepancies."
           ]
         },
         "*13": {

@@ -9,6 +9,7 @@ import pytest
 
 from cohortfit.audit import audit_protocol
 from cohortfit.cohort import population_coverage
+from cohortfit.frequencies import known_discrepancies
 from cohortfit.models import DoseRegimen, Protocol, Site
 
 
@@ -20,6 +21,17 @@ def _protocol(sites: list[Site], *, title: str = "T") -> Protocol:
         sites=sites,
         target_n=sum(s.planned_n for s in sites) or 100,
     )
+
+
+def _coverage_warnings(report) -> list[str]:
+    """Warnings about ancestry coverage, excluding provenance/discrepancy notes."""
+    return [
+        w
+        for w in report.warnings
+        if "ancestry" in w.lower()
+        or "enrolment" in w.lower()
+        or "no sites" in w.lower()
+    ]
 
 
 class TestPopulationCoverage:
@@ -79,7 +91,9 @@ class TestPartialCoverageIsSurfaced:
                 [Site(name="Kochi", country="IN", planned_n=100, ancestry_mix={"SAS": 1.0})]
             )
         )
-        assert report.warnings == []
+        # Provenance warnings (e.g. known frequency discrepancies) may still be
+        # present; what must be absent is any *coverage* warning.
+        assert not _coverage_warnings(report)
         assert report.findings[0].coverage.is_complete is True
 
 
@@ -91,7 +105,7 @@ class TestUncomputableAncestryWarns:
             _protocol([Site(name="X", country="IN", planned_n=100, ancestry_mix={})])
         )
         assert len(report.findings) == 1
-        assert report.warnings == []
+        assert not _coverage_warnings(report)
 
     def test_unknown_country_without_mix_warns_instead_of_silence(self):
         report = audit_protocol(
@@ -111,3 +125,34 @@ class TestUncomputableAncestryWarns:
         report = audit_protocol(protocol)
         assert report.findings == []
         assert any("no sites" in w.lower() for w in report.warnings)
+
+
+class TestKnownDiscrepanciesSurface:
+    """A fixture whose cross-checks contradict its pinned value must say so."""
+
+    def test_dpyd_records_the_2a_sas_conflict(self):
+        discs = known_discrepancies("DPYD")
+        assert discs, "DPYD fixture should record the *2A SAS exome/genome conflict"
+        entry = discs[0]
+        assert entry["allele"] == "*2A"
+        assert entry["population"] == "SAS"
+        assert entry["status"].startswith("UNRESOLVED")
+
+    def test_audit_report_warns_about_unresolved_discrepancy(self):
+        report = audit_protocol(
+            _protocol(
+                [Site(name="Kochi", country="IN", planned_n=100, ancestry_mix={"SAS": 1.0})]
+            )
+        )
+        assert any("*2A" in w and "conflicts" in w for w in report.warnings)
+
+    def test_data_sources_name_the_callset(self):
+        report = audit_protocol(
+            _protocol(
+                [Site(name="Kochi", country="IN", planned_n=100, ancestry_mix={"SAS": 1.0})]
+            )
+        )
+        assert any("exomes" in s for s in report.data_sources), (
+            "exome vs genome callset must be explicit — they disagree for "
+            "splice-region variants like *2A"
+        )

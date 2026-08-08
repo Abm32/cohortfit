@@ -112,14 +112,26 @@ def load_gene_provenance(gene: str) -> dict[str, Any]:
     """Return fixture metadata and per-allele provenance for audit reports."""
     data = load_fixture(gene)
     validate_fixture(data)
+    meta = data.get("_meta", {})
     return {
-        "meta": data.get("_meta", {}),
+        "meta": meta,
+        "known_discrepancies": meta.get("known_discrepancies", []),
         "populations": {
             pop: pop_data.get("alleles", {})
             for pop, pop_data in data["populations"].items()
         },
         "ground_truth": data.get("_ground_truth", {}),
     }
+
+
+def known_discrepancies(gene: str) -> list[dict[str, Any]]:
+    """Unreconciled disagreements between the pinned value and other sources.
+
+    Surfaced rather than resolved: a fixture whose own cross-checks contradict
+    its pinned value must say so, because a hidden disagreement is
+    indistinguishable from agreement at the point of use.
+    """
+    return load_fixture(gene).get("_meta", {}).get("known_discrepancies", [])
 
 
 def load_ground_truth(gene: str) -> dict[str, Any]:

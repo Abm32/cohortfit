@@ -78,10 +78,26 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
         meta = prov.get("meta", {})
         query_date = meta.get("query_date", "unknown")
         gnomad_version = meta.get("gnomad_version", "unknown")
+        dataset = meta.get("gnomad_dataset")
+        dataset_label = f"{gnomad_version} {dataset}" if dataset else gnomad_version
         data_sources.append(
-            f"gnomAD {gnomad_version} allele frequencies for {gene} "
+            f"gnomAD {dataset_label} allele frequencies for {gene} "
             f"(query_date={query_date}, fixture=frequencies/{gene.lower()}.json)"
         )
+
+        # An unreconciled disagreement between the pinned value and other
+        # published sources must reach the reader; a fixture that records the
+        # conflict but never surfaces it is no better than one that hides it.
+        for disc in prov.get("known_discrepancies", []):
+            if str(disc.get("status", "")).upper().startswith("RESOLVED"):
+                continue
+            warnings.append(
+                f"{gene} {disc.get('allele', '?')} ({disc.get('population', '?')}): "
+                f"pinned {disc.get('pinned')} conflicts with other published "
+                f"sources. {disc.get('direction_of_error', '')} "
+                "See fixtures/frequencies/"
+                f"{gene.lower()}.json → _meta.known_discrepancies."
+            )
 
         # Cohort-wide distribution (enrolment-weighted ancestry mix).
         mix = cohort_ancestry_mix(protocol.sites)
