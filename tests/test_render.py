@@ -11,7 +11,11 @@ from typer.testing import CliRunner
 from cohortfit.cli import app
 from cohortfit.frequencies import repo_root
 from cohortfit.models import Tier
-from cohortfit.render import render_audit_report
+from cohortfit.render import (
+    _format_expected_n,
+    _format_fraction,
+    render_audit_report,
+)
 from cohortfit.reports import load_audit_report
 
 SAMPLE_REPORT = repo_root() / "fixtures" / "reports" / "sample_audit_report.json"
@@ -70,6 +74,50 @@ class TestTierStyling:
         out = _render_to_string(sample_report)
         assert out.count("SITE BURDEN") == 1
         assert "Munich" in out
+
+
+class TestSmallValueFormatting:
+    """Rare phenotype classes must not round away.
+
+    Poor Metabolizer is the class with the severe outcome and sits at ~1e-4
+    under Hardy-Weinberg. Printing "0.0%" reads as absent.
+    """
+
+    @pytest.mark.parametrize(
+        ("fraction", "expected"),
+        [
+            (0.0, "0%"),
+            (0.00019425, "0.02%"),
+            (0.000036, "0.004%"),
+            (0.0045, "0.45%"),
+            (0.04524404, "4.5%"),
+            (0.95456171, "95.5%"),
+        ],
+    )
+    def test_format_fraction_keeps_rare_classes_visible(self, fraction, expected):
+        assert _format_fraction(fraction) == expected
+
+    @pytest.mark.parametrize(
+        ("expected_n", "expected"),
+        [
+            (0.0, "0"),
+            (0.0447, "0.04"),
+            (10.4061, "10.4"),
+            (219.5492, "219.5"),
+        ],
+    )
+    def test_format_expected_n_keeps_fractional_patients_visible(
+        self, expected_n, expected
+    ):
+        assert _format_expected_n(expected_n) == expected
+
+    def test_poor_metabolizer_not_rendered_as_zero(self, sample_report):
+        output = _render_to_string(sample_report)
+        assert "Poor Metabolizer" in output
+        pm_line = next(
+            line for line in output.splitlines() if "Poor Metabolizer" in line
+        )
+        assert "0.0%" not in pm_line, "PM must not collapse to 0.0%"
 
 
 class TestRenderCommand:

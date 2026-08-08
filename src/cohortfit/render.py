@@ -76,6 +76,34 @@ def _render_header(report: AuditReport) -> Panel:
     return Panel(body, title="cohortfit", border_style="blue")
 
 
+def _format_fraction(fraction: float) -> str:
+    """Render a phenotype fraction without collapsing rare classes to zero.
+
+    Poor Metabolizer frequencies are ~1e-4 under Hardy-Weinberg for rare
+    no-function alleles. At one decimal place that prints "0.0%", which reads
+    as absent — and PM is the class with the severe, potentially fatal
+    outcome. METHOD.md argues the PM estimate is a floor rather than a point
+    estimate, so the renderer must not round it out of existence.
+    """
+    pct = fraction * 100
+    if pct == 0:
+        return "0%"
+    if pct < 0.01:
+        return f"{pct:.3f}%"
+    if pct < 1:
+        return f"{pct:.2f}%"
+    return f"{pct:.1f}%"
+
+
+def _format_expected_n(expected_n: float) -> str:
+    """Expected patient counts below 0.1 keep two decimals rather than showing 0.0."""
+    if expected_n == 0:
+        return "0"
+    if expected_n < 0.1:
+        return f"{expected_n:.2f}"
+    return f"{expected_n:.1f}"
+
+
 def _render_distribution(console: Console, finding: GeneDrugFinding) -> None:
     if not finding.distribution:
         return
@@ -91,8 +119,8 @@ def _render_distribution(console: Console, finding: GeneDrugFinding) -> None:
     for row in sorted(finding.distribution, key=lambda d: -d.fraction):
         table.add_row(
             row.phenotype,
-            f"{row.fraction * 100:.1f}%",
-            f"{row.expected_n:.1f}",
+            _format_fraction(row.fraction),
+            _format_expected_n(row.expected_n),
         )
     console.print(table)
 
