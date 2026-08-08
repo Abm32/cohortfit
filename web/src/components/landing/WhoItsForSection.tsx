@@ -146,9 +146,13 @@ export function WhoItsForSection() {
       <div className="landing-audience">
         <div>
           <h2>{content.title}</h2>
-          <ul className="landing-audience-list">
+          <ul className="landing-audience-list" key={tab}>
             {content.items.map((item, i) => (
-              <li key={item.title}>
+              <li
+                key={item.title}
+                className="audience-item-anim"
+                style={{ "--reveal-delay": `${i * 70}ms` } as React.CSSProperties}
+              >
                 <span className="landing-audience-num">{i + 1}</span>
                 <div>
                   <strong>{item.title}</strong>
@@ -158,7 +162,7 @@ export function WhoItsForSection() {
             ))}
           </ul>
         </div>
-        <div className="landing-mock-card">
+        <div className="landing-mock-card mock-live" key={tab}>
           <div className="landing-mock-header">
             <span>COHORTFIT · DEMO</span>
             <span className={content.mock.badgeClass ?? "landing-mock-badge"}>

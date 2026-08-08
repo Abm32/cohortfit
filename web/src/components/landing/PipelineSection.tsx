@@ -1,3 +1,7 @@
+import { useState } from "react";
+import { MetabolismStrip } from "./Characters";
+import { Reveal } from "./Reveal";
+
 const STEPS = [
   {
     num: "01 / Extract",
@@ -22,6 +26,8 @@ const STEPS = [
 ];
 
 export function PipelineSection() {
+  const [active, setActive] = useState(0);
+
   return (
     <section className="landing-section" id="pipeline">
       <p className="landing-label">The closed loop</p>
@@ -35,15 +41,30 @@ export function PipelineSection() {
         side and deterministic code on the verdict side — mirroring cohortfit&apos;s hard model
         boundary.
       </p>
-      <div className="landing-pipeline-card">
-        {STEPS.map((step) => (
-          <div key={step.num} className="landing-pipeline-step">
+
+      <MetabolismStrip />
+
+      <Reveal className="landing-pipeline-card has-flow">
+        <span className="pipeline-flow-dot" aria-hidden="true" />
+        {STEPS.map((step, i) => (
+          <button
+            type="button"
+            key={step.num}
+            className={`landing-pipeline-step ${active === i ? "is-active" : ""}`}
+            onMouseEnter={() => setActive(i)}
+            onFocus={() => setActive(i)}
+            onClick={() => setActive(i)}
+            aria-pressed={active === i}
+          >
+            <span className="pipeline-step-index" aria-hidden="true">
+              {String(i + 1).padStart(2, "0")}
+            </span>
             <p className="landing-label">{step.num}</p>
             <h3>{step.title}</h3>
             <p>{step.body}</p>
-          </div>
+          </button>
         ))}
-      </div>
+      </Reveal>
     </section>
   );
 }

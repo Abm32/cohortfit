@@ -1,10 +1,14 @@
+import { useInView } from "../../hooks/useInView";
+
 const SITES = [
-  { name: "Mumbai", rate: "3.55%", height: "55%" },
-  { name: "Kochi", rate: "3.55%", height: "55%" },
-  { name: "Munich", rate: "6.40%", height: "100%", highlight: true },
+  { name: "Mumbai", rate: "3.55%", height: 55 },
+  { name: "Kochi", rate: "3.55%", height: 55 },
+  { name: "Munich", rate: "6.40%", height: 100, highlight: true },
 ];
 
 export function ProofSection() {
+  const [chartRef, inView] = useInView<HTMLDivElement>({ threshold: 0.35 });
+
   return (
     <section className="landing-section-dark" id="findings">
       <div className="landing-section-inner landing-proof-grid">
@@ -21,7 +25,7 @@ export function ProofSection() {
             single allele — derived from the fixture, not model-generated.
           </p>
         </div>
-        <div className="landing-chart-card">
+        <div className="landing-chart-card" ref={chartRef}>
           <div className="landing-chart-header">
             <span>AT-RISK RATE BY SITE · DPYD</span>
             <span className="landing-chart-stat">
@@ -32,16 +36,21 @@ export function ProofSection() {
           </div>
           <p className="landing-chart-title">Ancestry drives rate. Enrolment drives count.</p>
           <div
-            className="landing-bar-chart"
+            className={`landing-bar-chart ${inView ? "is-visible" : ""}`}
             role="img"
             aria-label="DPYD at-risk rate by site: Mumbai 3.55%, Kochi 3.55%, Munich 6.40%"
           >
-            {SITES.map((site) => (
+            {SITES.map((site, i) => (
               <div key={site.name} className="landing-bar">
                 <span className="landing-bar-value">{site.rate}</span>
                 <div
                   className={`landing-bar-fill${site.highlight ? " highlight" : ""}`}
-                  style={{ height: site.height }}
+                  style={
+                    {
+                      "--bar-h": `${site.height}%`,
+                      "--bar-delay": `${i * 140}ms`,
+                    } as React.CSSProperties
+                  }
                   aria-hidden="true"
                 />
                 <span className="landing-bar-label">{site.name}</span>

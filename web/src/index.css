@@ -138,3 +138,85 @@ body {
   color: #8b9cb3;
   font-style: italic;
 }
+
+/* ============================================================
+   Motion polish for the audit viewer (cohesive with landing)
+   ============================================================ */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: linear-gradient(180deg, rgba(15, 20, 25, 0.96), rgba(15, 20, 25, 0.82));
+  backdrop-filter: blur(8px);
+  max-width: none;
+}
+.app-header > * {
+  max-width: 960px;
+}
+
+.app-back {
+  transition: color 0.15s, transform 0.15s;
+}
+.app-back:hover {
+  color: #74c69d;
+  transform: translateX(-3px);
+}
+
+.app-btn {
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.app-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -8px rgba(116, 198, 157, 0.6);
+  background: #2d6a4f;
+}
+
+.app-panel {
+  animation: appFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.app-panel:hover {
+  border-color: #3d5170;
+  transform: translateY(-2px);
+}
+.app-main > .app-panel:nth-of-type(1) { animation-delay: 0.02s; }
+.app-main > .app-panel:nth-of-type(2) { animation-delay: 0.08s; }
+.app-main > .app-panel:nth-of-type(3) { animation-delay: 0.14s; }
+.app-main > .app-panel:nth-of-type(4) { animation-delay: 0.2s; }
+.app-main > .app-panel:nth-of-type(5) { animation-delay: 0.26s; }
+
+.app-warnings {
+  animation: appFadeUp 0.5s ease both;
+}
+
+.app-verdict-actionable,
+.app-verdict-contested {
+  display: inline-block;
+}
+.app-verdict-actionable {
+  animation: verdictGlow 2.2s ease-in-out infinite;
+}
+
+.app-table tbody tr {
+  transition: background 0.15s;
+}
+.app-table tbody tr:hover {
+  background: rgba(116, 198, 157, 0.07);
+}
+
+@keyframes appFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes verdictGlow {
+  0%, 100% { text-shadow: 0 0 0 rgba(248, 113, 113, 0); }
+  50% { text-shadow: 0 0 12px rgba(248, 113, 113, 0.6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-panel,
+  .app-warnings,
+  .app-verdict-actionable {
+    animation: none !important;
+  }
+}
