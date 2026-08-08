@@ -94,7 +94,7 @@ Capital × Mesa School of Business), Bengaluru, 2026-08-08.
 
 Prototype. Tier 0 engine is the load-bearing part; treat Tier 1/2 as directional.
 
-**Pitch & demo:** [docs/PITCH.md](docs/PITCH.md) (four-dot narrative) · [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) (stage cues)
+**Pitch & demo:** [docs/PITCH.md](docs/PITCH.md) (four-dot narrative) · [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) (stage cues) · [docs/DEMO_VIDEO.md](docs/DEMO_VIDEO.md) (recording script)
 
 ## Usage
 

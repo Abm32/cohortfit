@@ -1,6 +1,11 @@
 # cohortfit — stage demo script
 
-Minute-by-minute cues for the person at the laptop.  
+Minute-by-minute cues for the person at the laptop, **live on stage** — terminal
+only, with a recovery cheatsheet for when something goes wrong in the room.
+
+For the **recorded** submission video, which drives the web UI instead, use
+[DEMO_VIDEO.md](DEMO_VIDEO.md).
+
 Pitch narrative: [PITCH.md](PITCH.md)
 
 **Pre-flight (5 min before):**
