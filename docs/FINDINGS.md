@@ -295,7 +295,156 @@ mismatch is invisible from both directions.
 
 ---
 
-## What follows from this
+## Fourth pass — statistical uncertainty and generalisability
+
+> Added 2026-08-08 ~14:40, after Findings 1–4 had been implemented as
+> `panel.py` and `sensitivity.py`. This pass asks two questions the earlier
+> passes left open: **how precise are the pinned numbers**, and **does the
+> DPYD/SAS concentration result generalise to other genes?**
+
+### Finding 9 — the fixture already contains enough information to state a confidence interval, and nobody was using it
+
+Every non-reference allele record carries `alt_observed` and `total_alleles`.
+That is a binomial numerator and denominator, so a Wilson 95% interval is
+computable with no new data:
+
+| Population | Allele | Pinned | 95% CI | n (alleles) | Relative width |
+|---|---|---:|---|---:|---:|
+| SAS | `*2A` | 0.000500 | 0.000369 – 0.000661 | 91,074 | **58.3%** |
+| SAS | `*13` | 0.000000 | 0.000000 – 0.000042 | 91,074 | — |
+| SAS | `c.2846A>T` | 0.000527 | 0.000398 – 0.000699 | 91,074 | **57.1%** |
+| SAS | `HapB3` | 0.016870 | 0.016071 – 0.017745 | 91,072 | 9.9% |
+| EUR | `*2A` | 0.005080 | 0.004953 – 0.005210 | 1,179,520 | 5.1% |
+| EUR | `*13` | 0.000100 | 0.000084 – 0.000120 | 1,179,644 | 36.2% |
+| EUR | `c.2846A>T` | 0.006430 | 0.006286 – 0.006574 | 1,179,644 | 4.5% |
+| EUR | `HapB3` | 0.020910 | 0.020653 – 0.021170 | 1,179,718 | 2.5% |
+
+Propagating all alleles to their bounds simultaneously (a deliberately
+conservative worst case, since the errors are independent):
+
+| Population | Lower | Point | Upper |
+|---|---:|---:|---:|
+| SAS | 3.3392% | 3.5474% | 3.7927% |
+| EUR | 6.2929% | 6.3982% | 6.5053% |
+
+**The two rare SAS alleles have ±58% relative uncertainty**, against ±5% for
+their European counterparts. That is a direct consequence of sample size, and it
+means our reported SAS numbers are not just possibly biased low (Finding 7) but
+also materially less *precise* than the identically-formatted European numbers —
+which no current output distinguishes.
+
+### Finding 10 — which database you trust matters ~6× more than how many people were sequenced
+
+Comparing the two uncertainty sources on the same scale, for SAS at-risk:
+
+| Source of uncertainty | Width |
+|---|---:|
+| Sampling (Wilson CI, all alleles at bounds) | 0.4535 pp |
+| Provenance (candidate `*2A` values, Finding 4) | 2.8270 pp |
+| **Ratio** | **6.2×** |
+
+**For a South Asian cohort, the choice of reference database dominates
+statistical sampling error by a factor of six.** This is a genuinely
+counter-intuitive result and it justifies a design decision already taken: the
+`sensitivity.py` provenance range shipped, and a sampling CI did not. That
+ordering turns out to be correct on the numbers, not just on intuition.
+
+For EUR there is no unresolved provenance conflict pinned at all, so sampling is
+the only uncertainty — a further asymmetry in how much we can trust
+identically-presented figures.
+
+### Finding 11 — the reference panel is ~34× over-representative of Europeans per capita
+
+From the fixture's own counts:
+
+| | Alleles sequenced | ≈ Individuals |
+|---|---:|---:|
+| SAS | 91,072 | ~45,536 |
+| EUR (NFE) | 1,179,718 | ~589,859 |
+
+**EUR is 13.0× better represented in absolute terms.** Adjusting for world
+population (SAS ≈ 2.0B, EUR ≈ 0.75B), Europeans are over-represented by roughly
+**34.5× per capita**.
+
+This is consistent with gnomAD's own v4 release note, which states the addition
+of cohorts such as UK Biobank means "the proportion of samples with European
+ancestry is **higher** than in previous releases" — the v4 expansion added
+~169,000 non-European individuals while simultaneously making the panel
+*proportionally* more European.
+
+**Detection floor.** By the rule of three, an allele seen zero times in the SAS
+sample could still be as frequent as **0.0033%** at 95% confidence, versus
+0.0003% in EUR — a 13× worse floor. Concretely, `*13` is 0/91,074 in SAS and is
+reported as exactly `0.0`. It is not known to be absent; it is **known not to
+have been seen**. Those are different claims and the fixture currently renders
+them identically.
+
+⚠️ The world-population figures are round approximations used for scale, not
+census values.
+
+### Finding 12 — DPYD is a genuine outlier, not an instance of a general pattern
+
+This is the most important negative result in this document, and it constrains
+how far the headline claim can be pushed.
+
+Probe: compute panel concentration for five PGx genes using published SAS and
+EUR frequencies for their no-function / decreased-function alleles.
+
+| Gene | SAS eff. alleles | EUR eff. alleles | EUR/SAS | SAS dominant allele |
+|---|---:|---:|---:|---|
+| SLCO1B1 | 1.00 | 1.00 | 1.00× | `521T>C` (single-variant test by design) |
+| TPMT | 1.38 | 1.47 | 1.06× | `*3C` (83.3%) |
+| CYP2C19 | 1.83 | 1.95 | 1.07× | `*2` (66.3%) |
+| CYP2C9 | 1.58 | 1.85 | 1.17× | `*3` (75.9%) |
+| **DPYD** | **1.12** | **2.10** | **1.87×** | **HapB3 (94.3%)** |
+
+⚠️ These comparator frequencies were hand-entered for this probe from published
+literature. They are **not pinned, not shipped, and not validated** — the
+purpose is to establish whether DPYD's asymmetry is typical, and for that a
+rough magnitude suffices. They must not be quoted as cohortfit outputs.
+
+Three conclusions:
+
+1. **The DPYD asymmetry is roughly 11–16× larger than for any other gene
+   tested.** Every other panel loses only 0–17% of its effective allele count
+   between EUR and SAS; DPYD loses 47%.
+2. **So "European-derived panels degrade in South Asians" is not a general law**
+   — it is specifically severe for DPYD. Claiming it as a platform-wide pattern
+   would overreach, and a reviewer with a pharmacogenomics background would
+   catch it. Claim DPYD specifically.
+3. **The reason DPYD is different is a real mechanism, not a coincidence.** DPYD
+   variants are individually rare (total SAS variant load 1.79%, the lowest of
+   the five genes), so the panel depends on a handful of low-frequency alleles
+   whose relative proportions vary sharply between populations. High-load genes
+   like CYP2C19 (47.5% in SAS) are buffered — no single allele can dominate that
+   completely. **Panel fragility scales inversely with total variant load.**
+   That is a testable, generalisable hypothesis, and it is the version of the
+   claim worth making.
+
+### Finding 13 — an incidental result: CYP2C19 `*2` is more than twice as common in South Asians
+
+Visible in the Finding 12 probe and worth recording, because it runs *opposite*
+to the DPYD direction:
+
+| Gene / allele | SAS | EUR | Direction |
+|---|---:|---:|---|
+| CYP2C19 `*2` (no function) | ~31.5% | ~15.0% | **SAS 2.1× higher** |
+| CYP2C9 `*3` (decreased) | ~11.0% | ~7.0% | SAS 1.6× higher |
+| CYP2C9 `*2` (decreased) | ~3.5% | ~12.5% | EUR 3.6× higher |
+| DPYD total variant load | 1.79% | 3.25% | EUR 1.8× higher |
+
+So the platform's existing CYP2C19/PPI workflow (shipped in pgx-core 0.7.0)
+addresses a gene where the South Asian burden is **higher**, not lower. If
+`cohortfit` extends to a second gene-drug pair, **CYP2C19 × clopidogrel or a PPI
+is the strongest candidate**: pgx-core already has the tables and clinical
+actions, it is CPIC Level A, and the ancestry story points the other way — which
+makes the tool look like an ancestry-sensitivity instrument rather than a
+one-directional argument.
+
+⚠️ These frequencies are from the same unvalidated probe. Pin properly before
+use.
+
+---
 
 **Use in the pitch (defensible, derived, ours):**
 - Finding 2 is the headline: the panel's South Asian risk is 94% concentrated on
@@ -347,15 +496,47 @@ is a standing decision not to implement.
    figure would be Tier 1; the scale of the correction is documented in
    [METHOD.md](METHOD.md) caveat 1 instead.
 
+**Scope discipline, from Finding 12.** State the DPYD result as DPYD-specific.
+The generalisable claim is the *mechanism*, not the instance: panel fragility
+scales inversely with total variant load, so rare-variant panels (DPYD 1.79% SAS
+load, TPMT 1.20%) are exposed to population shifts in a way high-load panels
+(CYP2C19 47.5%) are not. Asserting "European panels fail in South Asians" as a
+general law would be caught immediately by anyone who knows CYP2C19 `*2` is
+twice as common in SAS.
+
 **Open questions worth a follow-up session:**
-- Does gnomAD v4.1's exome/genome discordance flag fire on `rs3918290`? That
-  would settle Finding 4 definitively. ⚠️ Not checked — the ClinPGx page
-  requires JavaScript and could not be fetched.
+- **Partially answered.** Does gnomAD v4.1's exome/genome discordance flag fire
+  on `rs3918290`? Still not checked directly — ClinPGx requires JavaScript and
+  the gnomAD per-ancestry count table is published only as an image. But
+  gnomAD's own v4 release note confirms the mechanism: UK Biobank inclusion made
+  the panel *proportionally more* European even while adding ~169,000
+  non-European individuals. Enough to support Finding 11; not enough to close
+  Finding 4.
+- **Answered, negatively.** Does the concentration asymmetry generalise? No —
+  Finding 12 shows DPYD at 1.87× against 1.00–1.17× for four other genes. Useful
+  to know before overclaiming.
 - Are `V732I` / `S534N` frequencies available for SAS? If pinnable, Finding 3's
-  floor could be quantified rather than merely asserted.
+  floor could be quantified rather than asserted. Still open.
 - Does CDISC USDM have a field for per-site expected ancestry composition
-  (EVIDENCE §8.5)? If not, the standard has no slot for our key input — worth
-  raising with CDISC rather than working around.
+  (EVIDENCE §8.5)? Searching found the demographics vocabulary lives in
+  **CDASH/SDTM `DM`** (`SEX`, `RACE`, `ETHNIC` controlled terminology) — i.e. in
+  *collected subject data*, not in the study-definition model. **No USDM field
+  for planned per-site ancestry composition was found.** If that holds, the
+  standard has no slot for our key input, which is a gap worth raising with CDISC
+  rather than working around. ⚠️ Absence of evidence from a keyword search, not
+  confirmed absence — verify against the USDM v4.0 class model before asserting.
+- **New:** should the report distinguish sampling precision from provenance
+  uncertainty? Finding 10 says provenance dominates 6.2×, so the current
+  provenance-only range is the right first choice — but a SAS allele with ±58%
+  relative CI is presented identically to a EUR allele at ±5%, and that
+  difference is invisible.
+- **New:** `*13` at SAS `0.0` means "not observed in 91,074 alleles", upper
+  bound 0.0033% — not "absent". The fixture should distinguish a measured zero
+  from an unobserved zero.
+- **New:** CYP2C19 as the second gene-drug pair (Finding 13). Tables and clinical
+  actions already ship in pgx-core 0.7.0, it is CPIC Level A, and the SAS burden
+  runs *higher* — which would make cohortfit an ancestry-sensitivity instrument
+  rather than a one-directional argument.
 
 ---
 
