@@ -98,6 +98,26 @@ hand-authored fixture: an adjuvant capecitabine protocol across two Indian
 (SAS-ancestry) sites, with no DPYD screening in its exclusion criteria — the
 gap this tool is built to catch.
 
+The CLI is not wired yet; the engine is. Until `cohortfit.cli` lands, run it
+directly:
+
+```python
+from cohortfit.audit import audit_protocol
+from cohortfit.models import Protocol
+import json
+
+protocol = Protocol.model_validate(json.load(open("protocols/capecitabine_india.json")))
+report = audit_protocol(protocol)
+print(report.model_dump_json(indent=2))
+```
+
+Against that fixture this returns one `DPYD` x `capecitabine` finding,
+`ACTIONABLE` (no DPYD screening in the protocol's exclusion criteria), with
+the Tier 0 phenotype distribution for the 150-patient, 100% SAS-ancestry
+cohort: Normal Metabolizer 95.3%, Intermediate 4.7%, Poor 0.04% — every
+number traceable to a pinned gnomAD allele frequency and a CPIC diplotype
+table, nothing estimated.
+
 `--offline` runs entirely against pinned fixtures — no network. This is the
 default for reproducibility, and it means the numbers in a report can be
 re-derived exactly.

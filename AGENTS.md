@@ -18,11 +18,23 @@ adding new computation. The `cohortfit` CLI entry point is declared in
 offline input (e.g. `protocols/capecitabine_india.json`) — no live extraction
 yet.
 
+[src/cohortfit/audit.py](src/cohortfit/audit.py) is the entry point that
+wires the pipeline end to end: `audit_protocol(Protocol) -> AuditReport`.
+It is currently scoped to one gene-drug pair, DPYD x fluoropyrimidines —
+[src/cohortfit/allele_frequencies.py](src/cohortfit/allele_frequencies.py)
+holds the pinned gnomAD v2.1.1 allele frequencies,
+[src/cohortfit/phenotype.py](src/cohortfit/phenotype.py) is the only module
+that calls into `anukriti-pgx-core` for diplotype→phenotype, and
+[src/cohortfit/rules.py](src/cohortfit/rules.py) hardcodes the DPYD
+screening-gap check (not a general rule engine — extend only when a second
+gene-drug pair is in scope).
+
 ## Build, Test, and Development Commands
 
 - `pip install -e ".[dev]"` — install with test/lint dependencies.
 - `pytest` — run the test suite (`testpaths = ["tests"]`, strict markers).
 - `pytest tests/test_cohort.py::TestDiplotypeFrequencies::test_hardy_weinberg_sums_to_one` — run a single test.
+- `pytest tests/test_audit.py` — pipeline + ground-truth tests for the wired DPYD engine.
 - `ruff check .` — lint (line-length 100, target py311, config in `pyproject.toml`).
 
 ## Coding Style & Naming Conventions
