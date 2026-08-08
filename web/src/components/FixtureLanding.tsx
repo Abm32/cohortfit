@@ -1,37 +1,45 @@
 import { useState } from "react";
 import { auditProtocol, fetchDemoProtocol, fetchSampleReport } from "../api/client";
+import { LOAD_REPORT_STEPS } from "./AuditProgressOverlay";
 import type { AuditReport } from "../types/audit";
 
 interface Props {
-  onReport: (report: AuditReport) => void;
+  onRunAudit: (
+    title: string,
+    task: () => Promise<AuditReport>,
+    steps?: readonly string[],
+  ) => Promise<void>;
+  disabled?: boolean;
 }
 
-export function FixtureLanding({ onReport }: Props) {
-  const [loading, setLoading] = useState(false);
+export function FixtureLanding({ onRunAudit, disabled = false }: Props) {
+  const [loading, setLoading] = useState<"sample" | "audit" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function loadSample() {
-    setLoading(true);
+    setLoading("sample");
     setError(null);
     try {
-      onReport(await fetchSampleReport());
+      await onRunAudit("Pinned sample report", () => fetchSampleReport(), LOAD_REPORT_STEPS);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load sample report");
     } finally {
-      setLoading(false);
+      setLoading(null);
     }
   }
 
   async function runDemoAudit() {
-    setLoading(true);
+    setLoading("audit");
     setError(null);
     try {
-      const protocol = await fetchDemoProtocol();
-      onReport(await auditProtocol(protocol));
+      await onRunAudit("Demo protocol audit", async () => {
+        const protocol = await fetchDemoProtocol();
+        return auditProtocol(protocol);
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Demo audit failed");
     } finally {
-      setLoading(false);
+      setLoading(null);
     }
   }
 
@@ -43,14 +51,19 @@ export function FixtureLanding({ onReport }: Props) {
         <code>protocols/demo.json</code>.
       </p>
       <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1rem" }}>
-        <button type="button" className="btn" disabled={loading} onClick={loadSample}>
+        <button type="button" className="btn" disabled={disabled || loading !== null} onClick={() => void loadSample()}>
           Load sample report
         </button>
-        <button type="button" className="btn btn-secondary" disabled={loading} onClick={runDemoAudit}>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          disabled={disabled || loading !== null}
+          onClick={() => void runDemoAudit()}
+        >
           Run demo audit
         </button>
       </div>
-      {loading && <p className="loading">Working…</p>}
+      {loading && <p className="loading">Starting…</p>}
       {error && <p className="error-box">{error}</p>}
     </div>
   );

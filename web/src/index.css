@@ -892,3 +892,159 @@ body {
     transform: none;
   }
 }
+
+/* ---- Audit progress overlay ---- */
+.audit-progress-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(26, 26, 24, 0.45);
+  backdrop-filter: blur(6px);
+}
+
+.audit-progress-card {
+  width: min(480px, 100%);
+  background: var(--white);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 24px 64px -24px rgba(27, 67, 50, 0.35);
+}
+
+.audit-progress-heading {
+  margin: 0.35rem 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.audit-progress-sub {
+  margin: 0 0 1.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.audit-progress-bar {
+  height: 4px;
+  background: var(--cream-dark);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.audit-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--forest), var(--mint));
+  border-radius: 999px;
+  transition: width 0.45s ease;
+}
+
+.audit-progress-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.audit-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.82rem;
+  color: var(--muted-light);
+  transition: color 0.2s;
+}
+
+.audit-progress-step.is-active {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.audit-progress-step.is-done {
+  color: var(--forest-bright);
+}
+
+.audit-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cream-dark);
+  flex-shrink: 0;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.audit-progress-step.is-active .audit-progress-dot {
+  background: var(--forest);
+  box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.2);
+  animation: auditPulse 1s ease-in-out infinite;
+}
+
+.audit-progress-step.is-done .audit-progress-dot {
+  background: var(--mint);
+}
+
+@keyframes auditPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* ---- Full-screen result view ---- */
+.app-shell--report {
+  min-height: 100vh;
+}
+
+.app-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 2rem;
+  border-bottom: 1px solid var(--card-border);
+  background: rgba(248, 247, 242, 0.96);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-wrap: wrap;
+}
+
+.app-result-header-meta {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.app-result-header-meta strong {
+  display: block;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-main--report {
+  max-width: 960px;
+  padding-top: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audit-progress-step.is-active .audit-progress-dot {
+    animation: none;
+  }
+
+  .audit-progress-bar-fill {
+    transition: none;
+  }
+}

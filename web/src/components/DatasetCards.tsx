@@ -3,7 +3,12 @@ import { auditProtocol, fetchProtocolBySlug, fetchProtocolCatalogue } from "../a
 import type { AuditReport, ProtocolCard } from "../types/audit";
 
 interface Props {
-  onReport: (report: AuditReport) => void;
+  onRunAudit: (
+    title: string,
+    task: () => Promise<AuditReport>,
+    steps?: readonly string[],
+  ) => Promise<void>;
+  disabled?: boolean;
 }
 
 /** Verdict-derived accent, so a card previews the shape of its own result. */
@@ -14,18 +19,10 @@ function expectTone(expect: string): string {
   return "ds-tone-actionable";
 }
 
-/**
- * Pinned demo protocols as selectable cards.
- *
- * The catalogue is fetched rather than hardcoded: the reason each fixture
- * exists lives in the API next to the data (see docs/DATASETS.md), so the UI
- * cannot drift out of step with what the fixtures actually demonstrate.
- */
-export function DatasetCards({ onReport }: Props) {
+export function DatasetCards({ onRunAudit, disabled = false }: Props) {
   const [cards, setCards] = useState<ProtocolCard[]>([]);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [catalogueError, setCatalogueError] = useState<string | null>(null);
-  const [runError, setRunError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,14 +40,13 @@ export function DatasetCards({ onReport }: Props) {
     };
   }, []);
 
-  async function run(slug: string) {
-    setActiveSlug(slug);
-    setRunError(null);
+  async function run(card: ProtocolCard) {
+    setActiveSlug(card.slug);
     try {
-      const protocol = await fetchProtocolBySlug(slug);
-      onReport(await auditProtocol(protocol));
-    } catch (e) {
-      setRunError(e instanceof Error ? e.message : "Audit failed");
+      await onRunAudit(card.demonstrates, async () => {
+        const protocol = await fetchProtocolBySlug(card.slug);
+        return auditProtocol(protocol);
+      });
     } finally {
       setActiveSlug(null);
     }
@@ -83,8 +79,8 @@ export function DatasetCards({ onReport }: Props) {
               <button
                 type="button"
                 className={`ds-card ${expectTone(card.expect)}`}
-                onClick={() => void run(card.slug)}
-                disabled={activeSlug !== null}
+                onClick={() => void run(card)}
+                disabled={disabled || activeSlug !== null}
                 aria-busy={busy}
               >
                 <span className="ds-demonstrates">{card.demonstrates}</span>
@@ -97,15 +93,13 @@ export function DatasetCards({ onReport }: Props) {
                 <span className="ds-detail">{card.detail}</span>
                 <span className="ds-foot">
                   <span className="ds-expect">{card.expect}</span>
-                  <span className="ds-run">{busy ? "Auditing…" : "Run audit →"}</span>
+                  <span className="ds-run">{busy ? "Starting…" : "Run audit →"}</span>
                 </span>
               </button>
             </li>
           );
         })}
       </ul>
-
-      {runError && <p className="error-box">{runError}</p>}
     </section>
   );
 }

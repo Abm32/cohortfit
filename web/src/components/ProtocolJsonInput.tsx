@@ -3,10 +3,15 @@ import { auditProtocol } from "../api/client";
 import type { AuditReport, Protocol } from "../types/audit";
 
 interface Props {
-  onReport: (report: AuditReport) => void;
+  onRunAudit: (
+    title: string,
+    task: () => Promise<AuditReport>,
+    steps?: readonly string[],
+  ) => Promise<void>;
+  disabled?: boolean;
 }
 
-export function ProtocolJsonInput({ onReport }: Props) {
+export function ProtocolJsonInput({ onRunAudit, disabled = false }: Props) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +21,8 @@ export function ProtocolJsonInput({ onReport }: Props) {
     setError(null);
     try {
       const protocol = JSON.parse(text) as Protocol;
-      onReport(await auditProtocol(protocol));
+      const title = protocol.title?.trim() || "Uploaded protocol";
+      await onRunAudit(title, () => auditProtocol(protocol));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Invalid JSON or audit failed");
     } finally {
@@ -39,16 +45,22 @@ export function ProtocolJsonInput({ onReport }: Props) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder='{"title": "...", "drugs": [...]}'
+        disabled={disabled || loading}
       />
       <div style={{ marginTop: "0.75rem" }}>
-        <input type="file" accept=".json,application/json" onChange={handleFile} />
+        <input type="file" accept=".json,application/json" onChange={handleFile} disabled={disabled || loading} />
       </div>
       <div style={{ marginTop: "0.75rem" }}>
-        <button type="button" className="btn" disabled={loading || !text.trim()} onClick={handleAudit}>
+        <button
+          type="button"
+          className="btn"
+          disabled={disabled || loading || !text.trim()}
+          onClick={() => void handleAudit()}
+        >
           Audit protocol
         </button>
       </div>
-      {loading && <p className="loading">Auditing…</p>}
+      {loading && <p className="loading">Starting…</p>}
       {error && <p className="error-box">{error}</p>}
     </div>
   );
