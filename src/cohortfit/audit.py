@@ -13,21 +13,16 @@ from anukriti_pgx_core.phenotype.recommendation_level import level_for
 
 from .cohort import blend_allele_frequencies, cohort_ancestry_mix
 from .frequencies import FixtureError, load_gene_frequencies, load_gene_provenance
-from .models import AuditReport, GeneDrugFinding, Protocol, SiteFinding, Tier
+from .models import AuditReport, GeneDrugFinding, Protocol, Tier
 from .pgx import cohort_phenotype_distribution, table_citation
 from .rules import normalize_drug, resolve_gene, screening_gap
-
-_AT_RISK_PHENOTYPES = frozenset({"Poor Metabolizer", "Intermediate Metabolizer"})
+from .sites import site_metabolic_burden
 
 
 def load_protocol(path: Path | str) -> Protocol:
     """Load and validate a protocol JSON file."""
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     return Protocol.model_validate(data)
-
-
-def _at_risk_fraction(distribution) -> float:
-    return sum(d.fraction for d in distribution if d.phenotype in _AT_RISK_PHENOTYPES)
 
 
 def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
@@ -94,23 +89,9 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
             )
         )
 
-        # Per-site metabolic burden (site-selection deltas).
-        for site in protocol.sites:
-            site_blended = blend_allele_frequencies(per_pop_freqs, site.ancestry_mix)
-            if not site_blended:
-                continue
-            site_dist, _ = cohort_phenotype_distribution(
-                gene, site_blended, site.planned_n
-            )
-            at_risk = _at_risk_fraction(site_dist)
-            site_findings.append(
-                SiteFinding(
-                    site_name=site.name,
-                    gene=gene,
-                    at_risk_fraction=at_risk,
-                    expected_at_risk_n=at_risk * site.planned_n,
-                )
-            )
+        site_findings.extend(
+            site_metabolic_burden(gene, per_pop_freqs, protocol.sites)
+        )
 
     # Preserve order, drop duplicates.
     data_sources = list(dict.fromkeys(data_sources))
