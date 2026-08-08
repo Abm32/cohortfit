@@ -9,7 +9,7 @@ interface Stat {
 }
 
 const STATS: Stat[] = [
-  { value: "128", count: 128, label: "pytest cases passing — arithmetic pinned, regressions caught" },
+  { value: "189", count: 189, label: "pytest cases passing — arithmetic pinned, regressions caught" },
   { value: "13", count: 13, label: "genes in pgx-core — canonical CPIC diplotype tables" },
   { value: "Tier 0", label: "arithmetic only — no LLM past Protocol extraction" },
   { value: "Offline", label: "by default — pinned fixtures, no venue wifi required" },

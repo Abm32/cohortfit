@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { auditProtocol, fetchDemoProtocol, fetchSampleReport } from "../api/client";
 import type { AuditReport } from "../types/audit";
-import { AuditReportView } from "./AuditReportView";
 
 interface Props {
   onReport: (report: AuditReport) => void;
