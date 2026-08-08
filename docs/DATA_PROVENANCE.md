@@ -106,6 +106,38 @@ pgx-core's diplotype table keys the decreased-function haplotype as **`HapB3`**
 The fixture pins **frequency from rs75017182** and documents the label/frequency
 rsID split in each `HapB3` record's `notes` field.
 
+### Sampling precision and detection floors
+
+The counts above are not decoration: `alt_observed` / `total_alleles` is a
+binomial numerator and denominator, so
+[`precision.py`](../src/cohortfit/precision.py) derives a Wilson 95% interval for
+every pinned frequency with no additional data.
+
+| Population | Allele | Pinned | 95% CI | Relative width |
+|---|---|---:|---|---:|
+| SAS | `*2A` | 0.000500 | 0.000369 – 0.000661 | **58.3%** ⚠️ |
+| SAS | `*13` | 0.000000 | 0.000000 – 0.000042 | *unobserved* ⚠️ |
+| SAS | `c.2846A>T` | 0.000527 | 0.000398 – 0.000699 | **57.1%** ⚠️ |
+| SAS | `HapB3` | 0.016870 | 0.016071 – 0.017745 | 9.9% |
+| EUR | `*2A` | 0.005080 | 0.004953 – 0.005210 | 5.1% |
+| EUR | `*13` | 0.000100 | 0.000084 – 0.000120 | 36.2% ⚠️ |
+| EUR | `c.2846A>T` | 0.006430 | 0.006286 – 0.006574 | 4.5% |
+| EUR | `HapB3` | 0.020910 | 0.020653 – 0.021170 | 2.5% |
+
+⚠️ marks alleles the audit report flags in its notes (>25% relative width, or
+unobserved). **Detection floors** by the rule of three: SAS `3/91,074` =
+**0.0033%**, EUR `3/1,179,718` = **0.0003%**. So SAS `*13` at `0.0` means *not
+detected in 91,074 alleles*, not *absent* — it could be up to 0.0033% and never
+have been sampled.
+
+**Representation asymmetry.** ~45,536 South Asian individuals against ~589,859
+Non-Finnish European: **13.0× more European data** in absolute terms, and roughly
+34× per capita once world population is considered. gnomAD's own v4 release note
+records that adding cohorts such as UK Biobank made the panel *proportionally
+more* European even while contributing ~169,000 non-European individuals.
+
+Quantified in [FINDINGS.md](FINDINGS.md) Findings 9–11.
+
 ### Literature cross-checks (secondary, not primary)
 
 | Paper | Use |

@@ -345,3 +345,386 @@ body {
     animation: none !important;
   }
 }
+
+/* ============================================================
+   Audit workbench — interactive report view (/app)
+   Styles the rich AuditReportView + input components.
+   ============================================================ */
+.app-header-hint {
+  font-size: 0.8rem;
+  color: #8b9cb3;
+}
+
+.app-controls {
+  margin-bottom: 1.5rem;
+}
+
+.app-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #2d3a4f;
+  margin: -0.25rem 0 1rem;
+  padding-bottom: 0.75rem;
+}
+
+.app-tab {
+  background: transparent;
+  color: #8b9cb3;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.app-tab:hover {
+  color: #e8edf4;
+  background: rgba(116, 198, 157, 0.08);
+}
+.app-tab.is-active {
+  color: #0f1419;
+  background: #74c69d;
+  border-color: #74c69d;
+}
+
+.app-tabpanel .panel {
+  margin-bottom: 0;
+  animation: none;
+}
+
+.app-error-hint {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  color: #fca5a5;
+}
+
+.app-report {
+  animation: appFadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* --- Panels ------------------------------------------------- */
+.panel {
+  background: #1a2332;
+  border: 1px solid #2d3a4f;
+  border-radius: 10px;
+  padding: 1.15rem 1.35rem;
+  margin-bottom: 1rem;
+  animation: appFadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.panel:hover {
+  border-color: #3d5170;
+}
+.panel h1 {
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem;
+}
+.panel h2 {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+  color: #e8edf4;
+}
+.panel h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #8b9cb3;
+  margin: 1rem 0 0.4rem;
+}
+.panel p {
+  margin: 0.5rem 0;
+}
+.panel a {
+  color: #74c69d;
+}
+
+.meta-row {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  color: #8b9cb3;
+  font-size: 0.9rem;
+}
+
+.footnote {
+  color: #8b9cb3;
+  font-size: 0.85rem;
+}
+
+/* --- Finding cards ------------------------------------------ */
+.finding-card {
+  border-left: 4px solid #2d3a4f;
+  padding-left: 1rem;
+}
+.tier-0-border {
+  border-left-color: #74c69d;
+}
+.tier-1-border {
+  border-left-color: #fbbf24;
+}
+.tier-2-border {
+  border-left-color: #94a3b8;
+}
+
+.finding-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.finding-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #e8edf4;
+}
+.tier-subtitle {
+  color: #8b9cb3;
+  font-size: 0.82rem;
+  margin: 0.25rem 0 0.75rem !important;
+}
+
+.tier-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+.tier-badge.tier-0 {
+  color: #74c69d;
+}
+.tier-badge.tier-1 {
+  color: #fbbf24;
+}
+.tier-badge.tier-2 {
+  color: #94a3b8;
+}
+
+.verdict-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+}
+.verdict-actionable {
+  color: #fecaca;
+  background: rgba(248, 113, 113, 0.18);
+  animation: verdictGlow 2.2s ease-in-out infinite;
+}
+.verdict-contested {
+  color: #f5d0fe;
+  background: rgba(232, 121, 249, 0.18);
+}
+.verdict-no-signal {
+  color: #bbf7d0;
+  background: rgba(74, 222, 128, 0.15);
+}
+
+/* --- Tables ------------------------------------------------- */
+.distribution,
+.site-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 0.75rem 0;
+}
+.distribution th,
+.distribution td,
+.site-table th,
+.site-table td {
+  text-align: left;
+  padding: 0.45rem 0.65rem;
+  border-bottom: 1px solid #2d3a4f;
+}
+.distribution th,
+.site-table th {
+  color: #8b9cb3;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.distribution tbody tr,
+.site-table tbody tr {
+  transition: background 0.15s;
+}
+.distribution tbody tr:hover,
+.site-table tbody tr:hover {
+  background: rgba(116, 198, 157, 0.07);
+}
+
+/* --- Lists, notes, disclaimers ------------------------------ */
+.notes-list {
+  margin: 0.5rem 0;
+  padding-left: 1.1rem;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
+.notes-list li {
+  margin: 0.25rem 0;
+}
+.disclaimer {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+.citation-error {
+  color: #fca5a5;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+.coverage-badge {
+  display: inline-block;
+  background: rgba(251, 191, 36, 0.14);
+  color: #fcd34d;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.82rem;
+  margin-bottom: 0.5rem;
+}
+
+/* --- Warnings / empty state -------------------------------- */
+.warnings-banner {
+  background: #422006;
+  border: 1px solid #f59e0b;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  animation: appFadeUp 0.45s ease both;
+}
+.warnings-banner h2 {
+  color: #fcd34d;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+}
+.warnings-banner ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #fde68a;
+  font-size: 0.9rem;
+}
+.empty-state {
+  text-align: center;
+  color: #8b9cb3;
+}
+
+/* --- Provenance (collapsible) ------------------------------ */
+.provenance-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #74c69d;
+  list-style: none;
+}
+.provenance-panel summary::-webkit-details-marker {
+  display: none;
+}
+.provenance-panel summary::before {
+  content: "▸ ";
+  color: #8b9cb3;
+}
+.provenance-panel[open] summary::before {
+  content: "▾ ";
+}
+.provenance-body {
+  margin-top: 0.75rem;
+}
+.provenance-body pre {
+  background: #0f1419;
+  border: 1px solid #2d3a4f;
+  border-radius: 8px;
+  padding: 0.75rem;
+  overflow-x: auto;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  max-height: 320px;
+}
+
+/* --- Inputs / buttons / status ----------------------------- */
+.panel textarea {
+  width: 100%;
+  min-height: 140px;
+  box-sizing: border-box;
+  background: #0f1419;
+  color: #e8edf4;
+  border: 1px solid #2d3a4f;
+  border-radius: 8px;
+  padding: 0.7rem 0.85rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  resize: vertical;
+}
+.panel textarea:focus {
+  outline: none;
+  border-color: #74c69d;
+  box-shadow: 0 0 0 3px rgba(116, 198, 157, 0.15);
+}
+.panel input[type="file"] {
+  color: #8b9cb3;
+  font-size: 0.85rem;
+}
+.panel code {
+  background: rgba(116, 198, 157, 0.12);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: #a7f3d0;
+}
+
+.btn {
+  background: #1b4332;
+  color: #fff;
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #2d6a4f;
+  box-shadow: 0 8px 20px -8px rgba(116, 198, 157, 0.6);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #2d6a4f;
+  color: #74c69d;
+}
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(116, 198, 157, 0.1);
+}
+
+.loading {
+  color: #8b9cb3;
+  font-style: italic;
+}
+.error-box {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid #fca5a5;
+  color: #fca5a5;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  margin-top: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .app-report,
+  .warnings-banner,
+  .verdict-actionable {
+    animation: none !important;
+  }
+}

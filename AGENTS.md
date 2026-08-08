@@ -49,6 +49,23 @@ reference frequency into Hardy-Weinberg. Ablation and substitution both
 preserve that invariant on purpose — a scenario that does not sum to 1.0 is a
 silently wrong distribution, not an error.
 
+[src/cohortfit/precision.py](src/cohortfit/precision.py) answers a different
+question from `sensitivity.py`: not "which source do we believe" but "how well
+did the panel measure this at all". `alt_observed` / `total_alleles` is a
+binomial numerator and denominator, so `wilson_interval()` gives a 95% interval
+per pinned frequency — Wilson rather than the normal approximation because these
+frequencies are small enough that `p ± z·sqrt(p(1-p)/n)` yields negative lower
+bounds, and a negative frequency reaching Hardy-Weinberg would break the
+sum-to-one invariant. `detection_floor()` is the rule-of-three bound, which is
+what makes an unobserved allele reportable as *not detected* rather than
+*absent*. `precision_notes()` is scoped to the populations the cohort actually
+blended, so a report carries no caveats about ancestry groups it never used, and
+only flags alleles that are unobserved or exceed 25% relative width — a
+threshold that is a judgement call the module states outright. Sampling
+precision is reported **alongside** the provenance range on `PhenotypeCount`,
+never compounded into it: provenance uncertainty is ~6× wider for SAS, so a
+single merged interval would mean neither thing.
+
 `Verdict.CONTESTED` is now reachable. `rules.contested_burden()` is a pure
 function over an already-computed burden-share map and fires when an allele
 whose CPIC dose action is disputed holds ≥60% of a cohort's actionable burden

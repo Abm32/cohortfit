@@ -321,8 +321,37 @@ not genetic at all — liver dysfunction elevates uracil independently. So rough
 one in eleven DPD-deficient patients is invisible to *any* genotype-based
 approach, including this one.
 
-### The biases stack in one direction
+**6. The pinned frequencies are not equally precise, and the report says so.**
+Precision follows sample size, and the reference panel is not balanced: ~45.5k
+South Asian individuals against ~590k Non-Finnish European. Wilson 95% intervals
+from the fixture's own observation counts:
 
+| Population | Allele | Pinned | 95% CI | Relative width |
+|---|---|---:|---|---:|
+| SAS | `*2A` | 0.000500 | 0.000369 – 0.000661 | **58.3%** |
+| SAS | `c.2846A>T` | 0.000527 | 0.000398 – 0.000699 | **57.1%** |
+| SAS | `HapB3` | 0.016870 | 0.016071 – 0.017745 | 9.9% |
+| EUR | `*2A` | 0.005080 | 0.004953 – 0.005210 | 5.1% |
+| EUR | `HapB3` | 0.020910 | 0.020653 – 0.021170 | 2.5% |
+
+So a South Asian rare-allele estimate is roughly **ten times less precise** than
+its European counterpart while being formatted identically.
+[`precision.py`](../src/cohortfit/precision.py) attaches a note to any allele
+whose interval exceeds 25% relative width, and to any allele pinned at zero.
+
+**A zero is not an absence.** `*13` is `0.0` for SAS on 0/91,074 observations.
+By the rule of three that is consistent with a frequency up to **0.0033%** — the
+allele was not detected, which is a weaker claim than not present. The report
+now states this rather than letting the arithmetic zero imply certainty.
+
+**Sampling is the smaller problem.** Propagating all alleles to their interval
+bounds moves SAS at-risk 3.34% – 3.79% (0.45pp), while the unresolved `*2A`
+provenance conflict alone spans 2.83pp — **6.2× wider**. Which reference database
+you trust matters more than how many people it sequenced. That is why the range
+shipped on `PhenotypeCount` is the provenance range and the sampling interval is
+a note: compounding them would produce an interval that means neither.
+
+### The biases stack in one direction
 Caveats 1, 2 and 5 are not independent uncertainties that might cancel:
 
 | Source | Effect on reported burden | Magnitude |
@@ -330,6 +359,12 @@ Caveats 1, 2 and 5 are not independent uncertainties that might cancel:
 | Consanguinity (`q² + Fpq`) | Poor Metabolizers undercounted | ~2.3× homozygotes |
 | `*2A` exome undercount | IM + PM undercounted | up to 1.41× at-risk |
 | Genotype-invisible deficiency | at-risk undercounted | ~8.8% of deficient patients |
+
+Caveat 6 is different in kind: sampling error is **two-sided** and could go
+either way (SAS at-risk 3.34% – 3.79% around a 3.55% point estimate). It widens
+the honest interval without shifting its centre, and at 0.45pp it is the smallest
+of the four effects. The three directional biases above are the ones that
+determine which way the number is wrong.
 
 **Every known bias in this pipeline makes the reported burden too low.** That is
 the right direction for a safety instrument — the tool under-promises rather than

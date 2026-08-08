@@ -304,6 +304,11 @@ mismatch is invisible from both directions.
 
 ### Finding 9 — the fixture already contains enough information to state a confidence interval, and nobody was using it
 
+> **Now implemented** as [`src/cohortfit/precision.py`](../src/cohortfit/precision.py).
+> `wilson_interval()` computes the bounds, `population_precision()` maps them
+> per population, and `precision_notes()` puts the imprecise and unobserved
+> alleles onto the finding. Wired into `audit.py`.
+
 Every non-reference allele record carries `alt_observed` and `total_alleles`.
 That is a binomial numerator and denominator, so a Wilson 95% interval is
 computable with no new data:
@@ -376,8 +381,13 @@ ancestry is **higher** than in previous releases" — the v4 expansion added
 sample could still be as frequent as **0.0033%** at 95% confidence, versus
 0.0003% in EUR — a 13× worse floor. Concretely, `*13` is 0/91,074 in SAS and is
 reported as exactly `0.0`. It is not known to be absent; it is **known not to
-have been seen**. Those are different claims and the fixture currently renders
-them identically.
+have been seen**. Those are different claims.
+
+> **Now implemented.** `precision.detection_floor()` computes the bound and the
+> finding carries the caveat verbatim: *"`*13` was not observed in 91,074 SAS
+> alleles — pinned 0.0 means not detected, not absent (95% upper bound
+> 0.0042%)."* The panel note still says `*13` never fires, which is true of the
+> arithmetic; the precision note supplies what that zero does and does not mean.
 
 ⚠️ The world-population figures are round approximations used for scale, not
 census values.
@@ -525,14 +535,13 @@ twice as common in SAS.
   standard has no slot for our key input, which is a gap worth raising with CDISC
   rather than working around. ⚠️ Absence of evidence from a keyword search, not
   confirmed absence — verify against the USDM v4.0 class model before asserting.
-- **New:** should the report distinguish sampling precision from provenance
-  uncertainty? Finding 10 says provenance dominates 6.2×, so the current
-  provenance-only range is the right first choice — but a SAS allele with ±58%
-  relative CI is presented identically to a EUR allele at ±5%, and that
-  difference is invisible.
-- **New:** `*13` at SAS `0.0` means "not observed in 91,074 alleles", upper
-  bound 0.0033% — not "absent". The fixture should distinguish a measured zero
-  from an unobserved zero.
+- **Closed, implemented.** Should the report distinguish sampling precision from
+  provenance uncertainty? Yes, and it now does — `precision.py` reports Wilson
+  intervals as finding notes *alongside* the provenance range rather than
+  compounded into it, because Finding 10 measured provenance at ~6.2× the
+  sampling width and merging them would produce an interval meaning neither.
+- **Closed, implemented.** `*13` at SAS `0.0` now reports as "not observed in
+  91,074 alleles, 95% upper bound 0.0042%" rather than reading as absence.
 - **New:** CYP2C19 as the second gene-drug pair (Finding 13). Tables and clinical
   actions already ship in pgx-core 0.7.0, it is CPIC Level A, and the SAS burden
   runs *higher* — which would make cohortfit an ancestry-sensitivity instrument
