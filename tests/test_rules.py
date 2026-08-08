@@ -4,6 +4,7 @@ import pytest
 
 from cohortfit.models import Protocol, Verdict
 from cohortfit.rules import (
+    contested_burden,
     mentions_screening,
     normalize_drug,
     resolve_gene,
@@ -140,3 +141,50 @@ class TestScreeningIsGeneScoped:
             inclusion_criteria=["Prior fluoropyrimidine exposure permitted"],
         )
         assert mentions_screening(protocol, "DPYD") is False
+
+
+class TestContestedBurden:
+    """HapB3 is the allele whose CPIC dose action CPIC itself contests.
+
+    EVIDENCE.md section 5 records the caveat (PMID 37639651); FINDINGS.md
+    Finding 2 measures the concentration — 94.2% of the SAS actionable burden
+    and 63.9% of the EUR sits on that one allele, so for most screen-positives
+    the correct clinical response is disputed. That is CONTESTED, not a hedge.
+    """
+
+    SAS_SHARES = {"HapB3": 0.942, "c.2846A>T": 0.029, "*2A": 0.028, "*13": 0.0}
+    EUR_SHARES = {"HapB3": 0.639, "c.2846A>T": 0.195, "*2A": 0.154, "*13": 0.003}
+
+    def test_sas_shares_are_contested(self):
+        result = contested_burden("DPYD", "capecitabine", self.SAS_SHARES)
+        assert result is not None
+        allele, message, citations = result
+        assert allele == "HapB3"
+        assert citations == ["37639651"]
+        assert "94.2%" in message
+        assert "HapB3" in message
+        assert "DPYD" in message
+        assert "disputed" in message
+
+    def test_eur_shares_also_contested(self):
+        """EUR clears the threshold too — the verdict tracks the dispute, not ancestry."""
+        result = contested_burden("DPYD", "capecitabine", self.EUR_SHARES)
+        assert result is not None
+        allele, message, citations = result
+        assert allele == "HapB3"
+        assert "63.9%" in message
+        assert "37639651" in citations
+
+    def test_share_below_threshold_is_not_contested(self):
+        shares = {"HapB3": 0.55, "c.2846A>T": 0.30, "*2A": 0.15}
+        assert contested_burden("DPYD", "capecitabine", shares) is None
+
+    def test_unknown_gene_returns_none(self):
+        assert contested_burden("CYP2C9", "warfarin", {"*3": 0.99}) is None
+
+    def test_uncontested_allele_dominating_returns_none(self):
+        shares = {"c.2846A>T": 0.90, "HapB3": 0.05, "*2A": 0.05}
+        assert contested_burden("DPYD", "capecitabine", shares) is None
+
+    def test_empty_shares_returns_none(self):
+        assert contested_burden("DPYD", "capecitabine", {}) is None
