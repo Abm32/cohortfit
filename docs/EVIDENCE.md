@@ -309,7 +309,192 @@ re-verified in this pass.
 
 ---
 
-## 8. Action list
+## 8. Second pass — findings that change the code, not just the pitch
+
+> Added later the same day. Kept separate from §1–7 so it is clear which claims
+> were checked when.
+
+### 8.1 The SAS proxy is validated *specifically for DPYD*
+
+[`METHOD.md`](METHOD.md) caveat #2 warns that gnomAD-SAS proxy quality is
+allele-specific and cannot be assumed — citing the IndiGenomes pilot where
+CYP2C9 `*2` diverged 34.2%. There is now direct evidence the proxy **holds for
+DPYD**.
+
+**Naushad SM, Hussain T, Alrokayan SA, Kutala VK. "Pharmacogenetic profiling of
+dihydropyrimidine dehydrogenase (DPYD) variants in the Indian population."**
+*J Gene Med* 2021 Jan;23(1):e3289. **PMID 33105068**. n = **2,000 Indian
+subjects**, Infinium Global Screening Array.
+
+- Level 1A (non-functional/dysfunctional) alleles — `rs75017182`, `rs3918290`,
+  `P633Qfs*5`, `D949V` — are **rare: combined MAF 1.889%**.
+- Level 3 alleles predominate: **C29R 24.91%, I543V 9.047%, M166V 8.993%,
+  V732I 8.44%**.
+- Associated with 5-FU/capecitabine toxicity in pooled Indian data: **V732I,
+  S534N, rs3918290**.
+- **Null association: C29R, I543V, M166V.**
+- Verbatim conclusion: "Clustering analysis revealed the similarities in the
+  DPYD profiles of the Indian and South Asian populations," and their data
+  "showed similarities with the South Asian data" from ALFA.
+
+Three consequences:
+
+1. **Our SAS proxy is defensible for this gene.** Say so, and cite this. It
+   converts METHOD.md caveat #2 from an open risk into a checked one — for DPYD
+   only, not in general.
+2. **Sanity check on magnitude.** Their Level 1A combined MAF is 1.889%. Our
+   three pinned variants sum to 2.4% (`*2A` 0.006 + `c.2846A>T` 0.006 +
+   HapB3 0.012). Same order, different variant sets — theirs includes
+   `P633Qfs*5` and uses `rs75017182` (the causal HapB3 variant) where we use the
+   `rs56038477` tag. Not a contradiction, but worth stating rather than
+   glossing.
+3. **Independent corroboration of the override audit.** M166V is at 8.993% in
+   2,000 Indians and shows **null association** with toxicity. That is a second
+   source agreeing with `DPYD_SAS_OVERRIDE_AUDIT_2026-07-28.md`: M166V is
+   common and not the actionable signal. It also flags **V732I and S534N** as
+   Indian-relevant toxicity-associated variants that are in *neither* our pinned
+   table nor the UK/EU four-variant panel.
+
+### 8.2 Consanguinity data makes the per-site deltas real
+
+`BUILD_HANDOFF.md` §6 flags a demo weakness: both fixture sites are
+`{"SAS": 1.0}`, so per-site deltas are driven only by `planned_n`, and advises
+saying "add a European site and it diverges" before a judge notices. **There is
+a better answer, and it is already in the fixture.**
+
+Consanguinity — and therefore the inbreeding coefficient F — varies sharply
+*within* India, and our two fixture sites sit at opposite ends of that range:
+
+| Source | Finding |
+|---|---|
+| NFHS 2015–16 (n-national) | Overall consanguineous marriage **9.9%**; **South region 23%**, Northeast 3.1% |
+| NFHS 1992–93 | South India **34.7%** (26.2% close blood relatives, 8.5% distant) |
+| Bittles et al., Karnataka | 29.29% consanguineous → **F = 0.0231** for the population |
+| Karnataka, childhood genetic disorders | General population **F = 0.0271**; affected group F = 0.0414 |
+| Karnataka 1980–89 | Bangalore **F = 0.0339**, Mysore **F = 0.0203** |
+| Trends in consanguinity, South India | **"In Kerala, the frequency of consanguineous marriages is very low"** and uncle–niece marriage is "conspicuously absent." In the other South Indian states, consanguinity and F are high. |
+
+Our fixture is **Kerala (n=100)** and **Chennai (n=50)** — the one South Indian
+state with conspicuously low consanguinity, and a Tamil Nadu site in the
+high-F region. That is a genuine per-site difference in expected homozygote
+burden that has nothing to do with `planned_n`.
+
+**The correction, if we implement it.** Under inbreeding with coefficient F,
+homozygote frequency is not `q²` but:
+
+```
+f(aa) = q² + F·p·q          (homozygotes inflated)
+f(Aa) = 2pq·(1 − F)         (heterozygotes deflated)
+```
+
+⚠️ Worked example below is **our own arithmetic**, not taken from a paper.
+Using HapB3 at SAS `q = 0.012`, `p = 0.988`, and Karnataka `F = 0.0231`:
+
+```
+q²           = 0.012 × 0.012                 = 0.000144
+F·p·q        = 0.0231 × 0.988 × 0.012         = 0.000274
+q² + F·p·q                                    = 0.000418
+```
+
+**~2.9× the random-mating homozygote frequency.** This substantiates
+METHOD.md's claim that our Poor Metabolizer estimate is "a floor, not a point
+estimate" — and puts a number on it for the first time.
+
+Two honest options, in preference order:
+
+- **Do not implement it today.** Instead cite these numbers in METHOD.md so the
+  caveat carries a magnitude and a source. Lower risk, and Tier 0 stays pure
+  arithmetic over pinned inputs.
+- If implemented, F must be a **declared per-site input with provenance**, never
+  inferred from country code, and the output must be labelled Tier 1 (it needs
+  an external parameter), *not* Tier 0.
+
+Do not silently fold F into `diplotype_frequencies()`. That function's
+defensibility comes from being pure Hardy-Weinberg with a sum-to-one test.
+
+### 8.3 ⚠️ The delay-cost figure everyone cites is wrong — including ours
+
+Widely quoted: clinical trial delays cost **$600,000–$8 million per day**. That
+range appears across CRO and vendor marketing. **Tufts CSDD debunked it.**
+
+The `$4–5 million per delay day` figure traces to 1993 estimates from the
+Office of Technology Assessment and Boston Consulting Group, computed as a
+1990s blockbuster's annual revenue ÷ 365. Tufts' October 2023 study analysed
+**645 drugs and biologics** launched since 2000, inflated to 2023 USD:
+
+| Metric | Corrected value |
+|---|---|
+| Lost prescription sales per delay day | **~$800,000** (not $4–5M) |
+| Oncology median, per day | **$840,000** |
+| Cardiovascular / hematology median | $1.4M / $1.3M |
+| Trend | Declining **$80,000–$100,000 per year** |
+| Direct cost to run a trial, per day (mean, Ph II–III) | **~$40,000** |
+| Phase III direct cost per day | **$55,716** |
+| Phase II direct cost per day | **$23,737** |
+| Phase I / Phase IV | $7,829 / $14,091 |
+| (Superseded Medidata figure) | $35,000/day, also ~30 years old |
+
+Published in *Therapeutic Innovation & Regulatory Science*; see also
+PMID 38773058.
+
+**Use the corrected numbers.** For an oncology trial the honest framing is
+**~$840,000/day in unrealised sales plus ~$55,716/day in direct Phase III
+cost**. That is still a large number, it is current, and quoting it while
+noting that the popular $4–5M figure is a 30-year-old artefact is itself a
+demonstration of the discipline we are selling. Citing the inflated range in a
+room that knows better would undercut the entire pitch.
+
+### 8.4 CPIC scaling denominator, now sourced
+
+`BUILD_HANDOFF.md` §6 says the scaling story is "one rule per CPIC Level A
+pair, of which there are dozens." Now quantified:
+
+- CPIC guidelines cover **34 genes and 164 drugs** — *"the global standard for
+  translating pharmacogenomic test results into actionable prescribing
+  decisions"* (PMID 40678821, 2025).
+- Of 145 ADME-related drug–gene pairs in the CPIC database: **Level A 43 (30%)**,
+  Level B 22 (15%), Level C 59 (41%), Level D 21 (14%) (PMID 36257916).
+- A separate 2025 prescribing study identified **53 drugs** with CPIC Level A
+  actionable pharmacogenetic variants (PMID 41017291).
+
+So: **~43–53 Level A pairs** is the addressable rule count, against 34 genes and
+164 drugs of guideline coverage. `pgx-core`'s 13 genes are ~38% of CPIC's gene
+coverage. "Dozens" is right; now it has a citation and a denominator.
+
+### 8.5 There is a standard for machine-readable protocols — align to it
+
+This is the strongest available support for the "infrastructure everyone builds
+on" claim (theme #5), and we were not aware of it.
+
+**CDISC USDM** — Unified Study Definitions Model, produced by the
+**Digital Data Flow (DDF)** initiative, the standard for exchanging structured
+study definitions between clinical systems, aligned with **ICH M11** (the
+harmonised electronic protocol template).
+
+- **USDM v4.0** went to public review in 2025; **USDM Implementation Handbook
+  v1.0 FINAL** published 2026 (CDISC).
+- Includes a REST API architecture and a central Repository component "aimed at
+  facilitating the exchange of structured study definitions across clinical
+  systems."
+
+`cohortfit`'s `Protocol` / `Site` / `DoseRegimen` model is an ad-hoc subset
+invented for this build. That was correct for a five-hour sprint. But the
+credible path from prototype to infrastructure is: **accept USDM/ICH M11 as an
+input format**, so cohortfit slots into a pipeline sponsors and CROs are
+already being pushed toward, instead of asking them to author our JSON.
+
+Say this if asked "how does this get adopted?" It is a far better answer than
+"an API". It also reframes the Claude extractor: its job is bridging *legacy
+prose protocols* into structured form, while USDM handles the ones already
+digital — which is exactly the transition the industry is mid-way through.
+
+⚠️ Not verified: whether USDM has a native field for per-site expected ancestry
+composition. If it does not, that is a gap worth naming out loud — the standard
+would then have no slot for the input our whole computation depends on.
+
+---
+
+## 9. Action list
 
 Ordered by value. None of it is large.
 
@@ -319,14 +504,21 @@ Ordered by value. None of it is large.
 3. **Note `rs56038477` as a tagging variant** for `rs75017182` (§1.3).
 4. **Upgrade the regulatory claim** from "CPIC advises" to EMA 2020 /
    MHRA-NHS 2020 mandatory pre-treatment testing (§3).
-5. **Swap the trial-failure cost** for the Tufts amendment figures, and add the
-   £78,000-per-patient cost-effectiveness result (§4).
-6. **Add BJC 2024 to citations** — strongest external support for the premise,
-   open access (§2).
-7. **Consider HapB3 as the first live `CONTESTED` finding** (§5). Exercises a
+5. **Replace the delay/failure cost with the corrected Tufts figures** (§8.3) —
+   ~$840k/day oncology unrealised sales, $55,716/day Phase III direct cost,
+   $141k/$535k per substantial amendment (§4). Explicitly do **not** cite
+   $600k–$8M/day.
+6. **Add BJC 2024 and Naushad 2021 to citations** (§2, §8.1) — the second
+   validates our SAS proxy for DPYD specifically and independently corroborates
+   the M166V finding from the override audit.
+7. **Add the consanguinity magnitude to METHOD.md caveat #1** (§8.2). Cite F
+   values and note Kerala vs Chennai differ. Do not fold F into the Tier 0
+   engine.
+8. **Consider HapB3 as the first live `CONTESTED` finding** (§5). Exercises a
    verdict path that currently has no example, using a disagreement CPIC
    publishes itself.
-8. **Drop FDA Diversity Action Plans** from any positioning material (§3).
+9. **Name CDISC USDM / ICH M11 as the adoption path** (§8.5).
+10. **Drop FDA Diversity Action Plans** from any positioning material (§3).
 
 ---
 
@@ -350,3 +542,20 @@ Ordered by value. None of it is large.
 - FDA Diversity Action Plans guidance page and "Withdrawn or Expired Clinical
   Trial Guidance Documents"
 - ICON plc press release and coverage of the Anthropic collaboration
+
+### Second pass
+
+- Naushad et al. — PMID 33105068, *J Gene Med* 2021;23(1):e3289, n=2,000 Indians
+- IndiGenomes — *Nucleic Acids Res* 2021;49(D1):D1225, 1,029 Indian genomes
+- Chan et al. (SAS variant coverage) — *Br J Cancer* 2024, as §2
+- Consanguinity: NFHS 2015–16 analysis (ResearchGate 342804303); NFHS 1992–93
+  (PMID 12055694); Karnataka F values (PMID 7294724, PMID 3612707, PMID 8425878);
+  Kerala exception (PMID 11284626)
+- Tufts CSDD day-of-delay white paper (Aug 2024) and Getz & Smith summary,
+  *Contract Pharma* 2024-09-05; PMID 38773058
+- CPIC coverage — PMID 40678821 (34 genes / 164 drugs); PMID 36257916 (Level A
+  43 of 145 ADME pairs); PMID 41017291 (53 Level A drugs)
+- CDISC USDM v4.0 public review; USDM Implementation Handbook v1.0 FINAL (2026);
+  CDISC Digital Data Flow / ICH M11 alignment materials
+- Hardy–Weinberg with inbreeding: standard `q² + Fpq` formulation
+  (Wright's F; Hardy–Weinberg principle, general population-genetics references)
