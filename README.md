@@ -102,7 +102,20 @@ re-derived exactly.
 - [`anukriti-pgx-core`](https://github.com/AnukritiAi-hq/anukriti-pgx-core) — the
   deterministic CPIC star-allele/phenotype engine (v0.7.1, 13 genes)
 - Anthropic Claude — protocol extraction
-- Pinned population frequency data: gnomAD v2.1.1/v3, IndiGenomes, 1000 Genomes
+- Pinned population frequency data: gnomAD v4.0 (see [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md))
+
+## Pinned data (Track A — offline by default)
+
+Population allele frequencies live in `fixtures/frequencies/` with mandatory
+provenance (rsID, gnomAD alt/total counts, query date). The loader in
+`cohortfit.frequencies` rejects entries without source metadata — no hand-written
+overrides.
+
+| Fixture | Gene | Populations | Status |
+|---|---|---|---|
+| [`fixtures/frequencies/dpyd.json`](fixtures/frequencies/dpyd.json) | DPYD | SAS, EUR | pinned 2026-08-08 |
+
+Full audit trail: [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md)
 
 ## Design principle
 
