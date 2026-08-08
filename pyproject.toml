@@ -37,3 +37,8 @@ addopts = "--strict-markers"
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.ruff.lint.flake8-bugbear]
+# typer.Argument / typer.Option in argument defaults is the documented Typer
+# idiom, not the mutable-default bug B008 exists to catch.
+extend-immutable-calls = ["typer.Argument", "typer.Option"]

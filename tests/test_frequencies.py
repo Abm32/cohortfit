@@ -31,12 +31,12 @@ class TestFixtureIntegrity:
 
     def test_dpyd_frequencies_sum_to_one(self):
         freqs = load_gene_frequencies("DPYD")
-        for pop, alleles in freqs.items():
+        for alleles in freqs.values():
             assert sum(alleles.values()) == pytest.approx(1.0)
 
     def test_dpyd_provenance_complete(self):
         prov = load_gene_provenance("DPYD")
-        for pop, alleles in prov["populations"].items():
+        for alleles in prov["populations"].values():
             for name, record in alleles.items():
                 assert record.get("source")
                 if name != "*1":
@@ -46,7 +46,7 @@ class TestFixtureIntegrity:
 
     def test_dpyd_star1_is_remainder(self):
         data = load_fixture("DPYD")
-        for pop_code, pop_data in data["populations"].items():
+        for pop_data in data["populations"].values():
             alleles = pop_data["alleles"]
             variant_sum = sum(
                 rec["frequency"] for name, rec in alleles.items() if name != "*1"

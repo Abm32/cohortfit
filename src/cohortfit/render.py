@@ -108,7 +108,7 @@ def _render_distribution(console: Console, finding: GeneDrugFinding) -> None:
     if not finding.distribution:
         return
     console.print(
-        f"\n[bold]COHORT PHENOTYPE[/bold]  ",
+        "\n[bold]COHORT PHENOTYPE[/bold]  ",
         end="",
     )
     console.print(_tier_badge(Tier.DISTRIBUTION))

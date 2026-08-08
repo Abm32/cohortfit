@@ -2,7 +2,7 @@
 
 import pytest
 
-from cohortfit.models import Protocol, Site, Verdict
+from cohortfit.models import Protocol, Verdict
 from cohortfit.rules import (
     mentions_screening,
     normalize_drug,

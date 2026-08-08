@@ -3,6 +3,8 @@
 These pin the arithmetic that every downstream number depends on.
 """
 
+from typing import ClassVar
+
 import pytest
 
 from cohortfit.cohort import (
@@ -69,7 +71,7 @@ class TestCohortAncestryMix:
 
 
 class TestBlendAlleleFrequencies:
-    PER_POP = {
+    PER_POP: ClassVar[dict[str, dict[str, float]]] = {
         "SAS": {"*1": 0.9, "*2": 0.1},
         "EUR": {"*1": 0.8, "*2": 0.2},
     }

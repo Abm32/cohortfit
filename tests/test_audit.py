@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
+from pydantic import ValidationError
 
 from cohortfit.audit import audit_protocol, load_protocol
 from cohortfit.frequencies import FixtureError, repo_root
@@ -23,7 +22,9 @@ class TestLoadProtocol:
     def test_load_invalid_json_raises(self, tmp_path):
         bad = tmp_path / "bad.json"
         bad.write_text('{"title": "x"}', encoding="utf-8")
-        with pytest.raises(Exception):
+        # Missing required fields must fail Pydantic validation, not merely
+        # "raise something" — a blind Exception would also pass on a typo.
+        with pytest.raises(ValidationError):
             load_protocol(bad)
 
 
