@@ -91,6 +91,32 @@ class PhenotypeCount(BaseModel):
     expected_n: float
 
 
+class PopulationCoverage(BaseModel):
+    """Which ancestry groups the pinned frequency data actually covered.
+
+    `blend_allele_frequencies` skips populations with no pinned data and
+    renormalises the remaining weights. That is the honest arithmetic choice,
+    but it is invisible in the resulting distribution: a US cohort declared
+    68% EUR / 13% AFR / 19% AMR yields *exactly* the EUR-only numbers while
+    still summing to 1.0. This record makes the omission part of the report,
+    so a reader can tell a fully-covered cohort from a partially-covered one.
+
+    Population-level counterpart to the "Indeterminate" phenotype bucket.
+    """
+
+    covered: dict[str, float] = Field(default_factory=dict)
+    dropped: dict[str, float] = Field(default_factory=dict)
+
+    @property
+    def dropped_weight(self) -> float:
+        """Total declared enrolment fraction with no pinned frequency data."""
+        return sum(self.dropped.values())
+
+    @property
+    def is_complete(self) -> bool:
+        return not self.dropped
+
+
 class GeneDrugFinding(BaseModel):
     gene: str
     drug: str
@@ -101,6 +127,7 @@ class GeneDrugFinding(BaseModel):
     missing_exclusion: str | None = None
     notes: list[str] = Field(default_factory=list)
     citations: list[str] = Field(default_factory=list)
+    coverage: PopulationCoverage | None = None
 
 
 class SiteFinding(BaseModel):
@@ -120,3 +147,4 @@ class AuditReport(BaseModel):
     site_findings: list[SiteFinding] = Field(default_factory=list)
     data_sources: list[str] = Field(default_factory=list)
     offline: bool = True
+    warnings: list[str] = Field(default_factory=list)

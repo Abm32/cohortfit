@@ -217,6 +217,20 @@ def _render_site_burden(console: Console, report: AuditReport, gene: str) -> Non
         )
 
 
+def _render_warnings(console: Console, report: AuditReport) -> None:
+    """Print data-coverage warnings.
+
+    These are deliberately loud: a renormalised-away population produces a
+    distribution that still sums to 1.0 and looks complete. Silence here would
+    reproduce the failure mode this tool exists to catch.
+    """
+    if not report.warnings:
+        return
+    console.print("\n[bold yellow]COVERAGE WARNINGS[/bold yellow]")
+    for warning in report.warnings:
+        console.print(f"  [yellow]![/yellow] {warning}")
+
+
 def _render_sources(console: Console, report: AuditReport) -> None:
     if not report.data_sources:
         return
@@ -231,7 +245,15 @@ def render_audit_report(report: AuditReport, *, console: Console | None = None) 
     out.print(_render_header(report))
 
     if not report.findings:
-        out.print("\n[yellow]No PGx-actionable drugs found in protocol.[/yellow]")
+        if report.warnings:
+            # Not the same as "no risk": we could not compute one.
+            out.print(
+                "\n[yellow]No distribution computed — see coverage warnings "
+                "below.[/yellow]"
+            )
+        else:
+            out.print("\n[yellow]No PGx-actionable drugs found in protocol.[/yellow]")
+        _render_warnings(out, report)
         _render_sources(out, report)
         return
 
@@ -242,5 +264,6 @@ def render_audit_report(report: AuditReport, *, console: Console | None = None) 
             _render_site_burden(out, report, finding.gene)
             site_genes_rendered.add(finding.gene)
 
+    _render_warnings(out, report)
     _render_sources(out, report)
     out.print()

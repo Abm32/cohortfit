@@ -11,9 +11,10 @@ from pathlib import Path
 
 from anukriti_pgx_core.phenotype.recommendation_level import level_for
 
-from .cohort import blend_allele_frequencies, cohort_ancestry_mix
+from .ancestry import apply_ancestry_defaults
+from .cohort import blend_allele_frequencies, cohort_ancestry_mix, population_coverage
 from .frequencies import FixtureError, load_gene_frequencies, load_gene_provenance
-from .models import AuditReport, GeneDrugFinding, Protocol, Tier
+from .models import AuditReport, GeneDrugFinding, Protocol, SiteFinding, Tier
 from .pgx import cohort_phenotype_distribution, table_citation
 from .rules import normalize_drug, resolve_gene, screening_gap
 from .sites import site_metabolic_burden
@@ -42,9 +43,29 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
     if not offline:
         raise FixtureError("Live audit is not supported; use offline=True")
 
+    # Fill site ancestry from country priors when the protocol omits it, so a
+    # hand-authored fixture behaves like extractor output rather than silently
+    # producing no findings.
+    protocol = apply_ancestry_defaults(protocol)
+
     data_sources: list[str] = []
     findings: list[GeneDrugFinding] = []
     site_findings: list[SiteFinding] = []
+    warnings: list[str] = []
+
+    sites_without_ancestry = [s.name for s in protocol.sites if not s.ancestry_mix]
+    if sites_without_ancestry:
+        warnings.append(
+            "No ancestry_mix for site(s) "
+            + ", ".join(sites_without_ancestry)
+            + " and no country prior available — these sites are excluded from "
+            "the cohort distribution."
+        )
+    if not protocol.sites:
+        warnings.append(
+            "Protocol declares no sites; cohort ancestry cannot be computed and "
+            "no Tier 0 distribution was produced."
+        )
 
     for drug_regimen in protocol.drugs:
         drug = drug_regimen.drug
@@ -64,8 +85,15 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
 
         # Cohort-wide distribution (enrolment-weighted ancestry mix).
         mix = cohort_ancestry_mix(protocol.sites)
+        coverage = population_coverage(per_pop_freqs, mix)
         blended = blend_allele_frequencies(per_pop_freqs, mix)
         if not blended:
+            warnings.append(
+                f"{gene} × {drug}: no pinned allele frequencies for any declared "
+                f"ancestry group ({', '.join(sorted(mix)) or 'none declared'}); "
+                "no distribution computed. This is a data-coverage gap, not a "
+                "finding of no risk."
+            )
             continue
 
         dist, table = cohort_phenotype_distribution(
@@ -75,6 +103,23 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
 
         verdict, missing_exclusion, citations = screening_gap(protocol, drug, gene)
         cpic_level = level_for(gene, normalize_drug(drug)) or None
+
+        notes: list[str] = []
+        if coverage.dropped:
+            dropped_desc = ", ".join(
+                f"{pop} {weight:.0%}" for pop, weight in sorted(coverage.dropped.items())
+            )
+            notes.append(
+                f"Partial ancestry coverage: no pinned {gene} frequencies for "
+                f"{dropped_desc}. Those weights were renormalised away, so this "
+                f"distribution describes only the covered "
+                f"{', '.join(sorted(coverage.covered))} fraction of the cohort."
+            )
+            warnings.append(
+                f"{gene} × {drug}: {coverage.dropped_weight:.0%} of declared "
+                f"enrolment ({dropped_desc}) has no pinned frequency data and was "
+                "excluded from the distribution."
+            )
 
         findings.append(
             GeneDrugFinding(
@@ -86,6 +131,8 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
                 cpic_level=cpic_level,
                 missing_exclusion=missing_exclusion,
                 citations=citations,
+                notes=notes,
+                coverage=coverage,
             )
         )
 
@@ -104,4 +151,5 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
         site_findings=site_findings,
         data_sources=data_sources,
         offline=offline,
+        warnings=list(dict.fromkeys(warnings)),
     )

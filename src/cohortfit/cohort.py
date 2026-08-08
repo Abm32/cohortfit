@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from itertools import combinations_with_replacement
 
-from .models import PhenotypeCount, Site
+from .models import PhenotypeCount, PopulationCoverage, Site
 
 
 def diplotype_frequencies(allele_freqs: dict[str, float]) -> dict[tuple[str, str], float]:
@@ -72,6 +72,21 @@ def blend_allele_frequencies(
         for allele, freq in per_population[pop].items():
             blended[allele] = blended.get(allele, 0.0) + freq * share
     return blended
+
+
+def population_coverage(
+    per_population: dict[str, dict[str, float]],
+    ancestry_mix: dict[str, float],
+) -> PopulationCoverage:
+    """Split an ancestry mix into populations with and without pinned data.
+
+    Reports what `blend_allele_frequencies` silently discards. Kept separate so
+    the blend stays a pure function and the reporting concern lives with the
+    caller that needs it.
+    """
+    covered = {p: w for p, w in ancestry_mix.items() if p in per_population}
+    dropped = {p: w for p, w in ancestry_mix.items() if p not in per_population}
+    return PopulationCoverage(covered=covered, dropped=dropped)
 
 
 def phenotype_distribution(
