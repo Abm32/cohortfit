@@ -77,3 +77,66 @@ class TestScreeningGap:
         protocol = _demo_protocol_without_screening()
         verdict, _, _ = screening_gap(protocol, "warfarin", "CYP2C9")
         assert verdict == Verdict.NO_SIGNAL
+
+
+class TestScreeningIsGeneScoped:
+    """Generic PGx wording about another gene must not mask the DPYD gap.
+
+    Oncology protocols routinely genotype HER2, KRAS or EGFR. Counting those as
+    DPYD screening produces a false NO_SIGNAL on the exact finding this tool
+    exists to produce.
+    """
+
+    @pytest.mark.parametrize(
+        "criterion",
+        [
+            "HER2 genotype negative by central testing",
+            "Documented KRAS wild-type status by genetic testing",
+            "EGFR mutation testing required prior to enrolment",
+            "Pharmacogenomic analysis of CYP2D6 for the companion study",
+        ],
+    )
+    def test_unrelated_marker_genotyping_is_not_dpyd_screening(self, criterion):
+        protocol = Protocol(title="T", drugs=[], exclusion_criteria=[criterion])
+        assert mentions_screening(protocol, "DPYD") is False
+
+    def test_unrelated_genotyping_still_yields_actionable_verdict(self):
+        protocol = Protocol(
+            title="T",
+            drugs=[],
+            exclusion_criteria=[
+                "HER2 genotype negative by central testing",
+                "Known hypersensitivity to capecitabine",
+            ],
+        )
+        verdict, missing, _ = screening_gap(protocol, "capecitabine", "DPYD")
+        assert verdict == Verdict.ACTIONABLE
+        assert missing is not None
+
+    @pytest.mark.parametrize(
+        "criterion",
+        [
+            "Known DPYD poor metabolizer status",
+            "DPD enzyme deficiency",
+            "Dihydropyrimidine dehydrogenase deficiency (complete or partial)",
+            "DPYD genotype testing required before cycle 1",
+            "Pharmacogenomic screening for dihydropyrimidine dehydrogenase",
+        ],
+    )
+    def test_gene_specific_wording_counts_as_screening(self, criterion):
+        protocol = Protocol(title="T", drugs=[], exclusion_criteria=[criterion])
+        assert mentions_screening(protocol, "DPYD") is True
+
+    def test_generic_and_specific_terms_in_separate_criteria_do_not_combine(self):
+        """A DPYD mention in one criterion and 'genotype' in another is not proof.
+
+        Only same-criterion co-occurrence counts, so an unrelated genotyping
+        line cannot borrow credibility from a DPYD mention elsewhere.
+        """
+        protocol = Protocol(
+            title="T",
+            drugs=[],
+            exclusion_criteria=["HER2 genotype negative"],
+            inclusion_criteria=["Prior fluoropyrimidine exposure permitted"],
+        )
+        assert mentions_screening(protocol, "DPYD") is False
