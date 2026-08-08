@@ -3,6 +3,9 @@
   "trial_id": "NCT01095003",
   "total_planned_n": 230,
   "offline": true,
+  "warnings": [
+    "DPYD *2A (SAS): pinned 0.0005 conflicts with other published sources. Understates *2A carriage in SAS, so Tier 0 Intermediate and Poor Metabolizer fractions for a South Asian cohort should be read as conservative. See fixtures/frequencies/dpyd.json → _meta.known_discrepancies."
+  ],
   "findings": [
     {
       "gene": "DPYD",
@@ -29,7 +32,11 @@
       "cpic_level": "A",
       "missing_exclusion": "Protocol does not exclude or screen for DPYD deficiency before capecitabine dosing (CPIC Level A; test before fluoropyrimidines).",
       "notes": [],
-      "citations": ["29152729"]
+      "citations": ["29152729"],
+      "coverage": {
+        "covered": {"SAS": 0.6521739130434783, "EUR": 0.34782608695652173},
+        "dropped": {}
+      }
     },
     {
       "gene": "DPYD",
