@@ -10,6 +10,7 @@ from pydantic import ValidationError
 from rich.console import Console
 
 from .audit import audit_protocol, load_protocol
+from .extract import ExtractionError, extract_protocol_from_file
 from .frequencies import FixtureError
 from .render import render_audit_report
 from .reports import load_audit_report
@@ -84,6 +85,49 @@ def render(
         raise typer.Exit(code=1) from exc
 
     render_audit_report(report, console=Console())
+
+
+@app.command()
+def extract(
+    source_path: Path = typer.Argument(
+        ...,
+        exists=True,
+        readable=True,
+        dir_okay=False,
+        help="Protocol source document (plain text or CT.gov export).",
+    ),
+    output: Path = typer.Option(
+        ...,
+        "-o",
+        "--output",
+        help="Write validated Protocol JSON to this path.",
+    ),
+    model: str = typer.Option(
+        "claude-sonnet-4-20250514",
+        "--model",
+        help="Anthropic model ID for extraction.",
+    ),
+    infer_ancestry: bool = typer.Option(
+        True,
+        "--infer-ancestry/--no-infer-ancestry",
+        help="Apply country-default ancestry_mix when sites omit it.",
+    ),
+) -> None:
+    """Extract structured Protocol JSON from protocol prose via Claude."""
+    err = Console(stderr=True)
+    try:
+        protocol = extract_protocol_from_file(
+            source_path,
+            model=model,
+            infer_ancestry=infer_ancestry,
+        )
+    except ExtractionError as exc:
+        err.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(protocol.model_dump_json(indent=2), encoding="utf-8")
+    Console().print(f"[green]Wrote validated Protocol[/green] → {output}")
 
 
 if __name__ == "__main__":
