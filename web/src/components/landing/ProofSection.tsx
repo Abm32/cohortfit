@@ -31,13 +31,18 @@ export function ProofSection() {
             </span>
           </div>
           <p className="landing-chart-title">Ancestry drives rate. Enrolment drives count.</p>
-          <div className="landing-bar-chart">
+          <div
+            className="landing-bar-chart"
+            role="img"
+            aria-label="DPYD at-risk rate by site: Mumbai 3.55%, Kochi 3.55%, Munich 6.40%"
+          >
             {SITES.map((site) => (
               <div key={site.name} className="landing-bar">
                 <span className="landing-bar-value">{site.rate}</span>
                 <div
                   className={`landing-bar-fill${site.highlight ? " highlight" : ""}`}
                   style={{ height: site.height }}
+                  aria-hidden="true"
                 />
                 <span className="landing-bar-label">{site.name}</span>
               </div>
