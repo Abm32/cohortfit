@@ -91,12 +91,22 @@ Prototype. Tier 0 engine is the load-bearing part; treat Tier 1/2 as directional
 
 ```bash
 pip install -e .
-cohortfit audit protocols/<protocol>.json --offline
+cohortfit audit protocols/demo.json
 ```
 
-`--offline` runs entirely against pinned fixtures — no network. This is the
-default for reproducibility, and it means the numbers in a report can be
-re-derived exactly.
+`--offline` defaults to **on** — the command runs entirely against pinned fixtures
+with no network. That is demo insurance, not a feature flag; venue wifi kills
+more demos than bugs do.
+
+```bash
+cohortfit audit protocols/demo.json --offline   # explicit, same as default
+cohortfit audit protocols/demo.json --no-offline  # rejected (live audit not supported)
+cohortfit --help
+cohortfit audit --help
+```
+
+Entry point: `cohortfit = cohortfit.cli:app` in `pyproject.toml`.
+Renderer: `cohortfit.render` (Rich tables for verdict, cohort phenotype, site burden).
 
 ## Built on
 
@@ -134,6 +144,8 @@ report = audit_protocol(load_protocol("protocols/demo.json"), offline=True)
 | Module | Role |
 |---|---|
 | [`cohortfit.audit`](src/cohortfit/audit.py) | Orchestrator — only module loading fixtures end-to-end |
+| [`cohortfit.cli`](src/cohortfit/cli.py) | Typer CLI — `cohortfit audit <protocol.json>` |
+| [`cohortfit.render`](src/cohortfit/render.py) | Rich report renderer (verdict, phenotype, site table) |
 | [`cohortfit.sites`](src/cohortfit/sites.py) | Per-site metabolic burden and site-selection ranking |
 | [`cohortfit.rules`](src/cohortfit/rules.py) | Drug→gene map, CPIC Level A screening-gap check |
 | [`protocols/demo.json`](protocols/demo.json) | Pinned NCT01095003 capecitabine demo (no DPYD exclusion) |
@@ -161,6 +173,31 @@ Munich (EUR) diverges on ancestry (~1.8× higher at-risk rate). See
 [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md#per-site-findings-tier-0).
 
 Run site tests: `pytest tests/test_sites.py`
+
+## CLI (Track B)
+
+**Module:** `cohortfit.cli`  
+**Renderer:** `cohortfit.render`  
+**Entry point:** `cohortfit = cohortfit.cli:app`  
+**Tests:** `tests/test_cli.py`
+
+### Demo command
+
+```bash
+pip install -e .
+cohortfit audit protocols/demo.json
+```
+
+`--offline` defaults to **true** (`--offline/--no-offline`). Live audit is not
+implemented; `--no-offline` exits with an error.
+
+### Output sections (what judges see)
+
+1. **Header** — trial title, NCT ID, cohort n, `[offline]` mode
+2. **Finding** — gene × drug verdict (ACTIONABLE / NO_SIGNAL), CPIC level, screening-gap message, PMID
+3. **Cohort phenotype** — Tier 0 distribution table
+4. **Site burden** — IM+PM rate and expected count per site, ranked by rate
+5. **Data sources** — gnomAD fixture + CPIC diplotype table citations
 
 ## Design principle
 

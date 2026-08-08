@@ -196,3 +196,12 @@ Say this in the demo — do not let a judge discover the SAS-site sameness unaid
 | Munich | EUR 100% | 80 | 0.063982 | 5.12 |
 
 Helpers: `rank_sites_by_burden()`, `burden_rate_ratio()` — for CLI site-selection table (Track B).
+
+## CLI (Track B)
+
+**Command:** `cohortfit audit protocols/demo.json`  
+**Default:** `--offline` (pinned fixtures, no network)  
+**Renderer:** Rich stdout via `cohortfit.render.render_audit_report()`
+
+The CLI wires `load_protocol` → `audit_protocol(offline=True)` → Rich output.
+No LLM, no live gnomAD fetch. Reproducible demo for judges: same command, same numbers.
