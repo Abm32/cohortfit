@@ -36,7 +36,37 @@ class TestAuditDemoProtocol:
     def test_offline_audit_runs(self, report):
         assert report.offline is True
         assert report.total_planned_n == 230
-        assert len(report.findings) == 1
+        # Two distinct findings on the same gene-drug pair: the protocol does
+        # not screen (ACTIONABLE), and the allele carrying most of the burden
+        # has no settled dose action (CONTESTED). Neither subsumes the other.
+        assert [f.verdict for f in report.findings] == [
+            Verdict.ACTIONABLE,
+            Verdict.CONTESTED,
+        ]
+
+    def test_hapb3_dominance_emits_contested_finding(self, report):
+        contested = next(f for f in report.findings if f.verdict is Verdict.CONTESTED)
+        assert contested.gene == "DPYD"
+        assert "HapB3" in contested.notes[0]
+        # CPIC's own dosing caveat — a CONTESTED verdict without its source is
+        # indistinguishable from a hedge.
+        assert "37639651" in contested.citations
+
+    def test_panel_coverage_note_on_actionable_finding(self, report):
+        finding = report.findings[0]
+        note = " ".join(finding.notes)
+        assert "effective alleles" in note
+        assert "HapB3" in note
+
+    def test_poor_metabolizer_reported_as_a_range(self, report):
+        by_pheno = {d.phenotype: d for d in report.findings[0].distribution}
+        pm = by_pheno["Poor Metabolizer"]
+        im = by_pheno["Intermediate Metabolizer"]
+        assert pm.is_range and im.is_range
+        # FINDINGS.md Finding 4: the provenance conflict moves PM by an order
+        # of magnitude while IM stays plannable. If that contrast ever
+        # collapses, the reason to show a range at all has gone.
+        assert pm.fraction_high / pm.fraction_low > im.fraction_high / im.fraction_low
 
     def test_capecitabine_actionable_screening_gap(self, report):
         finding = report.findings[0]

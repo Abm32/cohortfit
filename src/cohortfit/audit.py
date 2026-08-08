@@ -14,9 +14,11 @@ from anukriti_pgx_core.phenotype.recommendation_level import level_for
 from .ancestry import apply_ancestry_defaults
 from .cohort import blend_allele_frequencies, cohort_ancestry_mix, population_coverage
 from .frequencies import FixtureError, load_gene_frequencies, load_gene_provenance
-from .models import AuditReport, GeneDrugFinding, Protocol, SiteFinding, Tier
+from .models import AuditReport, GeneDrugFinding, Protocol, SiteFinding, Tier, Verdict
+from .panel import burden_shares, coverage_note, panel_concentration
 from .pgx import cohort_phenotype_distribution, table_citation
-from .rules import normalize_drug, resolve_gene, screening_gap
+from .rules import contested_burden, normalize_drug, resolve_gene, screening_gap
+from .sensitivity import phenotype_bounds
 from .sites import site_metabolic_burden
 
 
@@ -117,8 +119,30 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
         )
         data_sources.append(table_citation(table))
 
+        # Attach the provenance sensitivity range to each phenotype class. A
+        # point estimate for Poor Metabolizer implies a precision the pinned
+        # data does not have (FINDINGS.md Finding 4: PM spans 10.1x across
+        # candidate *2A sources while the at-risk fraction moves 1.41x).
+        bounds = phenotype_bounds(
+            gene, per_pop_freqs, mix, protocol.total_planned_n, prov
+        )
+        if bounds:
+            dist = [
+                row.model_copy(
+                    update={
+                        "fraction_low": bounds[row.phenotype][0],
+                        "fraction_high": bounds[row.phenotype][1],
+                    }
+                )
+                if row.phenotype in bounds
+                else row
+                for row in dist
+            ]
+
         verdict, missing_exclusion, citations = screening_gap(protocol, drug, gene)
         cpic_level = level_for(gene, normalize_drug(drug)) or None
+
+        shares = burden_shares(gene, blended)
 
         notes: list[str] = []
         if coverage.dropped:
@@ -137,6 +161,14 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
                 "excluded from the distribution."
             )
 
+        # How many alleles the panel is really testing in *this* cohort. A
+        # four-variant panel that collapses to 1.12 effective alleles is not a
+        # four-variant panel, and that belongs next to the distribution rather
+        # than in a document nobody opens mid-review (FINDINGS.md Finding 1).
+        # Appended after the coverage caveat: a missing population is a bigger
+        # problem than the shape of the panel that did apply.
+        notes.append(coverage_note(panel_concentration(blended), shares))
+
         findings.append(
             GeneDrugFinding(
                 gene=gene,
@@ -151,6 +183,25 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
                 coverage=coverage,
             )
         )
+
+        # A screening gap and a contested dose action are separate findings:
+        # the first says the protocol should test, the second says that even a
+        # positive test has no settled response for most of this cohort. Folding
+        # the second into a note on the first would bury it.
+        contested = contested_burden(gene, drug, shares)
+        if contested is not None:
+            _allele, message, contested_citations = contested
+            findings.append(
+                GeneDrugFinding(
+                    gene=gene,
+                    drug=drug,
+                    verdict=Verdict.CONTESTED,
+                    tier=Tier.DISTRIBUTION,
+                    cpic_level=cpic_level,
+                    notes=[message],
+                    citations=contested_citations,
+                )
+            )
 
         site_findings.extend(
             site_metabolic_burden(gene, per_pop_freqs, protocol.sites)
