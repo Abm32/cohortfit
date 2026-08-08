@@ -26,6 +26,17 @@ cohortfit serve --port 8000
 
 Open `http://localhost:5173/` for the landing page and `http://localhost:5173/app` for the audit viewer. Vite proxies `/api` to the Python server.
 
+### Troubleshooting
+
+If Vite reports `Failed to resolve import "@react-three/fiber"`, dependencies were not installed (often after a network error during `npm install`). From `web/`:
+
+```powershell
+npm install
+npm run dev
+```
+
+The hero 3D helix requires `@react-three/fiber` and `three` — both are listed in `package.json`.
+
 ## Build
 
 ```powershell
