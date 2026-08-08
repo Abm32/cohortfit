@@ -1,0 +1,87 @@
+{
+  "protocol_title": "Vinflunine Plus Capecitabine in Advanced Breast Cancer",
+  "trial_id": "NCT01095003",
+  "total_planned_n": 230,
+  "offline": true,
+  "findings": [
+    {
+      "gene": "DPYD",
+      "drug": "capecitabine",
+      "verdict": "ACTIONABLE",
+      "tier": 0,
+      "distribution": [
+        {
+          "phenotype": "Normal Metabolizer",
+          "fraction": 0.9546,
+          "expected_n": 219.5
+        },
+        {
+          "phenotype": "Intermediate Metabolizer",
+          "fraction": 0.0452,
+          "expected_n": 10.4
+        },
+        {
+          "phenotype": "Poor Metabolizer",
+          "fraction": 0.0002,
+          "expected_n": 0.04
+        }
+      ],
+      "cpic_level": "A",
+      "missing_exclusion": "Protocol does not exclude or screen for DPYD deficiency before capecitabine dosing (CPIC Level A; test before fluoropyrimidines).",
+      "notes": [],
+      "citations": ["29152729"]
+    },
+    {
+      "gene": "DPYD",
+      "drug": "capecitabine",
+      "verdict": "CONTESTED",
+      "tier": 1,
+      "distribution": [],
+      "cpic_level": null,
+      "missing_exclusion": null,
+      "notes": [
+        "*9A/M166V (rs1801265) carrier frequency in South Asian cohorts: Hariprakash 2018, Naushad 2021, and Atasilp 2025 give incompatible estimates.",
+        "Expected excess grade >=3 fluoropyrimidine toxicity among IM vs NM: literature range 1.8x-3.2x — multiplier not pinned for Tier 0."
+      ],
+      "citations": ["35034351", "38147293"]
+    },
+    {
+      "gene": "DPYD",
+      "drug": "capecitabine",
+      "verdict": "NO_SIGNAL",
+      "tier": 2,
+      "distribution": [],
+      "cpic_level": null,
+      "missing_exclusion": null,
+      "notes": [
+        "Scenario: mandatory DPYD pre-screening at Mumbai and Kochi removes ~3.5 expected IM+PM enrollees from active dosing cohort.",
+        "Scenario: if 20% of at-risk patients discontinue in cycle 1, Mumbai site loses ~0.7 evaluable patients — directional only."
+      ],
+      "citations": []
+    }
+  ],
+  "site_findings": [
+    {
+      "site_name": "Mumbai",
+      "gene": "DPYD",
+      "at_risk_fraction": 0.035474,
+      "expected_at_risk_n": 3.55
+    },
+    {
+      "site_name": "Kochi",
+      "gene": "DPYD",
+      "at_risk_fraction": 0.035474,
+      "expected_at_risk_n": 1.77
+    },
+    {
+      "site_name": "Munich",
+      "gene": "DPYD",
+      "at_risk_fraction": 0.063982,
+      "expected_at_risk_n": 5.12
+    }
+  ],
+  "data_sources": [
+    "gnomAD v4.0 allele frequencies for DPYD (query_date=2026-08-08, fixture=frequencies/dpyd.json)",
+    "CPIC DPYD diplotype table DPYD_diplotypes_anukriti_v2024.01 (CPIC Guideline for Fluoropyrimidines and DPYD (2017, 2024 update)) v2024-01"
+  ]
+}
