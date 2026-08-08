@@ -17,11 +17,17 @@ These are provenance defects in `cohortfit` itself. They are listed first
 because the project's whole thesis is that a number with an unverifiable source
 is indistinguishable from a correct one.
 
-### 1.1 ⚠️ The pinned frequency provenance is unverified
+### 1.1 ✅ Closed — the unverified frequency module was deleted
 
-[`src/cohortfit/allele_frequencies.py`](../src/cohortfit/allele_frequencies.py)
-declares its values to be "gnomAD v2.1.1 exome allele frequencies". **That
-specific claim was not verifiable.** The pinned DPYD `*2A` SAS value of `0.006`
+> **Resolved 2026-08-08.** `src/cohortfit/allele_frequencies.py` no longer
+> exists. It had no importers and no tests — the audit path had already moved to
+> `fixtures/frequencies/dpyd.json` (gnomAD v4.0, mandatory provenance fields,
+> loader rejects incomplete entries). Deleting it was a smaller and more honest
+> fix than relabelling a module nothing called. The record below stands as the
+> account of the defect.
+
+That module declared its values to be "gnomAD v2.1.1 exome allele frequencies".
+**That specific claim was not verifiable.** Its DPYD `*2A` SAS value of `0.006`
 was checked against every South Asian figure dbSNP reports for rs3918290:
 
 | Source | SAS allele frequency |
@@ -33,27 +39,26 @@ was checked against every South Asian figure dbSNP reports for rs3918290:
 | 1000 Genomes Phase 3 | 0.008 |
 | BJC 2024 review (SAS reference populations) | 0.003–0.015 |
 
-`0.006` sits inside the published band and matches PAGE exactly, so the *number*
-is defensible. The *label* is not: no gnomAD v2.1.1 exome release was consulted.
+`0.006` sat inside the published band and matched PAGE exactly, so the *number*
+was defensible. The *label* was not: no gnomAD v2.1.1 exome release was
+consulted.
 
-**Action:** either query gnomAD v2.1.1 exomes and keep the label, or relabel to
-the source actually checked. Do not ship the current pairing.
+**Action taken:** the module was deleted rather than relabelled. Nothing
+imported it, so there was no third option worth taking.
 
 This is the same defect class as the 52-day `U4_SAS_DPYD_OVERRIDE` incident
 (`anukriti_docs/DPYD_SAS_OVERRIDE_AUDIT_2026-07-28.md`): a plausible citation
 attached to a number that did not come from it.
 
-### 1.2 `*13` is documented but not implemented
+### 1.2 ✅ Closed — `*13` is implemented
 
-`README.md` and [`METHOD.md`](METHOD.md) both state the actionable allele set is
-`*2A`, `*13`, `c.2846A>T`, HapB3. The code pins **three**:
-
-- `rs3918290` → `*2A`
-- `rs67376798` → `c.2846A>T`
-- `rs56038477` → HapB3
-
-`*13` (`c.1679T>G`, `rs55886062`, p.Ile560Ser) is absent. Docs overstate
-coverage. Either add it or correct both documents.
+> **Resolved 2026-08-08.** The gap was in the deleted module (§1.1), which
+> pinned only `rs3918290`, `rs67376798` and `rs56038477`. The live fixture
+> `fixtures/frequencies/dpyd.json` carries all four, `*13` (`c.1679T>G`,
+> `rs55886062`, p.Ile560Ser) included, at SAS 0.0 / EUR 0.0001. Its being zero
+> in SAS is itself a reported result — `panel.panel_concentration()` lists it as
+> a silent allele ([FINDINGS.md](FINDINGS.md) Finding 1). Docs no longer
+> overstate coverage.
 
 ### 1.3 HapB3 is keyed on a tagging variant, not the causal one
 
@@ -226,9 +231,10 @@ reduce the dose?", the honest answer is that for HapB3 specifically the right
 action is contested *within CPIC itself*.
 
 **This is the first genuine `CONTESTED` case available to us**, and it is
-better than the `*9A`/`M166V` example currently in the README because it comes
-from the guideline body rather than from three disagreeing cohort studies. The
-`CONTESTED` verdict path currently has no live example in the engine.
+better than the `*9A`/`M166V` example because it comes from the guideline body
+rather than from three disagreeing cohort studies. It now ships:
+`rules.contested_burden()` fires on it, so the `CONTESTED` verdict path has a
+live example in the engine rather than only in the model.
 
 Supporting literature for HapB3's toxicity association (not its dosing):
 Meulendijks et al., *Lancet Oncol* 2015;16:1639–50 — IPD meta-analysis
@@ -498,10 +504,16 @@ would then have no slot for the input our whole computation depends on.
 
 Ordered by value. None of it is large.
 
-1. **Fix the frequency provenance label** (§1.1). Highest integrity risk in the
-   codebase; it is the exact defect this project exists to catch.
-2. **Reconcile `*13`** between docs and code (§1.2).
-3. **Note `rs56038477` as a tagging variant** for `rs75017182` (§1.3).
+1. ~~**Fix the frequency provenance label** (§1.1).~~ **Done** — the module
+   carrying the unverifiable label was deleted; the audit path reads
+   `fixtures/frequencies/dpyd.json` (gnomAD v4.0, provenance enforced by the
+   loader).
+2. ~~**Reconcile `*13`** between docs and code (§1.2).~~ **Done** — the live
+   fixture pins all four panel alleles.
+3. ~~**Note `rs56038477` as a tagging variant** for `rs75017182` (§1.3).~~
+   **Done** — the fixture pins the frequency from the causal `rs75017182` and
+   records the label/frequency rsID split in each `HapB3` record's `notes`; see
+   [DATA_PROVENANCE.md](DATA_PROVENANCE.md#hapb3-label-vs-frequency-rsid).
 4. **Upgrade the regulatory claim** from "CPIC advises" to EMA 2020 /
    MHRA-NHS 2020 mandatory pre-treatment testing (§3).
 5. **Replace the delay/failure cost with the corrected Tufts figures** (§8.3) —
@@ -514,9 +526,10 @@ Ordered by value. None of it is large.
 7. **Add the consanguinity magnitude to METHOD.md caveat #1** (§8.2). Cite F
    values and note Kerala vs Chennai differ. Do not fold F into the Tier 0
    engine.
-8. **Consider HapB3 as the first live `CONTESTED` finding** (§5). Exercises a
-   verdict path that currently has no example, using a disagreement CPIC
-   publishes itself.
+8. ~~**Consider HapB3 as the first live `CONTESTED` finding** (§5).~~ **Done** —
+   `rules.contested_burden()` raises it when a contested-dosing allele holds
+   ≥60% of the cohort's actionable burden (79.3% on the demo cohort), citing
+   PMID 37639651.
 9. **Name CDISC USDM / ICH M11 as the adoption path** (§8.5).
 10. **Drop FDA Diversity Action Plans** from any positioning material (§3).
 

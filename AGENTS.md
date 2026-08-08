@@ -22,8 +22,10 @@ prose under `protocols/sources/`.
 [src/cohortfit/audit.py](src/cohortfit/audit.py) is the entry point that
 wires the pipeline end to end: `audit_protocol(Protocol) -> AuditReport`.
 It is currently scoped to one gene-drug pair, DPYD x fluoropyrimidines —
-[src/cohortfit/allele_frequencies.py](src/cohortfit/allele_frequencies.py)
-holds the pinned gnomAD v2.1.1 allele frequencies,
+[fixtures/frequencies/dpyd.json](fixtures/frequencies/dpyd.json) holds the
+pinned gnomAD v4.0 allele frequencies and is loaded through
+[src/cohortfit/frequencies.py](src/cohortfit/frequencies.py), which rejects any
+entry without source metadata,
 [src/cohortfit/phenotype.py](src/cohortfit/phenotype.py) is the only module
 that calls into `anukriti-pgx-core` for diplotype→phenotype, and
 [src/cohortfit/rules.py](src/cohortfit/rules.py) hardcodes the DPYD
