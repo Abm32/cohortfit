@@ -18,11 +18,57 @@ from .errors import (
     request_validation_handler,
 )
 from .routes import audit, extract, fixtures, provenance
+from .schemas import HealthResponse
+
+_DESCRIPTION = """
+Genomic feasibility auditing for clinical trial protocols — **presentation layer only**.
+
+`cohortfit` reads a structured trial protocol and computes the pharmacogenomic
+phenotype distribution of the cohort it will actually recruit, given the ancestry
+mix of its planned sites.
+
+**The boundary is the whole point.** Claude (via `POST /extract`) converts protocol
+prose into a structured `Protocol`. Everything downstream — every fraction, every
+verdict — is computed deterministically from pinned gnomAD allele frequencies and
+CPIC tables by `POST /audit`. No LLM estimates a number.
+
+### Output contract
+- **Tiers** — Tier 0 is arithmetic on pinned tables (fully defensible); Tier 1
+  needs a cited literature multiplier; Tier 2 is a labelled scenario, never a prediction.
+- **Verdicts** — `ACTIONABLE` (CPIC Level A gap), `CONTESTED` (real literature
+  disagreement, shown not resolved), `NO_SIGNAL` (no actionable interaction).
+
+Offline by default: the engine runs entirely against pinned fixtures, no network.
+"""
+
+_TAGS_METADATA = [
+    {
+        "name": "audit",
+        "description": "Run the deterministic engine on a structured protocol.",
+    },
+    {
+        "name": "extract",
+        "description": "Claude-powered prose → `Protocol` structuring. Requires an API key.",
+    },
+    {
+        "name": "fixtures",
+        "description": "Read-only pinned demo protocols and sample reports for the UI.",
+    },
+    {
+        "name": "provenance",
+        "description": "Auditable source metadata behind each gene's pinned frequencies.",
+    },
+    {"name": "health", "description": "Liveness probe."},
+]
 
 app = FastAPI(
     title="cohortfit",
-    description="Genomic feasibility auditing API — presentation layer only.",
+    description=_DESCRIPTION,
     version="0.1.0",
+    summary="Deterministic pharmacogenomic feasibility auditing for clinical trials.",
+    license_info={"name": "Apache-2.0", "url": "https://www.apache.org/licenses/LICENSE-2.0"},
+    contact={"name": "cohortfit", "url": "https://github.com/Abm32/cohortfit"},
+    openapi_tags=_TAGS_METADATA,
 )
 
 app.add_middleware(
@@ -49,8 +95,15 @@ app.include_router(provenance.router)
 app.include_router(extract.router)
 
 
-@app.get("/health")
+@app.get(
+    "/health",
+    response_model=HealthResponse,
+    tags=["health"],
+    summary="Liveness probe",
+    response_description="Service status; `{\"status\": \"ok\"}` when up.",
+)
 def health() -> dict[str, str]:
+    """Return service liveness."""
     return {"status": "ok"}
 
 

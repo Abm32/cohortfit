@@ -151,7 +151,7 @@ fixtures actually produce ([docs/UI.md](docs/UI.md)).
 Entry point: `cohortfit = cohortfit.cli:app` in `pyproject.toml`.
 Renderer: `cohortfit.render` (Rich tables for verdict, cohort phenotype, site burden).
 
-See also: [docs/FINDINGS.md](docs/FINDINGS.md) · [docs/EVIDENCE.md](docs/EVIDENCE.md) · [docs/METHOD.md](docs/METHOD.md) · [docs/DATASETS.md](docs/DATASETS.md) · [docs/UI.md](docs/UI.md) · [AGENTS.md](AGENTS.md)
+See also: [docs/RUNNING.md](docs/RUNNING.md) · [docs/API.md](docs/API.md) · [docs/FINDINGS.md](docs/FINDINGS.md) · [docs/EVIDENCE.md](docs/EVIDENCE.md) · [docs/METHOD.md](docs/METHOD.md) · [docs/DATASETS.md](docs/DATASETS.md) · [docs/UI.md](docs/UI.md) · [AGENTS.md](AGENTS.md)
 
 ## What the pinned data says
 
@@ -325,33 +325,57 @@ cohortfit render fixtures/reports/sample_audit_report.json
 
 Loader: `cohortfit.reports.load_audit_report()`. Tests: `pytest tests/test_render.py`.
 
+## HTTP API
+
+`cohortfit serve` exposes the same audit over HTTP, with interactive Swagger
+docs. Full endpoint reference: [docs/API.md](docs/API.md).
+
+```bash
+pip install -e ".[web]"
+cohortfit serve --port 8600
+```
+
+- **Swagger UI:** http://127.0.0.1:8600/docs · **ReDoc:** `/redoc` · **schema:** `/openapi.json`
+- Core endpoint: `POST /audit` (structured `Protocol` → `AuditReport`, deterministic).
+- Read-only demo data: `GET /fixtures/protocols`, `GET /fixtures/protocols/{slug}`, `GET /fixtures/reports/sample`.
+- Auditable sources: `GET /provenance/{gene}`. Optional Claude structuring: `POST /extract` (needs `ANTHROPIC_API_KEY`).
+
+```bash
+curl -X POST "http://127.0.0.1:8600/audit?offline=true" \
+  -H "Content-Type: application/json" -d @protocols/demo.json
+```
+
 ## Web UI
 
-Marketing landing at `/` and audit demo at `/app`. See [docs/LANDING.md](docs/LANDING.md) and [docs/UI.md](docs/UI.md).
+Marketing landing at `/` and an interactive audit workbench at `/app`. Full
+run guide: [docs/RUNNING.md](docs/RUNNING.md). See also [docs/LANDING.md](docs/LANDING.md) and [docs/UI.md](docs/UI.md).
 
-```powershell
-pip install -e ".[web,dev]"
-cd web
-npm install
-npm run dev
+**Production / demo — one server, same origin (recommended):**
+
+```bash
+pip install -e ".[web]"
+cd web && npm install && npm run build && cd ..
+cohortfit serve --port 8600
 ```
 
-In a second terminal:
+Open `http://127.0.0.1:8600/` (landing) and `http://127.0.0.1:8600/app` (workbench).
+The API and UI are same-origin — no CORS, no proxy.
 
-```powershell
-cohortfit serve --port 8000
+**Development — hot-reloading Vite dev server** (two terminals):
+
+```bash
+cohortfit serve --port 8000     # terminal 1 — the dev proxy target (port must be free)
+cd web && npm install && npm run dev   # terminal 2
 ```
 
-Open `http://localhost:5173/` for the landing page and `http://localhost:5173/app` for the
-audit viewer. Production build:
+Open `http://localhost:5173/` and `http://localhost:5173/app`. The Vite proxy
+forwards `/api/*` to `127.0.0.1:8000`; if another service holds that port, audit
+calls hit the wrong server and the UI looks inert — use the same-origin flow above
+instead.
 
-```powershell
-cd web
-npm run build
-```
-
-The `/app` viewer loads the pinned sample report by default; **Live audit** runs the offline
-engine on `protocols/demo.json`.
+The workbench auto-loads the pinned sample report and offers three input modes:
+pick a pinned demo protocol (cards), paste/upload `Protocol` JSON, or extract from
+prose (needs an API key). Every action runs a real request against the engine.
 
 ## Claude extraction (Track B)
 

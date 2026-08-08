@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import json
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Path
 
 from ...frequencies import repo_root
+from ...models import AuditReport, Protocol
 from ...reports import load_audit_report
+from ..schemas import ErrorResponse, ProtocolCard
 
 router = APIRouter(prefix="/fixtures", tags=["fixtures"])
 
@@ -80,15 +82,33 @@ _CATALOGUE: tuple[dict, ...] = (
 _BY_SLUG = {entry["slug"]: entry for entry in _CATALOGUE}
 
 
-@router.get("/protocols")
+@router.get(
+    "/protocols",
+    response_model=list[ProtocolCard],
+    summary="Catalogue of pinned demo protocols",
+    response_description="One card per pinned demo protocol, driving the UI's selection cards.",
+)
 def list_protocols() -> list[dict]:
-    """Catalogue of pinned demo protocols, for the UI's selection cards."""
+    """List the demo protocol catalogue.
+
+    Each entry exercises a different path through the engine (see
+    `docs/DATASETS.md`); the pinned JSON itself is fetched via
+    `GET /fixtures/protocols/{slug}`.
+    """
     return [{k: v for k, v in entry.items() if k != "file"} for entry in _CATALOGUE]
 
 
-@router.get("/protocols/{slug}")
-def get_protocol(slug: str) -> dict:
-    """One pinned protocol by catalogue slug."""
+@router.get(
+    "/protocols/{slug}",
+    response_model=Protocol,
+    summary="One pinned demo protocol by slug",
+    response_description="The pinned, hand-verified Protocol JSON for the requested slug.",
+    responses={404: {"model": ErrorResponse, "description": "Unknown catalogue slug."}},
+)
+def get_protocol(
+    slug: str = Path(..., description="Catalogue slug from GET /fixtures/protocols.", examples=["demo"]),
+) -> dict:
+    """Return one pinned protocol by its catalogue slug."""
     entry = _BY_SLUG.get(slug)
     if entry is None:
         raise HTTPException(
@@ -98,15 +118,25 @@ def get_protocol(slug: str) -> dict:
     return json.loads((_PROTOCOLS / entry["file"]).read_text(encoding="utf-8"))
 
 
-@router.get("/reports/sample")
+@router.get(
+    "/reports/sample",
+    response_model=AuditReport,
+    summary="Pinned sample AuditReport",
+    response_description="A pinned AuditReport used as the default landing state in the UI.",
+)
 def get_sample_report() -> dict:
-    """Pinned AuditReport for default demo landing."""
+    """Return the pinned sample AuditReport (no engine run)."""
     return load_audit_report(_REPORTS / "sample_audit_report.json").model_dump(mode="json")
 
 
-@router.get("/reports/partial-coverage")
+@router.get(
+    "/reports/partial-coverage",
+    response_model=AuditReport,
+    summary="Pinned partial-coverage AuditReport",
+    response_description="A pinned AuditReport exercising the partial-ancestry-coverage UI state.",
+)
 def get_partial_coverage_report() -> dict:
-    """AuditReport exercising partial ancestry coverage UI state."""
+    """Return a pinned AuditReport that exercises partial ancestry coverage."""
     return load_audit_report(
         _REPORTS / "sample_partial_coverage_report.json"
     ).model_dump(mode="json")
