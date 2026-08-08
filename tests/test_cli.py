@@ -21,6 +21,7 @@ def test_audit_demo_offline_default():
     result = runner.invoke(app, ["audit", str(DEMO_PROTOCOL)])
     assert result.exit_code == 0
     assert "ACTIONABLE" in result.stdout
+    assert "TIER 0" in result.stdout
     assert "DPYD" in result.stdout
     assert "capecitabine" in result.stdout
     assert "Munich" in result.stdout
