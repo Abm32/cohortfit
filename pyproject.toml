@@ -11,7 +11,13 @@ requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
 
 dependencies = [
-    "anukriti-pgx-core==0.8.1",
+    # Pinned exactly per AGENTS.md. 0.8.1 is REVIEWED AND APPROVED for adoption
+    # (anukriti-pgx-core docs/REGRESSION_REVIEW_0.7.3_to_0.8.1.md) and tagged,
+    # but is not yet on PyPI — its publish job awaits an admin approval on a
+    # protected environment. Held at 0.7.3 because an unresolvable pin breaks
+    # every fresh install, not just CI. Bump to 0.8.1 the moment it publishes;
+    # no code change is needed, the suite already passes against it.
+    "anukriti-pgx-core==0.7.3",
     "pydantic>=2.0",
     "typer>=0.12",
     "rich>=13.0",
