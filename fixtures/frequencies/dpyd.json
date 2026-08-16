@@ -335,24 +335,24 @@
     }
   },
   "_ground_truth": {
-    "comment": "Pre-computed Tier 0: HWE on pinned allele freqs + pgx-core DPYD_diplotypes_anukriti_v2024.01.json",
+    "comment": "Pre-computed Tier 0: HWE on pinned allele freqs + pgx-core DPYD_diplotypes_anukriti_v2024.01.json. Recomputed for pgx-core 0.7.2, which corrected c.2846A>T/c.2846A>T from Poor Metabolizer to Intermediate Metabolizer (CPIC activity score 1.0). Only PM<->IM mass moved: Normal Metabolizer and at_risk_fraction are unchanged in all three populations.",
     "planned_n": 1000,
     "AFR": {
       "Normal Metabolizer": 0.990706,
-      "Intermediate Metabolizer": 0.009281,
-      "Poor Metabolizer": 1.3e-05,
+      "Intermediate Metabolizer": 0.009289,
+      "Poor Metabolizer": 5e-06,
       "at_risk_fraction": 0.009294
     },
     "EUR": {
       "Normal Metabolizer": 0.934141,
-      "Intermediate Metabolizer": 0.065195,
-      "Poor Metabolizer": 0.000664,
+      "Intermediate Metabolizer": 0.065511,
+      "Poor Metabolizer": 0.000348,
       "at_risk_fraction": 0.065859
     },
     "SAS": {
       "Normal Metabolizer": 0.958964,
-      "Intermediate Metabolizer": 0.040869,
-      "Poor Metabolizer": 0.000167,
+      "Intermediate Metabolizer": 0.040886,
+      "Poor Metabolizer": 0.00015,
       "at_risk_fraction": 0.041036
     }
   }

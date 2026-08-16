@@ -24,8 +24,15 @@ class TestLoadDiplotypeTable:
         assert table.gene == "DPYD"
         assert table.table_id == "DPYD_diplotypes_anukriti_v2024.01"
         assert "CPIC" in table.source
-        assert table.version == "2024-01"
-        assert len(table.diplotype_phenotypes) == 15
+        # pgx-core 0.7.2 regenerates this table from api.cpicpgx.org and stamps
+        # the CPIC guideline version rather than a bare table date.
+        assert "CPIC 2017 guideline" in table.version
+        # 16 -> 105 in 0.7.2: the full unordered cross-product of *1 plus the
+        # 13 callable panel alleles. Before that, only 5 alleles were covered,
+        # so any diplotype involving *4/*5/*6/*8/*9A/*10/*12/M166V silently
+        # returned "Indeterminate" — indistinguishable downstream from a
+        # genuinely unresolvable genotype.
+        assert len(table.diplotype_phenotypes) == 105
 
     def test_table_citation_includes_source(self):
         table = load_diplotype_table("DPYD")
@@ -46,8 +53,30 @@ class TestLookupPhenotype:
     def test_lookup_known_poor_metabolizer(self, table):
         assert lookup_phenotype(table, "*2A", "*2A") == "Poor Metabolizer"
 
-    def test_lookup_unknown_diplotype(self, table):
-        assert lookup_phenotype(table, "*1", "*9A") == "Indeterminate"
+    def test_lookup_normal_function_allele_is_now_resolved(self, table):
+        """*9A is a CPIC *normal function* allele and must resolve as such.
+
+        Before pgx-core 0.7.2 this returned "Indeterminate" purely because the
+        diplotype table covered only 5 alleles. That mattered clinically for
+        Indian cohorts specifically: *9A sits at 25.5% allele frequency in
+        CPIC's Central/South Asian population — the single most common DPYD
+        allele there — so the most frequent Indian genotypes were the ones
+        landing in the unresolvable bucket.
+        """
+        assert lookup_phenotype(table, "*1", "*9A") == "Normal Metabolizer"
+
+    def test_lookup_genuinely_unknown_diplotype_is_indeterminate(self, table):
+        """A real absence must still be Indeterminate, not silently Normal."""
+        assert lookup_phenotype(table, "*1", "*NOT_A_REAL_ALLELE") == "Indeterminate"
+
+    def test_c2846_homozygote_is_intermediate_not_poor(self, table):
+        """CPIC gives c.2846A>T/c.2846A>T activity score 1.0 -> Intermediate.
+
+        Corrected in pgx-core 0.7.2; the table previously said Poor Metabolizer.
+        """
+        assert lookup_phenotype(table, "c.2846A>T", "c.2846A>T") == (
+            "Intermediate Metabolizer"
+        )
 
 
 class TestPhenotypeMap:
