@@ -36,7 +36,7 @@ class TestDemoProtocolShowsSiteDelta:
         assert rates["Mumbai"] == pytest.approx(rates["Kochi"]), (
             "same ancestry must give the same rate; only expected_n differs"
         )
-        assert rates["Munich"] / rates["Mumbai"] == pytest.approx(1.80, abs=0.01)
+        assert rates["Munich"] / rates["Mumbai"] == pytest.approx(1.605, abs=0.01)
 
 
 class TestIndiaProtocolIsActionableAndContested:
@@ -53,14 +53,17 @@ class TestIndiaProtocolIsActionableAndContested:
 class TestUsProtocolSurfacesCoverageGap:
     """Fixture 3: the honesty demonstration."""
 
-    def test_drops_afr_and_amr_and_says_so(self):
+    def test_drops_amr_and_says_so(self):
+        # AFR became covered when the DPYD fixture was requeried against
+        # gnomAD v4.1 (2026-08-08). AMR is still unpinned, so the honesty
+        # demonstration now rests on the AMR fraction alone.
         report = _audit("us_multiancestry.json")
         finding = report.findings[0]
-        assert set(finding.coverage.dropped) == {"AFR", "AMR"}
-        assert finding.coverage.dropped_weight == pytest.approx(0.348, abs=0.01)
+        assert set(finding.coverage.dropped) == {"AMR"}
+        assert finding.coverage.dropped_weight == pytest.approx(0.176, abs=0.01)
         warnings = _coverage_warnings(report)
-        assert warnings, "a dropped third of enrolment must be reported"
-        assert "35%" in warnings[0]
+        assert warnings, "a dropped sixth of enrolment must be reported"
+        assert "18%" in warnings[0]
 
     def test_still_reaches_a_verdict_on_the_covered_fraction(self):
         assert Verdict.ACTIONABLE in _verdicts(_audit("us_multiancestry.json"))

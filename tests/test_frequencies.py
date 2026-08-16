@@ -52,7 +52,7 @@ class TestFixtureIntegrity:
                 rec["frequency"] for name, rec in alleles.items() if name != "*1"
             )
             assert alleles["*1"]["frequency"] == pytest.approx(1.0 - variant_sum)
-            assert alleles["*1"]["source"] == "computed_remainder"
+            assert alleles["*1"]["source"].startswith("computed remainder")
 
     def test_offline_guard_rejects_live_mode(self):
         with pytest.raises(FixtureError, match="offline=True"):
@@ -102,8 +102,8 @@ class TestGroundTruthPhenotypes:
         dist = phenotype_distribution(diplo, self.PHENO_MAP, planned_n=1000)
         im = next(d for d in dist if d.phenotype == "Intermediate Metabolizer")
         pm = next(d for d in dist if d.phenotype == "Poor Metabolizer")
-        assert im.expected_n == pytest.approx(35.44, abs=0.1)
-        assert pm.expected_n == pytest.approx(0.04, abs=0.05)
+        assert im.expected_n == pytest.approx(40.87, abs=0.1)
+        assert pm.expected_n == pytest.approx(0.167, abs=0.05)
 
     def test_eur_higher_at_risk_than_sas(self):
         """CPIC-panel alleles: NFE carries higher IM+PM burden than SAS — honest pin."""

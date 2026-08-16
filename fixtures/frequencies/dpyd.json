@@ -1,29 +1,29 @@
 {
   "_meta": {
     "gene": "DPYD",
-    "gnomad_version": "v4.0",
-    "gnomad_dataset": "exomes",
-    "gnomad_accession": "Genome Aggregation Database v4.0 exomes via ClinPGx / PharmGKB",
+    "gnomad_version": "v4.1",
+    "gnomad_dataset": "exomes+genomes (joint), genome-only where no exome callset exists",
+    "gnomad_accession": "Genome Aggregation Database v4.1 via the gnomAD GraphQL API (dataset gnomad_r4)",
     "query_date": "2026-08-08",
-    "dataset_note": "Allele counts identify this as the gnomAD v4 EXOME callset (SAS 91,074 alleles = ~45.5k individuals; NFE 1,179,520 = ~590k). Recorded explicitly because exome and genome callsets disagree for splice-region variants - see known_discrepancies.",
+    "dataset_note": "Pinned frequency is the joint count: (exome_ac + genome_ac) / (exome_an + genome_an). gnomAD v4 exome and genome callsets are disjoint sample sets, so summing is valid and uses the largest available sample. HapB3 (rs75017182) is deep-intronic and has NO exome callset at all, so its counts are genome-only and its sample is ~19x smaller than the other alleles' - precision.py reports that honestly rather than hiding it.",
     "known_discrepancies": [
       {
         "allele": "*2A",
         "population": "SAS",
-        "pinned": 0.0005,
-        "pinned_basis": "gnomAD v4 exomes, 45/91074",
+        "pinned": 0.003996487,
+        "pinned_basis": "gnomAD v4.1 joint, 364/91080",
         "conflicting_sources": {
-          "gnomAD v4 genomes SAS": 0.0029,
           "ALFA South Asian": 0.0034,
           "PAGE Study SouthAsian": 0.006,
           "1000 Genomes 30X SAS": 0.0075,
           "1000 Genomes Phase 3 SAS": 0.008,
           "Chan 2024 BJC SAS reference range": "0.003-0.015"
         },
-        "assessment": "The pinned exome value is 6-16x LOWER than every genome-based or aggregated source. c.1905+1G>A is an intron-14 splice-donor variant, and exome capture at splice boundaries is unreliable, so the exome estimate is most likely an undercount. gnomAD v4.1 added an explicit flag for exome/genome frequency discordance, consistent with this being a known class of disagreement.",
-        "direction_of_error": "Understates *2A carriage in SAS, so Tier 0 Intermediate and Poor Metabolizer fractions for a South Asian cohort should be read as conservative.",
-        "status": "UNRESOLVED - documented, not silently corrected. Changing the pinned value moves the headline demo number and is a deliberate decision, not a hotfix.",
-        "logged": "2026-08-08"
+        "assessment": "The pinned value now sits INSIDE the published band rather than 6-16x below it. The earlier 0.0005 was a transcription error, not an exome-capture artifact: its count (45) was c.2846A>T's exome AC and its denominator (91074) was c.2846A>T's joint AN. Corrected against a live API query on 2026-08-08. A real spread remains between gnomAD (0.0040) and the 1000 Genomes callsets (0.0075-0.0080), which is what the sensitivity range now describes.",
+        "direction_of_error": "gnomAD sits at the lower end of the published band, so Tier 0 Intermediate and Poor Metabolizer fractions remain conservative.",
+        "status": "UNRESOLVED - narrowed. The 8x error is fixed; the residual gnomAD/1000G disagreement is genuine and is shown rather than resolved.",
+        "logged": "2026-08-08",
+        "superseded": "Prior entry claimed a 6-16x exome undercount from a pinned 0.0005."
       }
     ],
     "populations": {
@@ -34,13 +34,18 @@
       "EUR": {
         "label": "Non-Finnish European",
         "gnomad_superpopulation": "Non-Finnish European"
+      },
+      "AFR": {
+        "label": "African / African-American",
+        "gnomad_superpopulation": "African/African-American"
       }
     },
     "assumptions": [
       "Hardy-Weinberg equilibrium for diplotype expansion",
       "CPIC-panel alleles assumed independent at low frequency (no LD correction)",
       "HapB3 phenotype label per pgx-core; frequency pinned to causal rs75017182 (c.1129-5923C>G)",
-      "Tier 0 excludes *9A/M166V — CPIC Normal function; not poor-metabolizer drivers"
+      "Tier 0 excludes *9A/M166V - CPIC Normal function; not poor-metabolizer drivers",
+      "Exome and genome callsets summed per allele; gnomAD v4 samples them disjointly"
     ],
     "pmids": [
       "29152729",
@@ -51,135 +56,280 @@
       "Atasilp 2025 Clin Med doi:10.1016/j.clinme.2025.100443",
       "JMolDiag 2024 doi:10.1016/j.jmoldx.2024.05.015",
       "CTS 2024 HapB3 doi:10.1111/cts.13699"
-    ]
+    ],
+    "query_method": "POST https://gnomad.broadinstitute.org/api, GraphQL variant(variantId:, dataset: gnomad_r4){exome,genome{populations{id ac an}}}"
   },
   "populations": {
     "SAS": {
+      "label": "South Asian",
+      "gnomad_superpopulation": "South Asian",
       "alleles": {
         "*2A": {
-          "frequency": 0.0005,
+          "frequency": 0.003996487,
           "rsid": "rs3918290",
+          "phenotype_label": "*2A",
+          "cpic_function": "no function",
           "hgvs": "NM_000110.4:c.1905+1G>A",
           "alt_allele": "T",
-          "source": "gnomAD v4",
-          "source_url": "https://www.clinpgx.org/variant/PA166154017",
-          "alt_observed": 45,
-          "total_alleles": 91074,
+          "gnomad_variant_id": "1-97450058-C-T",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97450058-C-T?dataset=gnomad_r4",
+          "callsets": "exome+genome",
+          "alt_observed": 364,
+          "total_alleles": 91080,
+          "exome_ac": 350,
+          "exome_an": 86254,
+          "genome_ac": 14,
+          "genome_an": 4826,
           "cross_checks": [
-            "Atasilp 2025: DPYD*2A 0.05% Indian (gnomAD v2.1.1) - AGREES with pinned exome value",
-            "CONFLICT - JMolDiag 2024: 0.3-0.5% SAS, gnomAD v4 genomes 0.29%, ALFA 0.34%, PAGE 0.6%, 1000G 0.75-0.8%, Chan 2024 BJC 0.3-1.5%. See _meta.known_discrepancies."
+            "ALFA South Asian 0.0034",
+            "1000G Phase 3 SAS 0.0080",
+            "Chan 2024 BJC SAS reference range 0.003-0.015"
           ]
         },
         "*13": {
           "frequency": 0.0,
           "rsid": "rs55886062",
+          "phenotype_label": "*13",
+          "cpic_function": "no function",
           "hgvs": "NM_000110.4:c.1679T>G",
-          "alt_allele": "A",
-          "source": "gnomAD v4",
-          "source_url": "https://www.clinpgx.org/variant/PA166154021",
+          "alt_allele": "C",
+          "gnomad_variant_id": "1-97515787-A-C",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97515787-A-C?dataset=gnomad_r4",
+          "callsets": "exome+genome",
           "alt_observed": 0,
-          "total_alleles": 91074,
+          "total_alleles": 91066,
+          "exome_ac": 0,
+          "exome_an": 86238,
+          "genome_ac": 0,
+          "genome_an": 4828,
           "cross_checks": [
-            "Atasilp 2025: absent Indian and East Asian"
+            "Atasilp 2025: *13 absent in Indian/SAS cohorts"
           ]
         },
         "c.2846A>T": {
-          "frequency": 0.000527,
+          "frequency": 0.000527044,
           "rsid": "rs67376798",
+          "phenotype_label": "c.2846A>T",
+          "cpic_function": "decreased function",
           "hgvs": "NM_000110.4:c.2846A>T",
-          "alt_allele": "T",
-          "source": "gnomAD v4",
-          "source_url": "https://www.clinpgx.org/variant/PA166153895",
+          "alt_allele": "A",
+          "gnomad_variant_id": "1-97082391-T-A",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97082391-T-A?dataset=gnomad_r4",
+          "callsets": "exome+genome",
           "alt_observed": 48,
           "total_alleles": 91074,
-          "cross_checks": [
-            "JMolDiag 2024: 0.05% SAS"
-          ]
+          "exome_ac": 45,
+          "exome_an": 86248,
+          "genome_ac": 3,
+          "genome_an": 4826
         },
         "HapB3": {
-          "frequency": 0.01687,
+          "frequency": 0.016209476,
           "rsid": "rs75017182",
-          "frequency_rsid": "rs75017182",
           "phenotype_label": "HapB3",
+          "cpic_function": "decreased function",
           "hgvs": "NM_000110.4:c.1129-5923C>G",
-          "alt_allele": "G",
-          "source": "gnomAD v4",
-          "source_url": "https://www.clinpgx.org/variant/PA166154024",
-          "alt_observed": 1538,
-          "total_alleles": 91072,
+          "alt_allele": "C",
+          "gnomad_variant_id": "1-97579893-G-C",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97579893-G-C?dataset=gnomad_r4",
+          "callsets": "genome",
+          "alt_observed": 78,
+          "total_alleles": 4812,
+          "exome_ac": null,
+          "exome_an": null,
+          "genome_ac": 78,
+          "genome_an": 4812,
+          "notes": "Deep-intronic; gnomAD reports no exome callset for this variant, so the genome callset is the only observation. pgx-core keys the haplotype as HapB3 (tag rs56038477); frequency is from the causal rs75017182.",
           "cross_checks": [
             "CTS 2024 Table 1 SAS 0.01687 (PMC10777430)",
             "JMolDiag 2024: c.1129-5923C>G 1.6% SAS"
-          ],
-          "notes": "pgx-core diplotype table keys this allele as HapB3 (tag rs56038477); frequency from causal intronic variant"
+          ]
         },
         "*1": {
-          "frequency": 0.982103,
-          "source": "computed_remainder",
-          "formula": "1 - (*2A + *13 + c.2846A>T + HapB3)"
+          "frequency": 0.979266993,
+          "phenotype_label": "*1",
+          "cpic_function": "normal function",
+          "source": "computed remainder (1 - sum of variant alleles)",
+          "notes": "Reference allele. Not observed directly; carries the remainder so the population sums to 1.0, which Hardy-Weinberg requires."
         }
       }
     },
     "EUR": {
+      "label": "Non-Finnish European",
+      "gnomad_superpopulation": "Non-Finnish European",
       "alleles": {
         "*2A": {
-          "frequency": 0.00508,
+          "frequency": 0.004832232,
           "rsid": "rs3918290",
+          "phenotype_label": "*2A",
+          "cpic_function": "no function",
           "hgvs": "NM_000110.4:c.1905+1G>A",
           "alt_allele": "T",
-          "source": "gnomAD v4",
-          "source_url": "https://www.clinpgx.org/variant/PA166154017",
-          "alt_observed": 5992,
-          "total_alleles": 1179520,
+          "gnomad_variant_id": "1-97450058-C-T",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97450058-C-T?dataset=gnomad_r4",
+          "callsets": "exome+genome",
+          "alt_observed": 5701,
+          "total_alleles": 1179786,
+          "exome_ac": 5361,
+          "exome_an": 1111758,
+          "genome_ac": 340,
+          "genome_an": 68028
+        },
+        "*13": {
+          "frequency": 0.000844582,
+          "rsid": "rs55886062",
+          "phenotype_label": "*13",
+          "cpic_function": "no function",
+          "hgvs": "NM_000110.4:c.1679T>G",
+          "alt_allele": "C",
+          "gnomad_variant_id": "1-97515787-A-C",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97515787-A-C?dataset=gnomad_r4",
+          "callsets": "exome+genome",
+          "alt_observed": 996,
+          "total_alleles": 1179282,
+          "exome_ac": 948,
+          "exome_an": 1111332,
+          "genome_ac": 48,
+          "genome_an": 67950
+        },
+        "c.2846A>T": {
+          "frequency": 0.006428211,
+          "rsid": "rs67376798",
+          "phenotype_label": "c.2846A>T",
+          "cpic_function": "decreased function",
+          "hgvs": "NM_000110.4:c.2846A>T",
+          "alt_allele": "A",
+          "gnomad_variant_id": "1-97082391-T-A",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97082391-T-A?dataset=gnomad_r4",
+          "callsets": "exome+genome",
+          "alt_observed": 7583,
+          "total_alleles": 1179644,
+          "exome_ac": 7172,
+          "exome_an": 1111666,
+          "genome_ac": 411,
+          "genome_an": 67978
+        },
+        "HapB3": {
+          "frequency": 0.021385498,
+          "rsid": "rs75017182",
+          "phenotype_label": "HapB3",
+          "cpic_function": "decreased function",
+          "hgvs": "NM_000110.4:c.1129-5923C>G",
+          "alt_allele": "C",
+          "gnomad_variant_id": "1-97579893-G-C",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97579893-G-C?dataset=gnomad_r4",
+          "callsets": "genome",
+          "alt_observed": 1454,
+          "total_alleles": 67990,
+          "exome_ac": null,
+          "exome_an": null,
+          "genome_ac": 1454,
+          "genome_an": 67990,
+          "notes": "Deep-intronic; gnomAD reports no exome callset for this variant, so the genome callset is the only observation. pgx-core keys the haplotype as HapB3 (tag rs56038477); frequency is from the causal rs75017182."
+        },
+        "*1": {
+          "frequency": 0.966509477,
+          "phenotype_label": "*1",
+          "cpic_function": "normal function",
+          "source": "computed remainder (1 - sum of variant alleles)",
+          "notes": "Reference allele. Not observed directly; carries the remainder so the population sums to 1.0, which Hardy-Weinberg requires."
+        }
+      }
+    },
+    "AFR": {
+      "label": "African / African-American",
+      "gnomad_superpopulation": "African/African-American",
+      "alleles": {
+        "*2A": {
+          "frequency": 0.000479898,
+          "rsid": "rs3918290",
+          "phenotype_label": "*2A",
+          "cpic_function": "no function",
+          "hgvs": "NM_000110.4:c.1905+1G>A",
+          "alt_allele": "T",
+          "gnomad_variant_id": "1-97450058-C-T",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97450058-C-T?dataset=gnomad_r4",
+          "callsets": "exome+genome",
+          "alt_observed": 36,
+          "total_alleles": 75016,
+          "exome_ac": 12,
+          "exome_an": 33468,
+          "genome_ac": 24,
+          "genome_an": 41548,
           "cross_checks": [
-            "JMolDiag 2024: 0.3-0.5% NFE"
+            "Chan 2024 BJC: c.1905+1G>A rare in African populations"
           ]
         },
         "*13": {
-          "frequency": 0.0001,
+          "frequency": 0.000146694,
           "rsid": "rs55886062",
+          "phenotype_label": "*13",
+          "cpic_function": "no function",
           "hgvs": "NM_000110.4:c.1679T>G",
-          "alt_allele": "A",
-          "source": "gnomAD v4",
-          "source_url": "https://www.clinpgx.org/variant/PA166154021",
-          "alt_observed": 118,
-          "total_alleles": 1179644,
-          "cross_checks": []
+          "alt_allele": "C",
+          "gnomad_variant_id": "1-97515787-A-C",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97515787-A-C?dataset=gnomad_r4",
+          "callsets": "exome+genome",
+          "alt_observed": 11,
+          "total_alleles": 74986,
+          "exome_ac": 3,
+          "exome_an": 33422,
+          "genome_ac": 8,
+          "genome_an": 41564
         },
         "c.2846A>T": {
-          "frequency": 0.00643,
+          "frequency": 0.001119492,
           "rsid": "rs67376798",
+          "phenotype_label": "c.2846A>T",
+          "cpic_function": "decreased function",
           "hgvs": "NM_000110.4:c.2846A>T",
-          "alt_allele": "T",
-          "source": "gnomAD v4",
-          "source_url": "https://www.clinpgx.org/variant/PA166153895",
-          "alt_observed": 7583,
-          "total_alleles": 1179644,
-          "cross_checks": [
-            "JMolDiag 2024: 0.6% NFE"
-          ]
+          "alt_allele": "A",
+          "gnomad_variant_id": "1-97082391-T-A",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97082391-T-A?dataset=gnomad_r4",
+          "callsets": "exome+genome",
+          "alt_observed": 84,
+          "total_alleles": 75034,
+          "exome_ac": 35,
+          "exome_an": 33468,
+          "genome_ac": 49,
+          "genome_an": 41566
         },
         "HapB3": {
-          "frequency": 0.02091,
+          "frequency": 0.002911874,
           "rsid": "rs75017182",
-          "frequency_rsid": "rs75017182",
           "phenotype_label": "HapB3",
+          "cpic_function": "decreased function",
           "hgvs": "NM_000110.4:c.1129-5923C>G",
-          "alt_allele": "G",
-          "source": "gnomAD v4",
-          "source_url": "https://www.clinpgx.org/variant/PA166154024",
-          "alt_observed": 24668,
-          "total_alleles": 1179718,
-          "cross_checks": [
-            "CTS 2024 Table 1 NFE 0.02091 (PMC10777430)",
-            "JMolDiag 2024: c.1129-5923C>G 2.1% NFE"
-          ],
-          "notes": "pgx-core diplotype table keys this allele as HapB3; frequency from causal intronic variant"
+          "alt_allele": "C",
+          "gnomad_variant_id": "1-97579893-G-C",
+          "source": "gnomAD v4.1",
+          "source_url": "https://gnomad.broadinstitute.org/variant/1-97579893-G-C?dataset=gnomad_r4",
+          "callsets": "genome",
+          "alt_observed": 121,
+          "total_alleles": 41554,
+          "exome_ac": null,
+          "exome_an": null,
+          "genome_ac": 121,
+          "genome_an": 41554,
+          "notes": "Deep-intronic; gnomAD reports no exome callset for this variant, so the genome callset is the only observation. pgx-core keys the haplotype as HapB3 (tag rs56038477); frequency is from the causal rs75017182."
         },
         "*1": {
-          "frequency": 0.96748,
-          "source": "computed_remainder",
-          "formula": "1 - (*2A + *13 + c.2846A>T + HapB3)"
+          "frequency": 0.995342042,
+          "phenotype_label": "*1",
+          "cpic_function": "normal function",
+          "source": "computed remainder (1 - sum of variant alleles)",
+          "notes": "Reference allele. Not observed directly; carries the remainder so the population sums to 1.0, which Hardy-Weinberg requires."
         }
       }
     }
@@ -187,17 +337,23 @@
   "_ground_truth": {
     "comment": "Pre-computed Tier 0: HWE on pinned allele freqs + pgx-core DPYD_diplotypes_anukriti_v2024.01.json",
     "planned_n": 1000,
-    "SAS": {
-      "Normal Metabolizer": 0.964526,
-      "Intermediate Metabolizer": 0.035438,
-      "Poor Metabolizer": 0.000036,
-      "at_risk_fraction": 0.035474
+    "AFR": {
+      "Normal Metabolizer": 0.990706,
+      "Intermediate Metabolizer": 0.009281,
+      "Poor Metabolizer": 1.3e-05,
+      "at_risk_fraction": 0.009294
     },
     "EUR": {
-      "Normal Metabolizer": 0.936018,
-      "Intermediate Metabolizer": 0.063362,
-      "Poor Metabolizer": 0.000620,
-      "at_risk_fraction": 0.063982
+      "Normal Metabolizer": 0.934141,
+      "Intermediate Metabolizer": 0.065195,
+      "Poor Metabolizer": 0.000664,
+      "at_risk_fraction": 0.065859
+    },
+    "SAS": {
+      "Normal Metabolizer": 0.958964,
+      "Intermediate Metabolizer": 0.040869,
+      "Poor Metabolizer": 0.000167,
+      "at_risk_fraction": 0.041036
     }
   }
 }

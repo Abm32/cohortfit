@@ -15,8 +15,8 @@ _AT_RISK = ("Intermediate Metabolizer", "Poor Metabolizer")
 
 # FINDINGS.md Finding 4: pinned SAS at-risk, and the value at the Chan 2024
 # upper bound (*2A = 0.015), the highest candidate in the fixture.
-_SAS_AT_RISK_LOW = 0.035474
-_SAS_AT_RISK_HIGH = 0.063744
+_SAS_AT_RISK_LOW = 0.038957
+_SAS_AT_RISK_HIGH = 0.061721
 
 
 @pytest.fixture

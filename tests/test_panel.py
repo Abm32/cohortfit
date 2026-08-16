@@ -24,27 +24,27 @@ _DOC = 0.005
 class TestPanelConcentration:
     def test_sas_is_effectively_a_single_allele_panel(self):
         c = panel_concentration(_SAS)
-        assert c.effective_alleles == pytest.approx(1.12, abs=_DOC)
-        assert c.hhi == pytest.approx(0.890, abs=_DOC)
-        assert c.total_variant_load == pytest.approx(0.01790, abs=1e-5)
+        assert c.effective_alleles == pytest.approx(1.5407, abs=_DOC)
+        assert c.hhi == pytest.approx(0.6490, abs=_DOC)
+        assert c.total_variant_load == pytest.approx(0.020732, abs=1e-5)
 
     def test_sas_dominant_allele_is_hapb3(self):
         c = panel_concentration(_SAS)
         assert c.dominant_allele == "HapB3"
-        assert c.dominant_share == pytest.approx(0.943, abs=_DOC)
+        assert c.dominant_share == pytest.approx(0.7818, abs=_DOC)
 
     def test_sas_star13_is_silent(self):
         assert panel_concentration(_SAS).silent_alleles == ("*13",)
 
     def test_eur_is_a_genuine_multi_allele_panel(self):
         c = panel_concentration(_EUR)
-        assert c.effective_alleles == pytest.approx(2.10, abs=_DOC)
-        assert c.hhi == pytest.approx(0.477, abs=_DOC)
+        assert c.effective_alleles == pytest.approx(2.1457, abs=_DOC)
+        assert c.hhi == pytest.approx(0.4660, abs=_DOC)
 
     def test_eur_dominant_allele_is_hapb3_but_less_dominant(self):
         c = panel_concentration(_EUR)
         assert c.dominant_allele == "HapB3"
-        assert c.dominant_share == pytest.approx(0.643, abs=_DOC)
+        assert c.dominant_share == pytest.approx(0.6386, abs=_DOC)
 
     def test_eur_has_no_silent_alleles(self):
         assert panel_concentration(_EUR).silent_alleles == ()
@@ -65,21 +65,21 @@ class TestPanelConcentration:
 class TestBurdenShares:
     def test_sas_burden_rests_on_hapb3(self):
         shares = burden_shares("DPYD", _SAS)
-        assert shares["HapB3"] == pytest.approx(0.942, abs=_DOC)
+        assert shares["HapB3"] == pytest.approx(0.7800, abs=_DOC)
 
     def test_sas_minor_alleles_contribute_almost_nothing(self):
         shares = burden_shares("DPYD", _SAS)
-        assert shares["c.2846A>T"] == pytest.approx(0.029, abs=_DOC)
-        assert shares["*2A"] == pytest.approx(0.028, abs=_DOC)
+        assert shares["c.2846A>T"] == pytest.approx(0.0252, abs=_DOC)
+        assert shares["*2A"] == pytest.approx(0.1911, abs=_DOC)
 
     def test_sas_silent_allele_contributes_exactly_zero(self):
         assert burden_shares("DPYD", _SAS)["*13"] == 0.0
 
     def test_eur_burden_is_spread_across_three_alleles(self):
         shares = burden_shares("DPYD", _EUR)
-        assert shares["HapB3"] == pytest.approx(0.639, abs=_DOC)
-        assert shares["c.2846A>T"] == pytest.approx(0.195, abs=_DOC)
-        assert shares["*2A"] == pytest.approx(0.154, abs=_DOC)
+        assert shares["HapB3"] == pytest.approx(0.6346, abs=_DOC)
+        assert shares["c.2846A>T"] == pytest.approx(0.1893, abs=_DOC)
+        assert shares["*2A"] == pytest.approx(0.1422, abs=_DOC)
 
     def test_reference_allele_is_not_ablated(self):
         assert "*1" not in burden_shares("DPYD", _SAS)
@@ -102,19 +102,19 @@ class TestBurdenShares:
 class TestAtRiskFraction:
     def test_sas_matches_pinned_ground_truth(self):
         distribution, _ = cohort_phenotype_distribution("DPYD", _SAS, 1000)
-        assert at_risk_fraction(distribution) == pytest.approx(0.035474, abs=1e-6)
+        assert at_risk_fraction(distribution) == pytest.approx(0.041036, abs=1e-6)
 
     def test_eur_matches_pinned_ground_truth(self):
         distribution, _ = cohort_phenotype_distribution("DPYD", _EUR, 1000)
-        assert at_risk_fraction(distribution) == pytest.approx(0.063982, abs=1e-6)
+        assert at_risk_fraction(distribution) == pytest.approx(0.065859, abs=1e-6)
 
 
 class TestCoverageNote:
     def test_sas_note_names_dominant_and_silent_alleles(self):
         note = coverage_note(panel_concentration(_SAS), burden_shares("DPYD", _SAS))
         assert note == (
-            "Panel concentration: 1.12 effective alleles; "
-            "HapB3 carries 94.2% of actionable burden; "
+            "Panel concentration: 1.54 effective alleles; "
+            "HapB3 carries 78.0% of actionable burden; "
             "*13 never fires (pinned frequency 0.0)."
         )
 
@@ -122,6 +122,6 @@ class TestCoverageNote:
         note = coverage_note(panel_concentration(_EUR), burden_shares("DPYD", _EUR))
         assert "never fires" not in note
         assert note == (
-            "Panel concentration: 2.10 effective alleles; "
-            "HapB3 carries 63.9% of actionable burden."
+            "Panel concentration: 2.15 effective alleles; "
+            "HapB3 carries 63.5% of actionable burden."
         )

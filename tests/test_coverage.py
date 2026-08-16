@@ -68,22 +68,24 @@ class TestPartialCoverageIsSurfaced:
         )
 
     def test_dropped_populations_recorded_on_finding(self):
+        # AFR is now pinned in the DPYD fixture (gnomAD v4.1 requery,
+        # 2026-08-08), so only AMR remains uncovered for a US site.
         finding = self._us_report().findings[0]
         assert finding.coverage is not None
-        assert set(finding.coverage.dropped) == {"AFR", "AMR"}
-        assert finding.coverage.dropped_weight == pytest.approx(0.32)
+        assert set(finding.coverage.dropped) == {"AMR"}
+        assert finding.coverage.dropped_weight == pytest.approx(0.19)
 
     def test_finding_carries_explanatory_note(self):
         finding = self._us_report().findings[0]
         assert finding.notes, "partial coverage must produce a note"
         note = finding.notes[0].lower()
-        assert "afr" in note and "amr" in note
+        assert "amr" in note
         assert "renormalised" in note
 
     def test_report_carries_coverage_warning(self):
         report = self._us_report()
         assert report.warnings
-        assert any("32%" in w for w in report.warnings)
+        assert any("19%" in w for w in report.warnings)
 
     def test_fully_covered_cohort_has_no_warning(self):
         report = audit_protocol(

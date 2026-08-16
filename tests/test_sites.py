@@ -15,8 +15,8 @@ from cohortfit.sites import (
 DEMO_PROTOCOL = repo_root() / "protocols" / "demo.json"
 
 # Pinned from fixtures/frequencies/dpyd.json _ground_truth at-risk fractions.
-_SAS_AT_RISK = 0.035474
-_EUR_AT_RISK = 0.063982
+_SAS_AT_RISK = 0.041036
+_EUR_AT_RISK = 0.065859
 
 
 @pytest.fixture
@@ -84,7 +84,7 @@ class TestSiteRanking:
         by_site = {f.site_name: f for f in site_findings}
         ratio = burden_rate_ratio(by_site["Munich"], by_site["Mumbai"])
         assert ratio == pytest.approx(_EUR_AT_RISK / _SAS_AT_RISK, abs=1e-3)
-        assert ratio == pytest.approx(1.80, abs=0.05)
+        assert ratio == pytest.approx(1.605, abs=0.05)
 
     def test_same_ancestry_sites_rate_ratio_is_one(self, site_findings):
         by_site = {f.site_name: f for f in site_findings}

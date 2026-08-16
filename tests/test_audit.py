@@ -87,7 +87,7 @@ class TestAuditDemoProtocol:
         dist = report.findings[0].distribution
         im = next(d for d in dist if d.phenotype == "Intermediate Metabolizer")
         # Enrolment-weighted SAS/EUR blend at n=230 (150 SAS + 80 EUR sites).
-        assert im.expected_n == pytest.approx(10.41, abs=0.5)
+        assert im.expected_n == pytest.approx(11.36, abs=0.5)
 
     def test_site_findings_populated(self, report):
         assert len(report.site_findings) == 3
