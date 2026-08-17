@@ -12,13 +12,21 @@ license = { text = "Apache-2.0" }
 
 dependencies = [
     # Pinned exactly per AGENTS.md: a new engine version carries CPIC table
-    # updates that need clinical regression review first. 0.8.1 reviewed and
+    # updates that need clinical regression review first. 0.9.0 reviewed and
     # approved 2026-08-17 — see anukriti-pgx-core
-    # docs/REGRESSION_REVIEW_0.7.3_to_0.8.1.md. 1901 genotype cases across 12
-    # genes: every behavioural difference is in TPMT, the other eleven genes are
-    # bit-identical, so DPYD is untouched. Includes the TPMT genotype-inversion
-    # safety fix (a homozygous-reference patient was called Poor Metabolizer).
-    "anukriti-pgx-core==0.8.1",
+    # docs/REGRESSION_REVIEW_0.8.2_to_0.9.0.md. 1,991 genotype cases:
+    # SAFETY_FIX 64, NOMENCLATURE 18, SAME 1909; zero NEWLY_INDETERMINATE,
+    # zero OVER_RESTRICTION_FIX, zero PHENOTYPE_CHANGE, zero ACTION_LOST.
+    #
+    # DPYD is NOT untouched in this release, unlike 0.8.1. The DPYD panel grows
+    # 13 -> 18 alleles and the diplotype table 105 -> 190, so this package's
+    # `load_diplotype_table("DPYD")` returns a larger table — which is why the
+    # count assertion in tests/test_pgx.py is now a floor rather than an
+    # equality. Tag-only HapB3 samples also resolve to the label `c.1236G>A`
+    # rather than `HapB3`; cohortfit keys its frequency fixtures by its own
+    # allele names, so no fixture changed, but anything added here that
+    # string-matches "HapB3" must account for it.
+    "anukriti-pgx-core==0.9.0",
     "pydantic>=2.0",
     "typer>=0.12",
     "rich>=13.0",
