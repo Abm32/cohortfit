@@ -101,9 +101,26 @@ Prototype. Tier 0 engine is the load-bearing part; treat Tier 1/2 as directional
 ## Usage
 
 ```bash
+python3 -m venv .venv && source .venv/bin/activate   # do not skip this
 pip install -e .
 cohortfit audit protocols/demo.json
 ```
+
+**Use a virtualenv, and check the engine before trusting any number.** This
+package pins `anukriti-pgx-core` exactly, because a new engine version carries
+CPIC table updates that need clinical regression review first. A shared or
+system interpreter will happily import a different engine, and some outputs
+are engine-dependent — the Poor Metabolizer counts in
+[FINDINGS.md](docs/FINDINGS.md) Finding 5 differ between 0.7.x and 0.9.0,
+while the at-risk fraction does not, so a wrong-engine run looks correct
+almost everywhere.
+
+```bash
+python -c "import anukriti_pgx_core as e; print(e.__version__)"   # must match the pin
+```
+
+`scripts/regen_findings_table.py` enforces this and refuses to emit numbers on
+an unpinned engine.
 
 `--offline` defaults to **on** — the command runs entirely against pinned fixtures
 with no network. That is demo insurance, not a feature flag; venue wifi kills

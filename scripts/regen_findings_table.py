@@ -45,6 +45,33 @@ def blend(a: dict[str, float], b: dict[str, float], frac_b: float) -> dict[str, 
     return {k: a.get(k, 0.0) * (1 - frac_b) + b.get(k, 0.0) * frac_b for k in keys}
 
 
+def check_engine_matches_pin() -> str:
+    """Refuse to generate numbers on an engine the project did not pin.
+
+    Finding 5's Poor Metabolizer counts are engine-dependent: 0.7.2 moved mass
+    between PM and IM. Running this script on the system interpreter (which
+    carries an older engine) rather than the repo venv silently produced a
+    different Finding 5 table, and it was published. The at-risk fraction is
+    unaffected, which is exactly why the fixture check below did not catch it.
+    """
+    import re
+
+    import anukriti_pgx_core
+
+    live = anukriti_pgx_core.__version__
+    pyproject = (Path(__file__).resolve().parent.parent / "pyproject.toml").read_text()
+    m = re.search(r'"anukriti-pgx-core==([0-9.]+)"', pyproject)
+    pinned = m.group(1) if m else None
+    if pinned and live != pinned:
+        raise SystemExit(
+            f"ENGINE MISMATCH: pyproject pins anukriti-pgx-core=={pinned} but "
+            f"{live} is importable. Finding 5 is engine-dependent, so these "
+            f"numbers would not be the project's numbers. Run this with the "
+            f"repo venv: .venv/bin/python scripts/regen_findings_table.py"
+        )
+    return live
+
+
 def check_against_fixture(fixture: dict) -> None:
     truth = fixture["_ground_truth"]
     for pop in POPS:
@@ -139,7 +166,9 @@ def finding_6(fixture: dict) -> None:
 
 def main() -> int:
     fixture = json.loads(FIXTURE.read_text())
-    print(f"fixture: {FIXTURE.name}  query_date={fixture['_meta'].get('query_date')}")
+    engine = check_engine_matches_pin()
+    print(f"fixture: {FIXTURE.name}  query_date={fixture['_meta'].get('query_date')}"
+          f"  engine={engine}")
     check_against_fixture(fixture)
     for fn in (finding_1, finding_2, finding_3, finding_5, finding_6):
         fn(fixture)

@@ -251,19 +251,27 @@ removed rather than recomputed.
 
 | Cohort n | Expected PM | Expected IM |
 |---|---:|---:|
-| 150 | 0.025 *(was 0.005)* | 6.1 |
-| 230 *(demo)* | 0.038 *(was 0.008)* | 9.4 *(was 10.4)* |
-| 1,000 | 0.167 *(was 0.036)* | 40.9 |
-| 5,000 | 0.836 *(was 0.179)* | 204.3 |
+| 150 | 0.022 *(was 0.005)* | 6.1 |
+| 230 *(demo)* | 0.034 *(was 0.008)* | 9.4 *(was 10.4)* |
+| 1,000 | 0.150 *(was 0.036)* | 40.9 |
+| 5,000 | 0.749 *(was 0.179)* | 204.4 |
 
-**A trial must exceed roughly 6,000 South Asian enrollees before it expects
-even one Poor Metabolizer** (one expected PM at n ≈ 5,984).
+**A trial must exceed roughly 6,700 South Asian enrollees before it expects
+even one Poor Metabolizer** (one expected PM at n ≈ 6,678).
+
+> These Poor Metabolizer counts are **engine-dependent** — pgx-core 0.7.2 moved
+> mass between PM and IM — and are computed on the pinned **0.9.0**. An earlier
+> revision of this table was generated on an older engine that happened to be
+> importable from the system interpreter, giving 0.025 / 0.038 / 0.167 / 0.836
+> and n ≈ 5,984. The at-risk fraction is identical under both, which is exactly
+> why the fixture cross-check did not catch it. `regen_findings_table.py` now
+> refuses to run unless the importable engine matches the `pyproject.toml` pin.
 
 This supersedes the retracted claim that the pinned value implied ~28,000.
 The `*2A` correction raises expected PM roughly fivefold, so the threshold
-falls from ~28,000 to ~6,000 — and the two-estimate hedge the old finding
+falls from ~28,000 to ~6,700 — and the two-estimate hedge the old finding
 depended on is gone, because there is now one defensible value rather than a
-disputed pair. The finding's conclusion is unchanged in kind: ~6,000 is still
+disputed pair. The finding's conclusion is unchanged in kind: ~6,700 is still
 far beyond the size of the trials this tool is pointed at.
 
 This validates a design decision already in [METHOD.md](METHOD.md): the report
