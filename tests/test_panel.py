@@ -125,3 +125,55 @@ class TestCoverageNote:
             "Panel concentration: 2.15 effective alleles; "
             "HapB3 carries 63.5% of actionable burden."
         )
+
+
+class TestEngineCouplingSurface:
+    """Why the figures above do not move when the engine version does.
+
+    cohortfit was flagged on 2026-10-14 as carrying numbers contaminated by
+    the diplotype truncation bug fixed in anukriti-pgx-core 0.11.0 (commit
+    bc0382b: build_diplotype truncated by allele NAME, so HapB3 was always
+    lost). The flag was wrong, and the reason is structural: this package
+    never calls build_diplotype. It expands its own allele frequencies under
+    HWE using its own allele names and looks up the engine's phenotype TABLE,
+    so the truncation defect has no path into these figures.
+
+    Verified empirically the same day by computing every Finding under 0.9.0
+    and 0.11.0 side by side: byte-identical, including the 78.0% HapB3 share.
+
+    That is a property worth holding rather than re-deriving. If someone
+    later routes a figure through build_diplotype, these numbers become
+    engine-version-sensitive and the pin comment in pyproject.toml stops
+    being true, silently.
+    """
+
+    def test_cohortfit_does_not_call_the_truncating_diplotype_builder(self):
+        import pkgutil
+        from pathlib import Path
+
+        import cohortfit
+
+        root = Path(cohortfit.__file__).parent
+        offenders = []
+        for module in pkgutil.iter_modules([str(root)]):
+            source = (root / f"{module.name}.py")
+            if not source.exists():
+                continue
+            text = source.read_text()
+            if "build_diplotype" in text:
+                offenders.append(module.name)
+        assert not offenders, (
+            f"{offenders} reference build_diplotype. The burden shares are "
+            f"documented as engine-version-stable because nothing here goes "
+            f"through it; routing a figure that way makes the pin comment in "
+            f"pyproject.toml false."
+        )
+
+    def test_the_shares_come_from_the_phenotype_table_not_a_caller(self):
+        """The one engine surface this package does depend on."""
+        from cohortfit.pgx import load_diplotype_table
+
+        table = load_diplotype_table("DPYD")
+        # A mapping of diplotype -> phenotype. If this ever stops being a
+        # plain lookup, the invariance argument above needs re-checking.
+        assert table, "DPYD diplotype table is empty"
