@@ -26,6 +26,26 @@ dependencies = [
     # rather than `HapB3`; cohortfit keys its frequency fixtures by its own
     # allele names, so no fixture changed, but anything added here that
     # string-matches "HapB3" must account for it.
+    # NOT bumped to 0.11.0, and this is a finding rather than an oversight.
+    # On 2026-10-14 an audit flagged every figure in docs/ as contaminated by
+    # the diplotype truncation bug that 0.11.0 fixes (bc0382b: build_diplotype
+    # truncated by allele NAME, dropping HapB3 -- the allele this repo's whole
+    # argument is about). It was checked rather than assumed: every Finding was
+    # computed under 0.9.0 and 0.11.0 side by side and came out byte-identical,
+    # the 78.0% SAS HapB3 share included.
+    #
+    # The reason is structural. This package never calls build_diplotype. It
+    # expands its own allele frequencies under HWE using its own allele names
+    # and looks up the engine's phenotype TABLE, so the truncation defect has
+    # no path into these numbers. tests/test_panel.py::TestEngineCouplingSurface
+    # holds that property so it cannot be lost in a refactor without a red test.
+    #
+    # So there is no correctness reason to move, and AGENTS.md requires a
+    # clinical regression review before an engine bump. 0.11.0 does not have a
+    # clinician sign-off (see anukriti-pgx-core
+    # docs/REGRESSION_REVIEW_0.10.0_to_0.11.0.md, which says so in its own
+    # verdict). Bumping on no benefit to inherit an unreviewed table would be
+    # the trade backwards.
     "anukriti-pgx-core==0.9.0",
     "pydantic>=2.0",
     "typer>=0.12",
