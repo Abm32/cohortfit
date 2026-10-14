@@ -1,5 +1,31 @@
 # Derived findings: what the pinned data actually says
 
+> ## ⛔ PARTIALLY RETRACTED 2026-10-14 — DO NOT CITE WITHOUT REGENERATING
+>
+> Every figure in this document was computed before commit `266ffb7`
+> ("requery DPYD against gnomAD v4.1, add AFR, **correct an 8x `*2A` error**"),
+> which changed `fixtures/frequencies/dpyd.json`. **The document was never
+> regenerated.** The repo therefore shipped two mutually contradictory sets of
+> numbers, and the stale set is the one that reached a public page.
+>
+> Finding 2's table below has been regenerated and is now correct. **Findings
+> 1, 3, 5, 6 and 7 have not been**, and every figure in them should be assumed
+> stale. Run `python3 scripts/regen_findings_table.py` for the live values.
+>
+> **Finding 4 is fully retracted.** Its premise — that SAS `*2A` sits 6–16×
+> below every genome-based source — was a transcription error, recorded in
+> `fixtures/frequencies/dpyd.json` under `known_discrepancies`: the count (45)
+> was `c.2846A>T`'s exome AC and the denominator (91074) was `c.2846A>T`'s
+> joint AN. The pinned value now sits *inside* the published band. Do not cite
+> Finding 4 or any number derived from it.
+>
+> This is precisely the failure mode
+> [DATA_PROVENANCE.md](DATA_PROVENANCE.md) says this repo was built to
+> prevent. It recurred here because the tables were hand-copied rather than
+> generated. `scripts/regen_findings_table.py` now derives Finding 2 from the
+> fixture and **refuses to print** if the live computation and the fixture's
+> own `_ground_truth` block disagree.
+
 > Third research pass, 2026-08-08. Unlike [EVIDENCE.md](EVIDENCE.md), which
 > collects external literature, this document **derives results from our own
 > pinned fixture** and states what they imply. Every number below is
@@ -21,17 +47,27 @@
 Leave-one-out ablation: remove each variant allele, renormalise `*1`, recompute
 the at-risk (IM + PM) fraction, and attribute the difference.
 
-| Allele removed | SAS at-risk | Share of SAS burden | EUR at-risk | Share of EUR burden |
-|---|---:|---:|---:|---:|
-| *(none — baseline)* | 3.5474% | — | 6.3982% | — |
-| `HapB3` | 0.2053% | **94.2%** | 2.3085% | **63.9%** |
-| `c.2846A>T` | 3.4438% | 2.9% | 5.1499% | 19.5% |
-| `*2A` | 3.4491% | 2.8% | 5.4127% | 15.4% |
-| `*13` | 3.5474% | 0.0% | 6.3789% | 0.3% |
+Regenerated 2026-10-14 by `scripts/regen_findings_table.py` against the
+post-`266ffb7` fixture. Superseded values in parentheses.
 
-**In a South Asian cohort, 94.2% of the entire CPIC-panel actionable burden
-rests on a single allele: HapB3.** In Europeans the same allele carries 63.9%,
-with `c.2846A>T` and `*2A` contributing a meaningful 19.5% and 15.4%.
+| Allele removed | Share of SAS burden | Share of EUR burden |
+|---|---:|---:|
+| *(none — baseline at-risk)* | 4.1036% *(was 3.5474%)* | 6.5859% *(was 6.3982%)* |
+| `HapB3` | **78.0%** *(was 94.2%)* | **63.5%** *(was 63.9%)* |
+| `*2A` | 19.1% *(was 2.8%)* | 14.2% *(was 15.4%)* |
+| `c.2846A>T` | 2.5% *(was 2.9%)* | 18.9% *(was 19.5%)* |
+| `*13` | 0.0% | 2.5% *(was 0.3%)* |
+
+**In a South Asian cohort, 78.0% of the CPIC-panel actionable burden rests on a
+single allele: HapB3.** In Europeans the same allele carries 63.5%.
+
+Two things change materially from the retracted version. The SAS `*2A` share
+moves 2.8% → 19.1% — that is the 8× `*2A` correction, and it is the single
+biggest effect of the requery. And the SAS-vs-EUR asymmetry that motivates this
+finding narrows from 94.2/63.9 (≈1.47×) to **78.0/63.5 (≈1.23×)**. The
+asymmetry is real and still points the same way, but it is substantially weaker
+than previously published, and any argument built on it must be rebuilt at the
+smaller effect size.
 
 Concentration, measured Herfindahl-style over the variant pool (excluding `*1`):
 
