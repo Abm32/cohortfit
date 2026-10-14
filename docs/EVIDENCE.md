@@ -528,7 +528,7 @@ Ordered by value. None of it is large.
    engine.
 8. ~~**Consider HapB3 as the first live `CONTESTED` finding** (§5).~~ **Done** —
    `rules.contested_burden()` raises it when a contested-dosing allele holds
-   ≥60% of the cohort's actionable burden (79.3% on the demo cohort), citing
+   ≥60% of the cohort's actionable burden (71.3% on the demo cohort), citing
    PMID 37639651.
 9. **Name CDISC USDM / ICH M11 as the adoption path** (§8.5).
 10. **Drop FDA Diversity Action Plans** from any positioning material (§3).

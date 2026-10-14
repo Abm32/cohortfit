@@ -39,7 +39,7 @@ _CATALOGUE: tuple[dict, ...] = (
         "cohort": "230 patients · 2 Indian sites + Munich",
         "demonstrates": "Site selection changes expected burden",
         "detail": (
-            "Munich sits at 6.40% at-risk against 3.55% in Mumbai and Kochi — a "
+            "Munich sits at 6.59% at-risk against 4.10% in Mumbai and Kochi — a "
             "1.80x rate ratio driven by ancestry, not headcount."
         ),
         "expect": "ACTIONABLE + CONTESTED",

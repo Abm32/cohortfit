@@ -76,14 +76,14 @@ Verdicts: `ACTIONABLE` · `CONTESTED` · `NO_SIGNAL`
 
 ## Slide 6 — The finding (ours, derived, reproducible)
 
-> ## 94.2%
+> ## 78.0%
 > of the South Asian actionable DPYD burden rests on **one allele**: HapB3.
 >
 > And HapB3 is precisely the allele whose dose action **CPIC itself contests.**
 
 - Leave-one-out ablation over our pinned fixture. Effective allele count: **1.12** for SAS vs **2.10** for EUR. `*13` never fires in SAS at all.
 - CPIC's own guideline page flags PMID 37639651: HapB3 carriers at the standard 25% reduction showed **reduced effectiveness *and* increased toxicity**
-- Set HapB3 aside as contested and number-needed-to-screen goes **28 → 487** in SAS. In Europeans, 16 → 43.
+- Set HapB3 aside as contested and number-needed-to-screen goes **24 → 111** in SAS. In Europeans, 15 → 42.
 
 **The population with the most concentrated risk is concentrated on the allele with the weakest dosing evidence.** We have not seen this stated anywhere.
 
@@ -138,7 +138,7 @@ Four pinned protocols, each exercising a different path:
 
 | Protocol | Result |
 |---|---|
-| 2 Indian sites + Munich | Munich **6.40%** vs Mumbai **3.55%** at-risk — 1.80× on ancestry alone |
+| 2 Indian sites + Munich | Munich **6.59%** vs Mumbai **4.10%** at-risk — 1.60× on ancestry alone |
 | 100% South Asian, unscreened | `ACTIONABLE` + `CONTESTED` |
 | US multi-ancestry | `ACTIONABLE` + **coverage warning** |
 | DPYD-screened per EMA | **`NO_SIGNAL`** |
@@ -263,7 +263,7 @@ Horizontal bars, "share of actionable burden", two grouped series:
 
 | Allele | SAS | EUR |
 |---|---:|---:|
-| HapB3 | **94.2%** | 63.9% |
+| HapB3 | **78.0%** | 63.5% |
 | c.2846A>T | 2.9% | 19.5% |
 | `*2A` | 2.8% | 15.4% |
 | `*13` | 0.0% | 0.3% |

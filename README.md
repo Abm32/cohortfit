@@ -63,7 +63,7 @@ Verdicts carry the same discipline:
 `CONTESTED` is not a hedge, and it is not decorative. `cohortfit.rules.contested_burden()`
 raises it when an allele whose CPIC dose action is disputed carries **≥60%** of a cohort's
 actionable burden — the threshold is a judgement call and the code says so. On the demo
-cohort (Mumbai 100 + Kochi 50 + Munich 80) that is `HapB3` at **79.3%**, citing
+cohort (Mumbai 100 + Kochi 50 + Munich 80) that is `HapB3` at **71.3%**, citing
 [PMID 37639651](https://pubmed.ncbi.nlm.nih.gov/37639651/): carriers dosed at the standard
 25% reduction showed reduced treatment effectiveness and increased toxicity. The finding
 sits alongside the `ACTIONABLE` one rather than replacing it, because the two say different
@@ -136,8 +136,8 @@ rationale in [docs/DATASETS.md](docs/DATASETS.md).
 
 | Fixture | Cohort | Demonstrates | Verdicts |
 |---|---|---|---|
-| [`demo.json`](protocols/demo.json) | 230 · IN + DE | Site selection changes expected burden (Munich 6.40% vs Mumbai 3.55%, 1.80×) | `ACTIONABLE` + `CONTESTED` |
-| [`capecitabine_india.json`](protocols/capecitabine_india.json) | 150 · 100% SAS | One allele carries the risk — HapB3 at 94.2% | `ACTIONABLE` + `CONTESTED` |
+| [`demo.json`](protocols/demo.json) | 230 · IN + DE | Site selection changes expected burden (Munich 6.59% vs Mumbai 4.10%, 1.60×) | `ACTIONABLE` + `CONTESTED` |
+| [`capecitabine_india.json`](protocols/capecitabine_india.json) | 150 · 100% SAS | One allele carries most of the risk — HapB3 at 78.0% | `ACTIONABLE` + `CONTESTED` |
 | [`us_multiancestry.json`](protocols/us_multiancestry.json) | 200 · US | The tool reports what it cannot compute — 35% of enrolment excluded | `ACTIONABLE` + `CONTESTED` + coverage warning |
 | [`dpyd_screened_compliant.json`](protocols/dpyd_screened_compliant.json) | 150 · IN + DE | It does not simply always accuse | `NO_SIGNAL` + `CONTESTED` |
 
@@ -162,7 +162,7 @@ fixture by leave-one-out allele ablation and sensitivity analysis. Every figure
 reproduces from `fixtures/frequencies/dpyd.json` plus pgx-core 0.7.1 — no new
 data, no model. The load-bearing ones:
 
-**The South Asian panel is effectively single-allele.** `HapB3` carries **94.2%**
+**The South Asian panel is concentrated on two alleles.** `HapB3` carries **78.0%**
 of the CPIC-panel actionable burden in SAS (against 63.9% in EUR); `*13` never
 fires at all (pinned SAS frequency 0.0). Effective allele count: **1.12** for
 SAS versus 2.10 for EUR.
@@ -171,11 +171,11 @@ SAS versus 2.10 for EUR.
 page flags [PMID 37639651](https://pubmed.ncbi.nlm.nih.gov/37639651/): HapB3
 carriers dosed at a 25% reduction showed possible *reduced effectiveness* and
 increased toxicity. Set HapB3 aside as contested and the number needed to screen
-for one confidently actionable finding rises **28 → 487** in SAS, versus 16 → 43
+for one confidently actionable finding rises **24 → 111** in SAS, versus 15 → 42
 in EUR. The population with the most concentrated risk is concentrated on the
 allele with the weakest dosing evidence.
 
-**Screening yield is 1.80× worse in South Asians** (NNS 28.2 vs 15.6). This is a
+**Screening yield is 1.60× worse in South Asians** (NNS 24.4 vs 15.2). This is a
 property of a European-derived panel, *not* evidence of lower risk — so published
 European cost-effectiveness results should not be assumed to transfer.
 
@@ -223,7 +223,7 @@ from cohortfit.audit import audit_protocol, load_protocol
 
 report = audit_protocol(load_protocol("protocols/demo.json"), offline=True)
 # report.findings[0].verdict → ACTIONABLE (missing DPYD screening)
-# report.findings[1].verdict → CONTESTED (HapB3 at 79.3% of this cohort's burden)
+# report.findings[1].verdict → CONTESTED (HapB3 at 71.3% of this cohort's burden)
 # report.findings[0].notes   → panel coverage note, ancestry caveats
 # report.site_findings → per-site IM+PM burden
 ```
@@ -265,7 +265,7 @@ Munich (EUR) diverges on ancestry (~1.8× higher at-risk rate). See
 [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md#per-site-findings-tier-0).
 
 **The ranking is robust.** "Munich above Mumbai" holds at every candidate value
-for the disputed SAS `*2A` frequency (1.80× down to 1.004× at the extreme upper
+for the disputed SAS `*2A` frequency — **this sensitivity analysis is retracted, see FINDINGS.md Finding 4** — (1.80× down to 1.004× at the extreme upper
 bound) and never inverts. And because EUR `*2A` comes from the same suspect exome
 callset, correcting the undercount *symmetrically* widens the gap to **2.75×**
 rather than narrowing it — so fixing the provenance strengthens the claim. Full
@@ -298,7 +298,7 @@ implemented; `--no-offline` exits with an error.
    then panel concentration — effective allele count, the dominant allele's share of
    actionable burden, and any allele that never fires. One gene can raise more than one
    finding: the demo raises `ACTIONABLE` (no DPYD screening) and then `CONTESTED` (HapB3
-   at 79.3% of burden).
+   at 71.3% of burden).
 3. **Cohort phenotype** — Tier 0 distribution table, printed under the finding that carries
    it, with a `Range (provenance)` column giving each class's bounds and fold-change
 4. **Site burden** — Tier 0 IM+PM table, ranked by rate. Every finding renders before it,
