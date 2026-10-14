@@ -82,7 +82,7 @@ and emitted as a runtime warning on every audit that uses it — see
 [EVIDENCE.md §1.1](EVIDENCE.md).
 
 **Quantified impact** ([FINDINGS.md](FINDINGS.md) Finding 4): substituting each
-candidate value moves the SAS at-risk fraction 3.55% → 5.01% (up to **1.41×**),
+candidate value moves the SAS at-risk fraction 3.55% → 5.01% (up to **1.41×**) — **this sweep is retracted, see FINDINGS.md Finding 4** —
 so the `ACTIONABLE` verdict is unaffected. Poor Metabolizer spans **10.1×**
 (35.7 → 360.4 per million) over the same range, and **21.4×** (35.7 → 765 per
 million) once the Chan 2024 upper bound of 0.015 is included. The
@@ -163,8 +163,10 @@ Computed via HWE + `DPYD_diplotypes_anukriti_v2024.01.json` (pgx-core 0.7.1):
 
 | Population | Normal | Intermediate | Poor | At-risk (IM+PM) |
 |---|---:|---:|---:|---:|
-| SAS | 964.5 | 35.4 | 0.04 | **3.55%** |
-| EUR | 936.0 | 63.4 | 0.62 | **6.40%** |
+| SAS | 959.0 | 40.9 | 0.17 | **4.10%** |
+| EUR | 934.1 | 65.2 | 0.66 | **6.59%** |
+
+<!-- Regenerated 2026-10-14 against the post-266ffb7 fixture. Was: SAS 964.5 / 35.4 / 0.04 / 3.55%; EUR 936.0 / 63.4 / 0.62 / 6.40%. -->
 
 **Honest direction:** For the CPIC-panel allele set, **EUR > SAS** at-risk burden.
 Demo narrative should lead with missing DPYD screening and non-zero Indian-site
@@ -245,10 +247,10 @@ Unsupported drugs or gene mismatches return `NO_SIGNAL` — the demo path does n
 
 | Site | Ancestry | planned_n | At-risk (IM+PM) |
 |---|---|---:|---:|
-| Mumbai | SAS 100% | 100 | ~3.55% |
-| Kochi | SAS 100% | 50 | ~3.55% |
-| Munich | EUR 100% | 80 | ~6.40% |
-| Cohort (weighted) | 150/230 SAS + 80/230 EUR | 230 | ~4.5% |
+| Mumbai | SAS 100% | 100 | ~4.10% |
+| Kochi | SAS 100% | 50 | ~4.10% |
+| Munich | EUR 100% | 80 | ~6.59% |
+| Cohort (weighted) | 150/230 SAS + 80/230 EUR | 230 | ~4.97% |
 
 **Verdict on demo:** `ACTIONABLE` — capecitabine + DPYD Level A, no DPYD/DPD exclusion in criteria.
 
@@ -264,7 +266,7 @@ Integration tests in `tests/test_audit.py` pin these numbers against the orchest
 
 | Field | Driven by | Demo meaning |
 |---|---|---|
-| `at_risk_fraction` | Site `ancestry_mix` only | Munich ~6.40% vs Mumbai/Kochi ~3.55% — ancestry delta |
+| `at_risk_fraction` | Site `ancestry_mix` only | Munich ~6.59% vs Mumbai/Kochi ~4.10% — ancestry delta |
 | `expected_at_risk_n` | Rate × `planned_n` | Mumbai ~3.55 vs Kochi ~1.77 — same rate, 2× headcount |
 
 Mumbai and Kochi are both `{"SAS": 1.0}`, so their **rates are identical**; the

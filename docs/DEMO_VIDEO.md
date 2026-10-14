@@ -76,7 +76,7 @@ Report renders. Scroll slowly, pausing on each item.
 Pause on the panel-concentration note.
 
 > "It also tells you what the screen is made of. Four variants on paper —
-> **1.53 effective alleles** for this cohort, with **79.3% of the burden on
+> **1.81 effective alleles** for this cohort, with **71.3% of the burden on
 > HapB3 alone**."
 
 Pause on the phenotype table.
@@ -171,9 +171,14 @@ curl -s http://127.0.0.1:8600/provenance/DPYD | head -40
 
 Add the **capecitabine-india** card between cards 1 and 4:
 
-> "Pure South Asian cohort: **1.12 effective alleles**, HapB3 at **94.2%**. The
-> panel is marketed as four variants. For this population it's one variant and
-> three that almost never fire — and Poor Metabolizer spans **21.4-fold**."
+> "Pure South Asian cohort: **1.54 effective alleles**, HapB3 at **78.2%**. The
+> panel is marketed as four variants. For this population it's two that carry
+> almost all the burden and two that almost never fire."
+
+<!-- Corrected 2026-10-14: previously 1.12 effective alleles / HapB3 94.2% /
+     "one variant and three that almost never fire", all computed on the
+     pre-266ffb7 fixture. The "Poor Metabolizer spans 21.4-fold" clause came
+     from Finding 4, which is retracted, and is removed rather than restated. -->
 
 ## Voiceover notes
 

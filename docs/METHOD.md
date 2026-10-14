@@ -179,7 +179,7 @@ Each `PhenotypeCount` then carries `fraction_low` / `fraction_high`, and the
 distribution table grows a "Range (provenance)" column stating the fold-change.
 **Poor Metabolizer is not reported as a point estimate**: across the candidate
 `*2A` values it spans 35.7 to 765.0 per million — 21.4× — while the at-risk
-fraction moves 1.80× ([FINDINGS.md](FINDINGS.md) Finding 4). A reader comparing
+fraction moves 1.80× ([FINDINGS.md](FINDINGS.md) Finding 4 — **retracted 2026-10-14**). A reader comparing
 those two numbers needs to see which of them the pinned data supports.
 
 The range is **provenance uncertainty**: the spread of published values for one
@@ -208,7 +208,7 @@ Two independent measures over the blended cohort, deliberately kept apart:
 `coverage_note()` renders both as one sentence on every Tier 0 finding, after
 the partial-ancestry caveat from step 2 — a missing population is a bigger
 problem than the shape of the panel that did apply. For a fully South Asian DPYD
-cohort it reads 1.12 effective alleles, HapB3 carrying 94.2% of actionable
+cohort it reads 1.54 effective alleles, HapB3 carrying 78.0% of actionable
 burden, and `*13` never firing ([FINDINGS.md](FINDINGS.md) Finding 1). A
 four-variant panel is only a four-variant panel where all four fire.
 
@@ -361,7 +361,7 @@ Caveats 1, 2 and 5 are not independent uncertainties that might cancel:
 | Genotype-invisible deficiency | at-risk undercounted | ~8.8% of deficient patients |
 
 Caveat 6 is different in kind: sampling error is **two-sided** and could go
-either way (SAS at-risk 3.34% – 3.79% around a 3.55% point estimate). It widens
+either way (SAS at-risk 3.34% – 3.79% around a 4.10% point estimate — the bounds predate commit 266ffb7 and are not regenerated). It widens
 the honest interval without shifting its centre, and at 0.45pp it is the smallest
 of the four effects. The three directional biases above are the ones that
 determine which way the number is wrong.

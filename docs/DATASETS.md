@@ -6,7 +6,7 @@ anyone having to take a claim on trust.
 
 | # | Fixture | Cohort | Demonstrates |
 |---|---|---|---|
-| 1 | `protocols/demo.json` | 230, IN + DE | `ACTIONABLE` + `CONTESTED`, and the site-selection delta (Munich 6.40% vs Mumbai 3.55%) |
+| 1 | `protocols/demo.json` | 230, IN + DE | `ACTIONABLE` + `CONTESTED`, and the site-selection delta (Munich 6.59% vs Mumbai 4.10%) |
 | 2 | `protocols/capecitabine_india.json` | 150, 100% SAS | `ACTIONABLE` + `CONTESTED`, the HapB3 concentration story |
 | 3 | `protocols/us_multiancestry.json` | 200, US | **Coverage warning** — 35% of enrolment has no pinned data (plus `ACTIONABLE` + `CONTESTED`) |
 | 4 | `protocols/dpyd_screened_compliant.json` | 150, IN + DE | **`NO_SIGNAL`** — the tool does not simply always accuse |
@@ -15,13 +15,13 @@ anyone having to take a claim on trust.
 ## Why each one is in the set
 
 **1. `demo.json`** — the headline number. Two Indian sites plus Munich, so the
-at-risk *rate* diverges on ancestry (6.40% vs 3.55%, ratio 1.80×) while expected
+at-risk *rate* diverges on ancestry (6.59% vs 4.10%, ratio 1.60×) while expected
 counts also reflect headcount. This is the commercial argument: site selection
 changes expected metabolic burden, computable before enrolment.
 
 **2. `capecitabine_india.json`** — 100% SAS, no DPYD screening. Produces both an
 `ACTIONABLE` finding and a second `CONTESTED` finding, because HapB3 carries
-94.2% of this cohort's actionable burden and CPIC's dose action for HapB3 is
+71.3% of this cohort's actionable burden and CPIC's dose action for HapB3 is
 disputed (PMID 37639651). The strongest scientific claim the tool makes.
 
 **3. `us_multiancestry.json`** — Houston and Chicago with EUR/AFR/AMR mixes. Only

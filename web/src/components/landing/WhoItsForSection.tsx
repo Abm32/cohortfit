@@ -65,7 +65,7 @@ const CONTENT: Record<
       },
       {
         title: "Per-site burden ranking",
-        body: "Munich ~6.4% at-risk vs Mumbai/Kochi ~3.55% — rate from ancestry, expected N from headcount.",
+        body: "Munich ~6.59% at-risk vs Mumbai/Kochi ~4.10% — rate from ancestry, expected N from headcount.",
       },
       {
         title: "Partial coverage visible",
@@ -79,10 +79,10 @@ const CONTENT: Record<
     mock: {
       label: "SITE BURDEN · DPYD",
       badge: "OFFLINE",
-      title: "Munich 6.40% at-risk · 5.12 expected. Rate ratio 1.80× vs Mumbai.",
+      title: "Munich 6.59% at-risk · 5.27 expected. Rate ratio 1.60× vs Mumbai.",
       rows: [
-        "Mumbai — 3.55% · 3.55 expected · N=100",
-        "Kochi — 3.55% · 1.77 expected · N=50",
+        "Mumbai — 4.10% · 4.10 expected · N=100",
+        "Kochi — 4.10% · 2.05 expected · N=50",
         "Munich — 6.40% · 5.12 expected · N=80",
       ],
       footer: "Identical ancestry → same rate",

@@ -60,10 +60,10 @@ lands *after* the phenotype table and it needs the table's numbers behind it.
 
 1. **Header panel** — trial title, `NCT01095003`, `n=230`, `[offline]`
 2. **First TIER 0 panel** — `ACTIONABLE`, CPIC Level A, missing DPYD exclusion text
-3. **Panel-concentration note** (inside that panel) — `1.53 effective alleles; HapB3 carries 79.3% of actionable burden`
+3. **Panel-concentration note** (inside that panel) — `1.81 effective alleles; HapB3 carries 71.3% of actionable burden`
 4. **Cohort phenotype table** — IM ~10.4 expected at n=230, and the **Range (provenance)** column: Normal 1.0×, Intermediate 1.4×, **Poor Metabolizer 3.7×**
 5. **Second TIER 0 panel** — `CONTESTED`, same gene-drug pair, PMID 37639651
-6. **Site burden table** — Munich first (~6.40% rate); Mumbai vs Kochi same rate
+6. **Site burden table** — Munich first (~6.59% rate); Mumbai vs Kochi same rate
 7. **Footnote** — read aloud: *"Mumbai and Kochi share SAS ancestry — delta is headcount only"*
 8. **Coverage warning + data sources** — `*2A` SAS conflict, then gnomAD v4 fixture + CPIC diplotype table
 
@@ -75,7 +75,7 @@ lands *after* the phenotype table and it needs the table's numbers behind it.
 
 *(new — panel concentration)*
 
-> "And it tells you what the screen is actually made of. Four variants on paper; **1.53 effective alleles** for this cohort, with **79.3% of the burden on HapB3 alone**. That's a mixed South Asian and European cohort — pure South Asian, it's 1.12."
+> "And it tells you what the screen is actually made of. Four variants on paper; **1.81 effective alleles** for this cohort, with **71.3% of the burden on HapB3 alone**. That's a mixed South Asian and European cohort — pure South Asian, it's 1.54."
 
 *(new — provenance range)*
 
@@ -164,7 +164,7 @@ Driver does not explain architecture unless speaker hands off.
 | Terminal too small | Zoom in; re-run audit |
 | Judge asks "is this live?" | "Audit is offline pinned fixtures. Extract is optional Claude layer." |
 | Judge asks SAS/EUR direction | "For this CPIC allele panel, EUR > SAS — documented in DATA_PROVENANCE.md" |
-| Judge says "the docs say 94.2%, the screen says 79.3%" | "Different cohorts. 94.2% and 1.12 alleles are pure South Asian. The demo cohort is 150 South Asian plus 80 European, so it blends to 79.3% and 1.53. Both come out of the same function." |
+| Judge says "the docs say 78.0%, the screen says something else" | "Different cohorts. 78.0% and 1.54 effective alleles are pure South Asian. The demo cohort is 150 South Asian plus 80 European, so it blends to 71.3% and 1.81 effective alleles. Both come out of the same function." |
 | Judge asks "why two findings on one pair?" | "They say different things. One says the protocol should test. The other says a positive test has no settled dose action for most of this cohort. Folding the second into the first would bury it." |
 
 ---

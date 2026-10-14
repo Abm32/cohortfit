@@ -163,7 +163,7 @@ def audit_protocol(protocol: Protocol, *, offline: bool = True) -> AuditReport:
             )
 
         # How many alleles the panel is really testing in *this* cohort. A
-        # four-variant panel that collapses to 1.12 effective alleles is not a
+        # four-variant panel that collapses to 1.54 effective alleles is not a
         # four-variant panel, and that belongs next to the distribution rather
         # than in a document nobody opens mid-review (FINDINGS.md Finding 1).
         # Appended after the coverage caveat: a missing population is a bigger

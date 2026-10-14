@@ -8,9 +8,13 @@
 > regenerated.** The repo therefore shipped two mutually contradictory sets of
 > numbers, and the stale set is the one that reached a public page.
 >
-> Finding 2's table below has been regenerated and is now correct. **Findings
-> 1, 3, 5, 6 and 7 have not been**, and every figure in them should be assumed
-> stale. Run `python3 scripts/regen_findings_table.py` for the live values.
+> **Findings 1, 2, 3, 5 and 6 have now been regenerated** (2026-10-14) by
+> `scripts/regen_findings_table.py`, which derives every one of their numbers
+> from the fixture. Findings 7 and 8 rest on external literature and market
+> data, not on this fixture, and are unaffected.
+>
+> An earlier version of this banner said "Finding 2's table" when the
+> regenerated ablation table actually sits under Finding 1. Corrected.
 >
 > **Finding 4 is fully retracted.** Its premise — that SAS `*2A` sits 6–16×
 > below every genome-based source — was a transcription error, recorded in
@@ -73,12 +77,16 @@ Concentration, measured Herfindahl-style over the variant pool (excluding `*1`):
 
 | Population | Total variant load | HHI | Effective # alleles | Dominant |
 |---|---:|---:|---:|---|
-| SAS | 1.790% | 0.890 | **1.12** | HapB3 (94.3%) |
-| EUR | 3.252% | 0.477 | **2.10** | HapB3 (64.3%) |
+| SAS | 2.073% *(was 1.790%)* | 0.649 *(was 0.890)* | **1.54** *(was 1.12)* | HapB3 (78.2%) *(was 94.3%)* |
+| EUR | 3.349% *(was 3.252%)* | 0.466 *(was 0.477)* | **2.15** *(was 2.10)* | HapB3 (63.9%) *(was 64.3%)* |
 
-The European panel behaves like a genuine multi-allele test. **For South Asians
-it is effectively a single-allele test** — 1.12 effective alleles. `*13` is
-absent from SAS entirely (pinned frequency 0.0), contributing exactly nothing.
+The European panel behaves like a genuine multi-allele test. For South Asians
+it is more concentrated — 1.54 effective alleles against 2.15 — but the
+retracted figure of 1.12 overstated it badly, and the phrase previously used
+here, *"effectively a single-allele test"*, is **no longer supportable**. At
+1.54 effective alleles it is a concentrated two-allele test: HapB3 at 78.2%
+with `*2A` carrying most of the remainder. `*13` is absent from SAS entirely
+(pinned frequency 0.0), contributing exactly nothing.
 
 **Why this matters:** a four-variant panel marketed as broad coverage is, in a
 South Asian cohort, one variant plus three that almost never fire. That is a
@@ -101,15 +109,24 @@ least settled.
 
 Ablating HapB3 — modelling "what if HapB3 guidance is unusable?" — leaves:
 
+Regenerated 2026-10-14. Superseded values in parentheses.
+
 | Population | Full at-risk | Retained on unambiguous alleles | Share retaining clear guidance | NNS |
 |---|---:|---:|---:|---:|
-| SAS | 3.547% | **0.205%** | **5.8%** | 487 |
-| EUR | 6.398% | **2.309%** | **36.1%** | 43 |
+| SAS | 4.104% *(was 3.547%)* | **0.903%** *(was 0.205%)* | **22.0%** *(was 5.8%)* | 111 *(was 487)* |
+| EUR | 6.586% *(was 6.398%)* | **2.406%** *(was 2.309%)* | **36.5%** *(was 36.1%)* | 42 *(was 43)* |
 
-**If HapB3 dose guidance is set aside as contested, 94.2% of the South Asian
-actionable burden loses its recommended action — against 63.9% in Europeans.**
+**If HapB3 dose guidance is set aside as contested, 78.0% of the South Asian
+actionable burden loses its recommended action — against 63.5% in Europeans.**
 The number needed to screen to reach one *confidently actionable* finding rises
-from 28 to **487** in SAS, and from 16 to 43 in EUR.
+from 24 to **111** in SAS, and from 15 to 42 in EUR.
+
+The direction survives the requery; the magnitude does not. On the retracted
+numbers only 5.8% of South Asian positives kept clear guidance against 36.1%
+of European — a 6.2× gap. On the corrected numbers it is 22.0% against 36.5%,
+a **1.7× gap**. The `*2A` correction is what closed it: `*2A` is unambiguous
+and now carries 19.1% of SAS burden rather than 2.8%, so far more of the
+burden survives HapB3's removal than previously computed.
 
 This is a structural asymmetry, not a data gap: the population with the most
 concentrated risk is concentrated **precisely on the allele with the weakest
@@ -123,34 +140,44 @@ follows directly from the pinned frequencies and CPIC's published caveat.
 
 ---
 
-## Finding 3 — screening yield is 1.80× worse in South Asians
+## Finding 3 — screening yield is 1.60× worse in South Asians
 
 Number needed to screen (NNS) to find one actionable carrier, `1 / at-risk`:
 
+Regenerated 2026-10-14. Superseded values in parentheses.
+
 | Population | At-risk | NNS |
 |---|---:|---:|
-| EUR | 6.398% | **15.6** |
-| SAS | 3.547% | **28.2** |
+| EUR | 6.586% *(was 6.398%)* | **15.2** *(was 15.6)* |
+| SAS | 4.104% *(was 3.547%)* | **24.4** *(was 28.2)* |
 
-**A South Asian cohort requires 1.80× more tests per actionable finding.**
+**A South Asian cohort requires 1.60× more tests per actionable finding**
+*(was 1.80×)*.
 
 Read carefully, because the naive reading is wrong. This is *not* evidence that
 South Asians are at lower risk. It is a property of **the panel**: the four
 variants were selected in European populations, so they capture European
 variant load more efficiently. Naushad 2021 found `V732I` and `S534N`
 toxicity-associated in Indian cohorts, and both are absent from this panel and
-from the UK/EU panel ([METHOD.md](METHOD.md) caveat 2). The measured 3.547% is a
+from the UK/EU panel ([METHOD.md](METHOD.md) caveat 2). The measured 4.104% is a
 lower bound on true actionable burden, not an estimate of it.
 
 Consequence for economics: every published DPYD cost-effectiveness result —
 including the £78,000-per-patient saving in
 [EVIDENCE.md §4](EVIDENCE.md) — was computed at European yield. At SAS yield the
-cost per finding is 1.80× higher on the same test price. Those results should
+cost per finding is 1.60× higher on the same test price. Those results should
 not be assumed to transfer to Indian sites without recomputation.
 
 ---
 
-## Finding 4 — the `*2A` provenance conflict is material but does not invert the ranking
+## Finding 4 — ⛔ RETRACTED — the `*2A` provenance conflict is material but does not invert the ranking
+
+> **Fully retracted 2026-10-14.** The premise — that SAS `*2A` sits far below
+> every genome-based source — was a transcription error, recorded in the
+> fixture's `known_discrepancies`: the count (45) was `c.2846A>T`'s exome AC and
+> the denominator (91074) was `c.2846A>T`'s joint AN. The pinned value now sits
+> inside the published band, so there is no conflict to analyse. Every number in
+> this section is void and is kept only as a record. Do not cite it.
 
 The pinned SAS `*2A` (0.0005, gnomAD v4 exomes) conflicts with every
 genome-based source ([DATA_PROVENANCE.md](DATA_PROVENANCE.md)). Sensitivity
@@ -217,20 +244,31 @@ strengthens it.
 
 Expected Poor Metabolizers in a 100% SAS cohort:
 
-| Cohort n | PM (pinned `*2A`) | PM (1000G `*2A`) | Difference |
-|---|---:|---:|---:|
-| 150 | 0.005 | 0.054 | +0.049 |
-| 230 *(demo)* | 0.008 | 0.083 | +0.075 |
-| 1,000 | 0.036 | 0.360 | +0.325 |
-| 5,000 | 0.179 | **1.802** | +1.624 |
+Regenerated 2026-10-14. The retracted version carried a second column
+comparing the pinned `*2A` against a "1000G `*2A`" value; that comparison came
+from Finding 4, which is withdrawn as a transcription error, so the column is
+removed rather than recomputed.
 
-**A trial must exceed roughly 5,000 South Asian enrollees before it expects even
-one Poor Metabolizer** — and only under the higher `*2A` estimate. At the pinned
-value, ~28,000.
+| Cohort n | Expected PM | Expected IM |
+|---|---:|---:|
+| 150 | 0.025 *(was 0.005)* | 6.1 |
+| 230 *(demo)* | 0.038 *(was 0.008)* | 9.4 *(was 10.4)* |
+| 1,000 | 0.167 *(was 0.036)* | 40.9 |
+| 5,000 | 0.836 *(was 0.179)* | 204.3 |
+
+**A trial must exceed roughly 6,000 South Asian enrollees before it expects
+even one Poor Metabolizer** (one expected PM at n ≈ 5,984).
+
+This supersedes the retracted claim that the pinned value implied ~28,000.
+The `*2A` correction raises expected PM roughly fivefold, so the threshold
+falls from ~28,000 to ~6,000 — and the two-estimate hedge the old finding
+depended on is gone, because there is now one defensible value rather than a
+disputed pair. The finding's conclusion is unchanged in kind: ~6,000 is still
+far beyond the size of the trials this tool is pointed at.
 
 This validates a design decision already in [METHOD.md](METHOD.md): the report
 shows the whole distribution rather than only the worst class. **The actionable
-quantity at trial scale is the Intermediate Metabolizer count**, which is 10.4
+quantity at trial scale is the Intermediate Metabolizer count**, which is 9.4
 patients in the 230-person demo cohort — a real, plannable number. PM is a
 per-patient safety concern that population arithmetic cannot resolve at these
 sample sizes, which is exactly why `cohortfit` is a feasibility instrument and
@@ -242,19 +280,21 @@ sample sizes, which is exactly why `cohortfit` is a feasibility instrument and
 
 Sweeping the EUR fraction of a two-population cohort:
 
+Regenerated 2026-10-14. Superseded values in parentheses.
+
 | EUR fraction | At-risk |
 |---:|---:|
-| 0% | 3.5474% |
-| 10% | 3.8344% |
-| 25% | 4.2641% |
-| 50% | 4.9782% |
-| 75% | 5.6895% |
-| 90% | 6.1151% |
-| 100% | 6.3982% |
+| 0% | 4.1036% *(was 3.5474%)* |
+| 10% | 4.3533% *(was 3.8344%)* |
+| 25% | 4.7272% *(was 4.2641%)* |
+| 50% | 5.3488% *(was 4.9782%)* |
+| 75% | 5.9684% *(was 5.6895%)* |
+| 90% | 6.3392% *(was 6.1151%)* |
+| 100% | 6.5859% *(was 6.3982%)* |
 
 The response is close to linear (blending is linear in allele space; the HWE
 step adds only slight curvature). **Each 10 percentage points of European
-enrolment adds ~0.285pp of expected at-risk burden.**
+enrolment adds ~0.248pp of expected at-risk burden** *(was ~0.285pp)*.
 
 Commercially, this is the point: expected metabolic burden is a **continuous
 function of site selection**, computable before a single patient is enrolled.
@@ -363,10 +403,14 @@ computable with no new data:
 Propagating all alleles to their bounds simultaneously (a deliberately
 conservative worst case, since the errors are independent):
 
+> ⚠️ The bounds in this table were computed on the pre-`266ffb7` fixture and
+> have **not** been regenerated; only the point estimates are corrected below.
+> Treat the interval widths as indicative, not current.
+
 | Population | Lower | Point | Upper |
 |---|---:|---:|---:|
-| SAS | 3.3392% | 3.5474% | 3.7927% |
-| EUR | 6.2929% | 6.3982% | 6.5053% |
+| SAS | 3.3392% | **4.1036%** *(was 3.5474%)* | 3.7927% |
+| EUR | 6.2929% | **6.5859%** *(was 6.3982%)* | 6.5053% |
 
 **The two rare SAS alleles have ±58% relative uncertainty**, against ±5% for
 their European counterparts. That is a direct consequence of sample size, and it
@@ -446,7 +490,7 @@ EUR frequencies for their no-function / decreased-function alleles.
 | TPMT | 1.38 | 1.47 | 1.06× | `*3C` (83.3%) |
 | CYP2C19 | 1.83 | 1.95 | 1.07× | `*2` (66.3%) |
 | CYP2C9 | 1.58 | 1.85 | 1.17× | `*3` (75.9%) |
-| **DPYD** | **1.12** | **2.10** | **1.87×** | **HapB3 (94.3%)** |
+| **DPYD** | **1.54** | **2.15** | **1.40×** | **HapB3 (78.2%)** | <!-- regenerated 2026-10-14; was 1.12 / 2.10 / 1.87x / 94.3% -->
 
 ⚠️ These comparator frequencies were hand-entered for this probe from published
 literature. They are **not pinned, not shipped, and not validated** — the
@@ -497,10 +541,13 @@ use.
 ---
 
 **Use in the pitch (defensible, derived, ours):**
-- Finding 2 is the headline: the panel's South Asian risk is 94% concentrated on
-  the one allele whose dosing CPIC itself contests. Sets NNS from 28 to 487.
-- Finding 3 — 1.80× worse screening yield — reframes "lower risk" as "panel
-  built elsewhere", and invalidates transferring European cost-effectiveness.
+- Finding 2 is the headline: the panel's South Asian risk is **78%** concentrated
+  on the one allele whose dosing CPIC itself contests. Sets NNS from 24 to
+  **111**. *(Regenerated 2026-10-14; the retracted version said 94% and 487.
+  The claim holds, at a materially smaller effect size.)*
+- Finding 3 — **1.60×** worse screening yield *(was 1.80×)* — reframes "lower
+  risk" as "panel built elsewhere", and invalidates transferring European
+  cost-effectiveness.
 - Finding 7's three stacked floors demonstrate the discipline better than any
   claim of accuracy could.
 
@@ -606,17 +653,17 @@ from cohortfit.sensitivity import phenotype_bounds
 freqs = load_gene_frequencies("DPYD")          # {"SAS": {...}, "EUR": {...}}
 dist, table = cohort_phenotype_distribution("DPYD", freqs["SAS"], 1000)
 at_risk_fraction(dist)
-# 0.035473697391                                 -> 3.5474%, Finding 3
+# 0.041036...                                     -> 4.1036%, Finding 3
 
 # Finding 1 — leave-one-out ablation, share of the IM+PM burden per allele
 burden_shares("DPYD", freqs["SAS"])
-# {'*2A': 0.02769243333087791, '*13': 0.0,
-#  'c.2846A>T': 0.029188225844839457, 'HapB3': 0.9421276770681127}
+# {'*2A': 0.19112968188425933, '*13': 0.0,
+#  'c.2846A>T': 0.025161015347273892, 'HapB3': 0.7800330134541944}
 
 concentration = panel_concentration(freqs["SAS"])
 (concentration.effective_alleles, concentration.dominant_allele,
  concentration.silent_alleles)
-# (1.1233775564158646, 'HapB3', ('*13',))
+# (1.5407258633717174, 'HapB3', ('*13',))
 
 # Finding 4 — the *2A provenance sweep, over every unresolved candidate
 bounds = phenotype_bounds(

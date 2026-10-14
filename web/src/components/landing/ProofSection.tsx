@@ -29,7 +29,7 @@ export function ProofSection() {
           <div className="landing-chart-header">
             <span>AT-RISK RATE BY SITE · DPYD</span>
             <span className="landing-chart-stat">
-              Munich 1.80×
+              Munich 1.60×
               <br />
               vs Mumbai
             </span>
