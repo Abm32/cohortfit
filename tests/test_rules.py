@@ -1,10 +1,13 @@
 """Tests for CPIC screening-gap rules."""
 
+import json
+from pathlib import Path
 from typing import ClassVar
 
 import pytest
 
 from cohortfit.models import Protocol, Verdict
+from cohortfit.panel import burden_shares
 from cohortfit.rules import (
     contested_burden,
     mentions_screening,
@@ -12,6 +15,16 @@ from cohortfit.rules import (
     resolve_gene,
     screening_gap,
 )
+
+
+FIXTURE = Path(__file__).resolve().parent.parent / "fixtures/frequencies/dpyd.json"
+
+
+def _fixture_shares(population: str) -> dict[str, float]:
+    """Leave-one-out burden shares straight from the pinned fixture."""
+    pop = json.loads(FIXTURE.read_text())["populations"][population]
+    freqs = {a: v["frequency"] for a, v in pop["alleles"].items()}
+    return burden_shares("DPYD", freqs)
 
 
 def _demo_protocol_without_screening() -> Protocol:
@@ -149,32 +162,37 @@ class TestContestedBurden:
     """HapB3 is the allele whose CPIC dose action CPIC itself contests.
 
     EVIDENCE.md section 5 records the caveat (PMID 37639651); FINDINGS.md
-    Finding 2 measures the concentration — 94.2% of the SAS actionable burden
-    and 63.9% of the EUR sits on that one allele, so for most screen-positives
-    the correct clinical response is disputed. That is CONTESTED, not a hedge.
+    Finding 2 measures the concentration, so for most screen-positives the
+    correct clinical response is disputed. That is CONTESTED, not a hedge.
+
+    The shares are DERIVED FROM THE PINNED FIXTURE, never typed here. A
+    previous version hardcoded {"HapB3": 0.942, ...}; commit 266ffb7 requeried
+    gnomAD and moved the real value to 0.780, and because the test asserted
+    its own constant it stayed green while the docs, the API copy and the
+    public landing page all went stale. A test that pins the number it is
+    meant to check cannot detect drift in it.
     """
 
-    SAS_SHARES: ClassVar[dict[str, float]] = {"HapB3": 0.942, "c.2846A>T": 0.029, "*2A": 0.028, "*13": 0.0}
-    EUR_SHARES: ClassVar[dict[str, float]] = {"HapB3": 0.639, "c.2846A>T": 0.195, "*2A": 0.154, "*13": 0.003}
-
     def test_sas_shares_are_contested(self):
-        result = contested_burden("DPYD", "capecitabine", self.SAS_SHARES)
+        shares = _fixture_shares("SAS")
+        result = contested_burden("DPYD", "capecitabine", shares)
         assert result is not None
         allele, message, citations = result
         assert allele == "HapB3"
         assert citations == ["37639651"]
-        assert "94.2%" in message
+        assert f"{shares['HapB3']:.1%}" in message
         assert "HapB3" in message
         assert "DPYD" in message
         assert "disputed" in message
 
     def test_eur_shares_also_contested(self):
         """EUR clears the threshold too — the verdict tracks the dispute, not ancestry."""
-        result = contested_burden("DPYD", "capecitabine", self.EUR_SHARES)
+        shares = _fixture_shares("EUR")
+        result = contested_burden("DPYD", "capecitabine", shares)
         assert result is not None
         allele, message, citations = result
         assert allele == "HapB3"
-        assert "63.9%" in message
+        assert f"{shares['HapB3']:.1%}" in message
         assert "37639651" in citations
 
     def test_share_below_threshold_is_not_contested(self):

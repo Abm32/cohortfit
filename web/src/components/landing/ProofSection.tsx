@@ -21,7 +21,7 @@ export function ProofSection() {
             ancestry drives rate, enrolment drives count.
           </p>
           <p>
-            Leave-one-out ablation on HapB3 shows 94.2% of South Asian actionable burden on a
+            Leave-one-out ablation on HapB3 shows 78.0% of South Asian actionable burden on a
             single allele — derived from the fixture, not model-generated.
           </p>
         </div>

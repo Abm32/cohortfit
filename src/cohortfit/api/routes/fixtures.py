@@ -16,6 +16,16 @@ router = APIRouter(prefix="/fixtures", tags=["fixtures"])
 _REPORTS = repo_root() / "fixtures" / "reports"
 _PROTOCOLS = repo_root() / "protocols"
 
+
+def _hapb3_share(population: str) -> float:
+    """HapB3's share of actionable burden, derived from the pinned fixture."""
+    from ...panel import burden_shares
+
+    path = repo_root() / "fixtures" / "frequencies" / "dpyd.json"
+    pop = json.loads(path.read_text())["populations"][population]
+    freqs = {a: v["frequency"] for a, v in pop["alleles"].items()}
+    return burden_shares("DPYD", freqs)["HapB3"]
+
 # The demo catalogue. Each entry exists to exercise a *different* path through
 # the engine — see docs/DATASETS.md. `demonstrates` is the reason the fixture is
 # in the set, and it is what the UI cards show, so the narrative lives with the
@@ -41,10 +51,12 @@ _CATALOGUE: tuple[dict, ...] = (
         "trial_id": "CFIT-CRC-2026-01",
         "cohort": "150 patients · 100% South Asian",
         "demonstrates": "One allele carries the whole risk",
+        # Computed, not typed: this string said 94.2% for months after commit
+        # 266ffb7 moved the real value to 78.0%.
         "detail": (
-            "HapB3 holds 94.2% of this cohort's actionable burden, and CPIC's "
-            "dose action for HapB3 is disputed — so this raises a second, "
-            "CONTESTED finding."
+            f"HapB3 holds {_hapb3_share('SAS'):.1%} of this cohort's actionable "
+            "burden, and CPIC's dose action for HapB3 is disputed — so this "
+            "raises a second, CONTESTED finding."
         ),
         "expect": "ACTIONABLE + CONTESTED",
     },
